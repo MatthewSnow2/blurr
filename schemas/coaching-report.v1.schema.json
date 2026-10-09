@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blurr.local/schemas/coaching-report.v1.schema.json",
+  "title": "Blurr grounded coaching report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "claims", "interpretations", "drill_id"],
+  "properties": {
+    "contract_version": { "const": "coaching-report.v1" },
+    "claims": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "evidence_id"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "const": "metric_value" },
+              "evidence_id": { "type": "string", "minLength": 1 }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "left_evidence_id", "right_evidence_id", "direction"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "const": "comparison" },
+              "left_evidence_id": { "type": "string", "minLength": 1 },
+              "right_evidence_id": { "type": "string", "minLength": 1 },
+              "direction": { "enum": ["higher", "lower", "equal"] }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "evidence_id", "direction"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "const": "trend" },
+              "evidence_id": { "type": "string", "minLength": 1 },
+              "direction": { "enum": ["increasing", "decreasing", "stable"] }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "event_id", "classification"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "const": "event_occurrence" },
+              "event_id": { "type": "string", "minLength": 1 },
+              "classification": { "type": "string", "minLength": 1 }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "occurrence_id"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "enum": ["occurrence", "absence"] },
+              "occurrence_id": { "type": "string", "minLength": 1 }
+            }
+          }
+        ]
+      }
+    },
+    "interpretations": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["template_id", "slot_bindings"],
+        "properties": {
+          "template_id": { "type": "string", "minLength": 1 },
+          "slot_bindings": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "drill_id": { "enum": ["steady_line", "repeatable_corners", "controlled_inputs"] }
+  }
+}

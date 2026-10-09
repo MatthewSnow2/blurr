@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Exo 2', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+  }
+  
+  .carbon-card {
+    @apply bg-gradient-to-br from-carbon-800/80 to-carbon-900/90 backdrop-blur-sm border border-chrome-600/20 rounded-2xl;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(148, 163, 184, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  }
+  
+  .neon-glow {
+    @apply shadow-lg;
+    box-shadow: 
+      0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 40px rgba(59, 130, 246, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .chrome-button {
+    @apply relative overflow-hidden;
+    background: linear-gradient(145deg, #475569, #334155);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  .chrome-button::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.2));
+  }
+  
+  .chrome-button:hover::before {
+    @apply opacity-100;
+  }
+  
+  .shimmer-effect {
+    @apply relative overflow-hidden;
+  }
+  
+  .shimmer-effect::after {
+    content: '';
+    @apply absolute inset-0 opacity-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transform: translateX(-100%);
+    transition: opacity 0.3s;
+  }
+  
+  .shimmer-effect:hover::after {
+    @apply opacity-100;
+    animation: shimmer 1.5s ease-in-out;
+  }
+}

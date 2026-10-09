@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blurr.local/schemas/telemetry-session.v1.schema.json",
+  "title": "Blurr sealed simulator telemetry session v1",
+  "type": "object",
+  "required": ["schema_version", "source_kind", "status", "captured_at_utc", "runtime", "outcome", "samples"],
+  "properties": {
+    "schema_version": { "const": "blurr.telemetry-session.v1" },
+    "source_kind": { "enum": ["f1tenth", "autodrive"] },
+    "status": { "const": "sealed" },
+    "captured_at_utc": { "type": "string", "format": "date-time" },
+    "runtime": { "type": "object" },
+    "outcome": { "type": "object" },
+    "samples": { "type": "array", "minItems": 1, "maxItems": 50000 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "source_kind": { "const": "f1tenth" } } },
+      "then": {
+        "required": ["circuit"],
+        "properties": {
+          "circuit": {
+            "type": "object",
+            "required": ["name"],
+            "properties": { "name": { "type": "string", "minLength": 1 } }
+          },
+          "runtime": {
+            "required": ["simulator", "seed", "timestep_s", "analysis_version", "reference_kind"],
+            "properties": {
+              "simulator": { "const": "f1tenth_gym" },
+              "seed": { "type": "integer" },
+              "timestep_s": { "type": "number", "exclusiveMinimum": 0 },
+              "analysis_version": { "const": "raceline-v2" },
+              "reference_kind": { "const": "raceline" }
+            }
+          },
+          "outcome": {
+            "required": ["sample_count", "mean_abs_raceline_deviation_m", "max_abs_raceline_deviation_m"],
+            "properties": {
+              "sample_count": { "type": "integer", "minimum": 1, "maximum": 50000 },
+              "mean_abs_raceline_deviation_m": { "type": "number", "minimum": 0 },
+              "max_abs_raceline_deviation_m": { "type": "number", "minimum": 0 }
+            }
+          },
+          "samples": {
+            "items": {
+              "type": "object",
+              "required": ["step_index", "sim_time_s", "observation", "analysis"],
+              "properties": {
+                "step_index": { "type": "integer", "minimum": 1 },
+                "sim_time_s": { "type": "number", "exclusiveMinimum": 0 },
+                "observation": {
+                  "type": "object",
+                  "required": ["pose_x_m", "pose_y_m", "pose_theta_rad", "linear_vel_x_mps", "steering_delta_rad"],
+                  "properties": {
+                    "pose_x_m": { "type": "number" },
+                    "pose_y_m": { "type": "number" },
+                    "pose_theta_rad": { "type": "number" },
+                    "linear_vel_x_mps": { "type": "number" },
+                    "steering_delta_rad": { "type": "number" }
+                  }
+                },
+                "analysis": {
+                  "type": "object",
+                  "required": ["analysis_version", "reference_kind", "lateral_dev_m", "heading_dev_rad", "s_frenet", "speed_optimal_mps", "curvature_now"],
+                  "properties": {
+                    "analysis_version": { "const": "raceline-v2" },
+                    "reference_kind": { "const": "raceline" },
+                    "lateral_dev_m": { "type": "number" },
+                    "heading_dev_rad": { "type": "number" },
+                    "s_frenet": { "type": "number", "minimum": 0 },
+                    "speed_optimal_mps": { "type": "number", "minimum": 0 },
+                    "curvature_now": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "source_kind": { "const": "autodrive" } } },
+      "then": {
+        "properties": {
+          "runtime": {
+            "required": ["simulator", "vehicle_id", "receive_clock", "bridge_mode"],
+            "properties": {
+              "simulator": { "const": "AutoDRIVE Simulator" },
+              "vehicle_id": { "type": "string", "minLength": 1 },
+              "receive_clock": { "const": "python.time.monotonic" },
+              "bridge_mode": { "const": "telemetry_only_no_command_reply" }
+            }
+          },
+          "outcome": {
+            "required": ["sample_count", "dropped_frames", "max_frames"],
+            "properties": {
+              "sample_count": { "type": "integer", "minimum": 1, "maximum": 50000 },
+              "dropped_frames": { "type": "integer", "minimum": 0 },
+              "max_frames": { "type": "integer", "minimum": 1, "maximum": 50000 }
+            }
+          },
+          "samples": {
+            "items": {
+              "type": "object",
+              "required": ["sequence", "received_monotonic_s", "telemetry"],
+              "properties": {
+                "sequence": { "type": "integer", "minimum": 1 },
+                "received_monotonic_s": { "type": "number", "minimum": 0 },
+                "telemetry": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
