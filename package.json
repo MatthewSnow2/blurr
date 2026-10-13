@@ -8,8 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts tests/sha256.test.ts",
-    "preview": "vite preview"
+    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts tests/sha256.test.ts tests/nebiusAdapter.test.ts",
+    "preview": "vite preview",
+    "test:nebius": "node --experimental-strip-types --test tests/nebiusAdapter.test.ts",
+    "demo:nebius-offline": "node --experimental-strip-types server/runSyntheticDebrief.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.2",
