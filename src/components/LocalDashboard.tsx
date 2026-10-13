@@ -55,7 +55,7 @@ const LocalDashboard: React.FC<LocalDashboardProps> = ({ sessions, onImport, onO
               </div>
               <div className="glass-card p-3">
                 <div className="text-lg font-bold text-white flex items-center gap-1"><Gauge className="h-4 w-4" />{session.durationS.toFixed(2)} s</div>
-                <div className="text-xs text-chrome-400">sim duration</div>
+                <div className="text-xs text-chrome-400">{session.source === 'autodrive' ? 'reception span' : 'sim duration'}</div>
               </div>
             </div>
             <div className="mt-4 font-mono text-xs text-chrome-500 truncate">{session.canonicalSha256}</div>

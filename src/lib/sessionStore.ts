@@ -1,3 +1,5 @@
+import { sha256 } from './sha256.ts';
+
 export const MAX_SESSION_BYTES = 15 * 1024 * 1024;
 export const MAX_SESSION_SAMPLES = 50_000;
 
@@ -116,11 +118,6 @@ const stableStringify = (value: JsonValue): string => {
     .sort()
     .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`);
   return `{${entries.join(',')}}`;
-};
-
-const sha256 = async (bytes: Uint8Array): Promise<string> => {
-  const buffer = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(buffer), (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 const asJsonValue = (value: unknown): JsonValue => value as JsonValue;

@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts",
+    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts tests/sha256.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

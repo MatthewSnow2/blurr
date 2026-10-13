@@ -37,7 +37,7 @@ const SealedSessionUpload: React.FC<SealedSessionUploadProps> = ({ error, isImpo
           <div className="flex flex-col items-center gap-4 text-chrome-300">
             {isImporting ? <Loader className="h-16 w-16 animate-spin text-electric-400" /> : <UploadCloud className="h-16 w-16 text-chrome-500" />}
             <p className="text-xl font-semibold">
-              {isImporting ? 'Validating and sealing locally...' : 'Import a sealed F1TENTH capture'}
+              {isImporting ? 'Validating and sealing locally...' : 'Import a sealed simulator capture'}
             </p>
             <p className="text-sm text-chrome-400">
               JSON is required. An MP4 may be selected as temporary local context, but it is never telemetry evidence or uploaded.
@@ -54,7 +54,7 @@ const SealedSessionUpload: React.FC<SealedSessionUploadProps> = ({ error, isImpo
       )}
 
       <div className="glass-card p-5 text-sm text-chrome-300">
-        Imports are bounded to 15 MiB and 50,000 samples. Sequence, simulator-relative time, finite metric values, raceline identity, and reported summaries are validated before history is updated.
+        Imports are bounded to 15 MiB and 50,000 samples. F1TENTH metric references and summaries are checked; AutoDRIVE preserves reported source units and reception timing. Synthetic versus live origin is not independently verified by importing a file.
       </div>
     </div>
   );

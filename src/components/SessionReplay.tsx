@@ -49,7 +49,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack
       <div className="carbon-card p-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-electric-400">Measured {session.source} session</div>
+            <div className="text-xs uppercase tracking-widest text-electric-400">Recorded {session.source} session</div>
             <h1 className="mt-2 text-4xl font-display font-bold text-white">{session.circuitName}</h1>
             <p className="mt-2 text-chrome-400">
               Reference: {session.referenceKind} · Analysis: {session.analysisVersion} · Seed: {session.seed ?? 'unavailable'}
@@ -80,7 +80,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack
             {isF1 ? 'Metric simulator pose.' : 'Raw simulator coordinates; the baseline connector does not declare their physical unit.'}
           </p>
           {trace.points ? (
-            <svg viewBox="0 0 300 200" className="w-full h-72 bg-carbon-900 rounded-lg" role="img" aria-label="Measured vehicle position trace">
+            <svg viewBox="0 0 300 200" className="w-full h-72 bg-carbon-900 rounded-lg" role="img" aria-label="Recorded vehicle position trace">
               <polyline points={trace.points} fill="none" stroke="#3b82f6" strokeWidth="2" />
               {trace.selected && <circle cx={trace.selected[0]} cy={trace.selected[1]} r="4" fill="#22c55e" />}
             </svg>
