@@ -82,7 +82,12 @@ export const prepareNebiusAdapter = (input: NebiusConfiguration, exchange: Nebiu
             requestHash = hash(encoded);
             let response: unknown;
             try { response = await exchange(config.endpoint, body); }
-            catch { throw new Error('PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN'); }
+            catch (error) {
+              // A persisted local duplicate is known not to have been sent.
+              // Keep that fixed code; redact all arbitrary transport messages.
+              if (error instanceof Error && error.message === 'DUPLICATE_ATTEMPT_BLOCKED') throw new Error('DUPLICATE_ATTEMPT_BLOCKED');
+              throw new Error('PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN');
+            }
             const serialized = JSON.stringify(response);
             if (typeof serialized !== 'string' || new TextEncoder().encode(serialized).length > MAX_RESPONSE_BYTES) throw new Error('PROVIDER_RESPONSE_TOO_LARGE');
             responseHash = hash(serialized);

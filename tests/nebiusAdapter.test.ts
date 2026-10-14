@@ -85,3 +85,8 @@ test('single-flight blocks overlap and completion releases the slot for a later 
   const second = adapter.coach(bundle()); resolve(response());
   assert.equal((await second).result.status, 'valid');
 });
+
+test('a known local duplicate is reported as not sent rather than uncertain provider delivery', async () => {
+  const adapter = prepareNebiusAdapter(config, async () => { throw new Error('DUPLICATE_ATTEMPT_BLOCKED'); });
+  await assert.rejects(adapter.coach(bundle()), /DUPLICATE_ATTEMPT_BLOCKED/u);
+});
