@@ -1,0 +1,54 @@
+{
+  "capabilities": {
+    "braking": "unavailable",
+    "collision": "unavailable",
+    "orientation": "measured_if_present",
+    "position": "measured_if_present",
+    "reference": "unavailable",
+    "steering": "reported_by_simulator_if_present",
+    "throttle": "reported_by_simulator_if_present"
+  },
+  "captured_at_utc": "2026-10-13T13:22:11.429619+00:00",
+  "outcome": {
+    "dropped_frames": 0,
+    "max_frames": 50000,
+    "sample_count": 2
+  },
+  "runtime": {
+    "bridge_mode": "telemetry_only_no_command_reply",
+    "receive_clock": "python.time.monotonic",
+    "simulator": "AutoDRIVE Simulator",
+    "vehicle_id": "V1"
+  },
+  "samples": [
+    {
+      "received_monotonic_s": 0.05,
+      "sequence": 1,
+      "telemetry": {
+        "position": [
+          3.0,
+          4.0,
+          0.2
+        ],
+        "steering": -0.1,
+        "throttle": 0.25
+      }
+    },
+    {
+      "received_monotonic_s": 0.1,
+      "sequence": 2,
+      "telemetry": {
+        "position": [
+          3.1,
+          4.1,
+          0.2
+        ],
+        "steering": -0.08,
+        "throttle": 0.3
+      }
+    }
+  ],
+  "schema_version": "blurr.telemetry-session.v1",
+  "source_kind": "autodrive",
+  "status": "sealed"
+}

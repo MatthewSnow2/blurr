@@ -1,0 +1,16 @@
+[
+  {
+    "file": "f1tenth-original-synthetic-circuit.json",
+    "sha256": "9ce9cb26cc6aa8b29f32c04859220824baee1b61d3a477b361834c3cc076cad0",
+    "kind": "retained_f1tenth_gym_original_synthetic_circuit",
+    "fresh_live_stream": false,
+    "physical_hardware_capture": false
+  },
+  {
+    "file": "autodrive-synthetic-session.json",
+    "sha256": "5ef8395c5911e0ba02e5e354362cd0730334579316b3d5633cf35df4bd233c9f",
+    "kind": "synthetic_replay_compatibility_fixture",
+    "fresh_live_stream": false,
+    "physical_hardware_capture": false
+  }
+]
