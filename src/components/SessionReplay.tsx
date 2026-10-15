@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, ArrowLeft, Database, ShieldCheck, Video } from 'lucide-react';
+import { ArrowLeft, Database, Video } from 'lucide-react';
+import SavedProviderReport from './SavedProviderReport';
 import type { ReplaySample, StoredSession } from '../lib/sessionStore';
 
 interface SessionReplayProps {
@@ -142,14 +143,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack
         </div>
       )}
 
-      <div className="carbon-card p-6 border border-orange-500/30 flex items-start gap-4">
-        <AlertTriangle className="h-7 w-7 text-orange-400 shrink-0" />
-        <div>
-          <h2 className="text-xl font-display font-bold text-white">Nebius coaching unavailable</h2>
-          <p className="mt-2 text-chrome-300">No provider account, NVIDIA model, spend, or data-transfer decision is configured. Deterministic local evidence remains available offline.</p>
-          <p className="mt-3 text-sm text-chrome-400 flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Braking and collision channels are unavailable and cannot support claims.</p>
-        </div>
-      </div>
+      <SavedProviderReport key={session.canonicalSha256} session={session} />
     </div>
   );
 };
@@ -170,7 +164,7 @@ const formatPosition = (sample: ReplaySample): string => {
 const Metric: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="glass-card p-3">
     <div className="text-xs text-chrome-400">{label}</div>
-    <div className="mt-1 text-white font-semibold break-all">{value}</div>
+    <div className="mt-1 text-white font-semibold break-words">{value}</div>
   </div>
 );
 

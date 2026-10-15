@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "blurr.saved-provider-report.v1",
+  "sessionSha256": "6752d098e909ae9d064641ff0721b045a4f0c285bf70989fb9c40e93a921a3fb",
+  "telemetryKind": "synthetic_replay",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "responseId": "chatcmpl-a297366406b7f4bf",
+  "completedAtUtc": "2026-10-15T02:13:34.980Z",
+  "usage": {
+    "inputTokens": 1182,
+    "outputTokens": 655,
+    "reasoningTokens": 518,
+    "totalTokens": 1837
+  },
+  "reportJson": "{\"contract_version\": \"coaching-report.v1\", \"claims\": [{\"id\": \"c1\", \"type\": \"metric_value\", \"evidence_id\": \"sample_count\"}, {\"id\": \"c2\", \"type\": \"metric_value\", \"evidence_id\": \"duration_s\"}, {\"id\": \"c3\", \"type\": \"metric_value\", \"evidence_id\": \"dropped_frames\"}], \"interpretations\": [{\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c1\", \"drill\": \"steady_line\"}}], \"drill_id\": \"steady_line\"}",
+  "reportSha256": "d55c09d8fe0b335ff1418e580fe6fd8958db97d88f22802b3a26793f249eae98"
+}

@@ -27,6 +27,6 @@ with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         manifest['files'].append({'path': name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
         archive.writestr(name, data)
     archive.writestr('REVIEW-MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
-    archive.writestr('REVIEW-ONLY.txt', 'Private review package. Root license/publication rights and sponsor-runtime evidence remain unresolved. No release or submission is authorized.\n')
+    archive.writestr('REVIEW-ONLY.txt', 'Private review package. Root license/publication rights remain unresolved. The bundled archived sponsor response is synthetic-session evidence; opening the UI makes no new provider call. No release or submission is authorized.\n')
 print(json.dumps({'archive': str(target), 'source_commit': commit, 'included': len(manifest['files']),
                   'excluded': len(manifest['excluded']), 'publication_authorized': False}))

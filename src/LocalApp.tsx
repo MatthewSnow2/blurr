@@ -5,6 +5,10 @@ import SealedSessionUpload from './components/SealedSessionUpload';
 import SessionReplay from './components/SessionReplay';
 import { importSealedSessionFile, LocalSessionStore, type StoredSession } from './lib/sessionStore';
 
+import { LocalProviderReportStore, parseSavedProviderReport } from './coaching/savedProviderReport';
+import demoCaptureJson from '../fixtures/autodrive-synthetic-session.json?raw';
+import demoReportJson from '../fixtures/autodrive-synthetic-nebius-report.json?raw';
+
 type Page = 'history' | 'upload' | 'replay';
 
 function LocalApp() {
@@ -26,6 +30,7 @@ function LocalApp() {
 
   const leaveReplay = () => {
     generation.current += 1;
+    setIsImporting(false);
     setSelected(null);
     setVideoUrl(null);
     setError(null);
@@ -62,15 +67,34 @@ function LocalApp() {
     }
   };
 
+  const openRecordedDemo = async () => {
+    const current = ++generation.current;
+    setIsImporting(true); setError(null);
+    try {
+      const file = new File([demoCaptureJson], 'autodrive-synthetic-session.json', { type: 'application/json' });
+      const imported = await importSealedSessionFile(file);
+      const validated = parseSavedProviderReport(demoReportJson, imported);
+      if (generation.current !== current) return;
+      const stored = store.save(imported);
+      new LocalProviderReportStore(window.localStorage).save(JSON.stringify(validated.saved), stored);
+      refresh(); setSelected(stored); setVideoUrl(null); setPage('replay');
+    } catch {
+      if (generation.current === current) setError('The recorded demo could not be opened or stored. Existing history is preserved.');
+    } finally { if (generation.current === current) setIsImporting(false); }
+  };
+
   return (
     <div className="min-h-screen bg-carbon-950 text-white">
       <LocalHeader />
       <main className="px-4 sm:px-6 lg:px-8 py-10">
+        {page === 'history' && error && <p role="alert" className="mb-5 text-orange-300">{error}</p>}
         {page === 'history' && (
           <LocalDashboard
             sessions={sessions}
-            onImport={() => { setError(null); setPage('upload'); }}
-            onOpen={(session) => { setSelected(session); setPage('replay'); }}
+            onLoadDemo={() => { void openRecordedDemo(); }}
+            isLoadingDemo={isImporting}
+            onImport={() => { generation.current += 1; setIsImporting(false); setError(null); setPage('upload'); }}
+            onOpen={(session) => { generation.current += 1; setIsImporting(false); setError(null); setVideoUrl(null); setSelected(session); setPage('replay'); }}
           />
         )}
         {page === 'upload' && (

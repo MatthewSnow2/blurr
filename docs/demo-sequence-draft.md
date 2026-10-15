@@ -10,19 +10,19 @@ mock output into the real Nebius slot. No physical robot operation is proposed.
 | 0:35–1:05 | Move forward/reverse through actual app samples; show position, speed and raceline evidence | `RACELINE-V2 • SI UNITS`. Show reported/recomputed mean deviation, not a fabricated score or improvement claim. |
 | 1:05–1:25 | Refresh history, re-import once, reject a broken JSON file and recover | `LOCAL PERSISTENCE / VALIDATION`. Keep at least this 73-second span (0:12–1:25) showing the real application modules operating. |
 | 1:25–1:42 | Show two-frame AutoDRIVE compatibility fixture and Wheelie observation receipt | `SYNTHETIC AUTODRIVE REPLAY • FILE-ONLY WHEELIE OBSERVATION`. Raw source units; speed/raceline/braking/collision unavailable. No actual Unity stream, motor action or sensor capture claimed. |
-| 1:42–2:15 | Reserved sponsor segment: actual approved NVIDIA/Nebius response and validated evidence-linked report | `REAL NEBIUS RUNTIME — ACTUAL RECEIPT REQUIRED`. Show exact model/endpoint/response ID and hashes/token usage from the genuine run. THIS SLOT IS BLOCKED. Until then internal reviews use `OFFLINE HTTP FIXTURE — NO MODEL EXECUTION`, with sponsorRuntimeVerified:false. |
+| 1:42–2:15 | Open recorded demo; show actual saved NVIDIA/Nebius response and validated evidence-linked report | `ARCHIVED REAL NEBIUS RESPONSE • SYNTHETIC INPUT • NO NEW CALL`. Show saved claim validation, model nvidia/nemotron-3-super-120b-a12b, response chatcmpl-a297366406b7f4bf, 1182input/655output tokens, and provenance. This replays the genuine 15 October response, not a live inference during filming. |
 | 2:15–2:32 | Show offline metrics still usable and persisted duplicate-attempt rejection | `FAILURE / RECOVERY • NO AUTOMATIC CHARGED RETRY`. Distinguish synthetic HTTP tests from provider behavior actually observed. |
 | 2:32–2:40 | Limits and reproducibility | `SIMULATION/REPLAY ONLY • NO PHYSICAL CONTROL`. Link tested setup/source only after publication rights and owner approval. |
 
-Official criteria checked 14 October: English video shorter than three minutes;
+Official criteria rechecked 15 October: English video shorter than three minutes;
 Physical AI simulation entry needs at least one minute of key modules operating.
 https://nebiusglobalaihackathon.devpost.com/rules
 https://nebiusglobalaihackathon.devpost.com/details/faqs
 
-The current offline fixture report renders a deterministic measurement and a
-reviewed suggestion. It demonstrates transport/validation plumbing, not NVIDIA
-reasoning quality, real driver benefit, or eligibility. Real sponsor output must
-replace the blocked slot before a submission claim is made.
+The saved provider response now renders three validated measurements and one
+reviewed suggestion in the application. It demonstrates actual sponsor usage
+and offline replay/validation, not measured driver improvement or final eligibility.
+No further paid call is authorized or needed for this recording.
 
 Keep filenames, timestamps and hashes matched between clips. Do not include
 credentials, account screens, raw personal data, unlicensed images/music, or

@@ -5,10 +5,12 @@ import type { StoredSession } from '../lib/sessionStore';
 interface LocalDashboardProps {
   sessions: StoredSession[];
   onImport: () => void;
+  onLoadDemo: () => void;
+  isLoadingDemo: boolean;
   onOpen: (session: StoredSession) => void;
 }
 
-const LocalDashboard: React.FC<LocalDashboardProps> = ({ sessions, onImport, onOpen }) => (
+const LocalDashboard: React.FC<LocalDashboardProps> = ({ sessions, onImport, onOpen, onLoadDemo, isLoadingDemo }) => (
   <div className="w-full max-w-6xl mx-auto space-y-8">
     <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
@@ -19,6 +21,12 @@ const LocalDashboard: React.FC<LocalDashboardProps> = ({ sessions, onImport, onO
         <FilePlus2 className="h-5 w-5" />
         Import capture
       </button>
+    </div>
+
+    <div className="glass-card p-6 border border-electric-500/20">
+      <h2 className="text-xl font-display font-bold">Recorded Nebius demo</h2>
+      <p className="mt-2 text-chrome-300">Open the two-frame synthetic replay with its saved Nemotron response. The response came from one real Token Factory call on 15 October; opening it makes no new call.</p>
+      <button disabled={isLoadingDemo} onClick={onLoadDemo} className="chrome-button mt-4 px-5 py-3 rounded-xl font-semibold disabled:opacity-50">{isLoadingDemo ? 'Opening recorded demo…' : 'Open recorded demo'}</button>
     </div>
 
     {sessions.length === 0 ? (

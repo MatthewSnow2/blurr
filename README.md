@@ -19,8 +19,8 @@ npm run build
 npm run preview -- --host <lan-ip> --port 8843
 ```
 
-On this ProBook task the verified build is served at
-http://<lan-ip>:8843/ . Import either JSON fixture below, select/reverse samples,
+The prior build may be served at http://<lan-ip>:8843/; it is not replaced
+automatically by this branch. Import either JSON fixture below, select/reverse samples,
 return to history and refresh. Re-import is idempotent. Invalid JSON leaves
 existing history intact. The LAN hashing fallback does not require browser
 security flags. Sessions persist per browser/origin, not in a shared cloud.
@@ -51,9 +51,30 @@ No local model is required. No credentials are read/configured by these commands
 
 See `docs/runtime-safeguards.md` for streamed byte limits, timeout/cancellation,
 redirect denial, error redaction and persistent duplicate-attempt protection.
-A live server client/secret source is still not configured. Matthew reports the
-Nebius account is set up; credits, key access, model authorization and a genuine
-runtime receipt remain unverified. Never put provider keys in VITE/browser code.
+One explicitly authorized synthetic request succeeded on 15 October 2026:
+`nvidia/nemotron-3-super-120b-a12b`, HTTP200, 1182 input/655 output tokens
+(including518reasoning), validated coaching-report.v1. Calculated usage cost
+USD0.0009441 at official rates; the invoice charge was not observed. The paid
+allowance is consumed. Further provider calls require fresh authorization.
+The server-only one-shot runner is separate from the browser build; never put
+provider keys in VITE/browser code or rerun a consumed attempt.
+
+## Saved coaching experience
+
+Choose **Open recorded demo** in local history. This loads the bundled two-frame
+synthetic replay and its actual saved Nebius response without any network call.
+The report shows evidence-backed claims, the reviewed suggestion, reported model,
+response ID, response time, usage and the exact session digest. Refresh/reopen
+preserves the report in browser-local history. The browser validates claims and
+file/session digests; imported provider metadata is attributed to the file, not
+cryptographically authenticated by the browser.
+
+For manual import: import `fixtures/autodrive-synthetic-session.json`, then use
+**Import saved report** with `fixtures/autodrive-synthetic-nebius-report.json`.
+A report for another session, changed bytes, unsupported claims, malformed usage
+or files over128KiB fail closed. An invalid import preserves the previous report.
+The F1 fixture has no provider report; its local replay remains available.
+`docs/saved-report-format.md` describes the format and evidence limits.
 
 ## Submission status
 
@@ -65,8 +86,9 @@ Physical AI track, with at least one minute of key modules operating.
 https://nebiusglobalaihackathon.devpost.com/rules
 https://nebiusglobalaihackathon.devpost.com/details/faqs
 
-This repository is not ready to submit: sponsor runtime, actual AutoDRIVE stream,
-public code/license/rights and judge-access/video gates remain open. Root license
+This repository is not ready to submit: public code/license/rights and judge-access/video gates remain open. The saved
+response documents genuine sponsor runtime. A fresh AutoDRIVE stream is an
+optional product goal, not required just to enter a simulation-only project. Root license
 selection is an owner decision. No public push, release or submission occurred.
 Unused legacy images are excluded from builds and the review-source bundle;
 their rights are not assumed. Archived vision/hardware notes are preserved in
