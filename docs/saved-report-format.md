@@ -14,8 +14,10 @@ Rehashing invented claims cannot bypass the evidence check.
 The file carries a NVIDIA-namespaced model ID, response ID, completion time,
 telemetry kind and input/output/reasoning/total token counts. Counts must be
 bounded nonnegative integers, total=input+output, reasoning<=output. Extra
-file metadata is discarded before browser-local persistence. Reports are keyed
-by session digest and revalidated whenever history is reopened. Failed imports
+file metadata is discarded before browser-local persistence. Canonical session fields are rehashed before persistence, history use and report
+validation. Corrupt entries are hidden and a validated reimport repairs only its
+matching session key. Reports are keyed by session digest and revalidated whenever
+history is reopened. Failed imports
 preserve a previous valid report; corrupt stored reports are hidden with a
 recovery message. The importer never sends a request or loads a model.
 

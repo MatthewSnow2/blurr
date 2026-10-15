@@ -1,5 +1,5 @@
 import { sha256Portable } from '../lib/sha256.ts';
-import type { StorageLike, StoredSession } from '../lib/sessionStore.ts';
+import { assertStoredSessionIntegrity, type StorageLike, type StoredSession } from '../lib/sessionStore.ts';
 import { buildSessionEvidence } from './sessionEvidence.ts';
 import { validateAndRenderReport, type RenderedCoachingReport } from './reportContract.ts';
 
@@ -32,6 +32,7 @@ const count = (v: unknown, max: number): number => {
 /** File metadata is attributed to the imported receipt; it is not authenticated by the browser. */
 export const parseSavedProviderReport = (input: string, session: StoredSession): ValidatedSavedReport => {
   if (new TextEncoder().encode(input).length > MAX_SAVED_REPORT_BYTES) throw new Error('REPORT_FILE_TOO_LARGE');
+  assertStoredSessionIntegrity(session);
   let parsed: unknown;
   try { parsed = JSON.parse(input); } catch { throw new Error('REPORT_FILE_INVALID'); }
   const root = record(parsed);

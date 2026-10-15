@@ -154,3 +154,18 @@ test('isolates corrupt history entries while retaining valid sessions', async ()
   store.save(session);
   assert.deepEqual(store.list().map((entry) => entry.id), [session.id]);
 });
+
+test('cached evidence edits are isolated on reload and repaired only by a valid reimport', async () => {
+  const imported = await importSealedSessionFile(jsonFile(fixture()));
+  const storage = new MemoryStorage();
+  const store = new LocalSessionStore(storage);
+  store.save(imported);
+  const key = storage.key(0)!;
+  const changed = JSON.parse(storage.getItem(key)!); changed.durationS = 999;
+  storage.setItem(key, JSON.stringify(changed));
+  assert.equal(new LocalSessionStore(storage).list().length, 0);
+  assert.throws(() => new LocalSessionStore(storage).load(imported.id), /corrupt/u);
+  assert.throws(() => store.save(changed), /SESSION_INTEGRITY_INVALID/u);
+  assert.equal(store.save(imported).durationS, imported.durationS);
+  assert.equal(new LocalSessionStore(storage).list().length, 1);
+});

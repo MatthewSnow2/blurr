@@ -1,4 +1,4 @@
-import { sha256 } from './sha256.ts';
+import { sha256, sha256Portable } from './sha256.ts';
 
 export const MAX_SESSION_BYTES = 15 * 1024 * 1024;
 export const MAX_SESSION_SAMPLES = 50_000;
@@ -358,13 +358,35 @@ export const importSealedSessionFile = async (
 };
 
 const isStoredSession = (value: unknown): value is StoredSession => {
-  if (!isRecord(value)) return false;
-  return value.schemaVersion === 'blurr.local-session.v1'
-    && typeof value.id === 'string'
-    && typeof value.canonicalSha256 === 'string'
-    && Array.isArray(value.samples)
-    && value.sampleCount === value.samples.length;
+  if (!isRecord(value) || value.schemaVersion !== 'blurr.local-session.v1'
+    || (value.source !== 'f1tenth' && value.source !== 'autodrive')
+    || typeof value.canonicalSha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(value.canonicalSha256)
+    || value.id !== `${value.source}:${value.canonicalSha256.slice(0, 24)}`
+    || !Array.isArray(value.samples) || value.samples.length < 1 || value.samples.length > MAX_SESSION_SAMPLES
+    || value.sampleCount !== value.samples.length
+    || typeof value.sourceFileName !== 'string' || typeof value.sourceFileBytes !== 'number'
+    || !Number.isSafeInteger(value.sourceFileBytes) || value.sourceFileBytes < 1 || value.sourceFileBytes > MAX_SESSION_BYTES
+    || typeof value.sourceFileSha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(value.sourceFileSha256)
+    || typeof value.importedAtUtc !== 'string' || !Number.isFinite(Date.parse(value.importedAtUtc))) return false;
+  // Reconstruct exactly the same canonical core used by the sealed importer.
+  // Metadata outside this core is context, not checksum-authenticated evidence.
+  const session = value as unknown as StoredSession;
+  const core: NormalizedCore = {
+    schemaVersion: session.schemaVersion, source: session.source, simulator: session.simulator,
+    circuitName: session.circuitName, capturedAtUtc: session.capturedAtUtc,
+    analysisVersion: session.analysisVersion, referenceKind: session.referenceKind,
+    seed: session.seed, timestepS: session.timestepS, durationS: session.durationS,
+    sampleCount: session.sampleCount, meanAbsLateralDeviationM: session.meanAbsLateralDeviationM,
+    maxAbsLateralDeviationM: session.maxAbsLateralDeviationM, droppedFrames: session.droppedFrames,
+    capabilities: session.capabilities, samples: session.samples,
+  };
+  try { return sha256Portable(new TextEncoder().encode(stableStringify(asJsonValue(core)))) === session.canonicalSha256; }
+  catch { return false; }
 };
+
+export function assertStoredSessionIntegrity(value: unknown): asserts value is StoredSession {
+  if (!isStoredSession(value)) throw new Error('SESSION_INTEGRITY_INVALID');
+}
 
 export class LocalSessionStore {
   private readonly storage: StorageLike;
@@ -374,14 +396,17 @@ export class LocalSessionStore {
   }
 
   save(session: StoredSession): StoredSession {
+    assertStoredSessionIntegrity(session);
     const key = `${STORAGE_PREFIX}${session.id}`;
     const existing = this.storage.getItem(key);
     if (existing !== null) {
-      const parsed: unknown = JSON.parse(existing);
-      if (!isStoredSession(parsed) || parsed.canonicalSha256 !== session.canonicalSha256) {
-        throw new Error(`Stored session collision for ${session.id}`);
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(existing); } catch { /* A validated reimport can repair corrupt cache bytes. */ }
+      if (isStoredSession(parsed)) {
+        if (parsed.canonicalSha256 !== session.canonicalSha256) throw new Error(`Stored session collision for ${session.id}`);
+        return parsed;
       }
-      return parsed;
+      // Only this exact, freshly validated session key is repaired. Other history is preserved.
     }
     this.storage.setItem(key, JSON.stringify(session));
     return session;

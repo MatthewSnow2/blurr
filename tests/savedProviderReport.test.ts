@@ -24,8 +24,12 @@ test('actual saved provider report revalidates against the matching synthetic ca
   assert.equal(parsed.report.claims.length, 3);
 });
 
-test('wrong session, altered report bytes and rehashed unsupported claims fail closed', () => {
-  assert.throws(() => parseSavedProviderReport(raw, { ...session, canonicalSha256: '0'.repeat(64) }), /SESSION_MISMATCH/u);
+test('wrong session, altered report bytes and rehashed unsupported claims fail closed', async () => {
+  const changedCapture = JSON.parse(new TextDecoder().decode(capture));
+  changedCapture.captured_at_utc = '2026-10-14T00:00:00Z';
+  const bytes = new TextEncoder().encode(JSON.stringify(changedCapture));
+  const other = await importSealedSessionFile({ name: 'other.json', size: bytes.length, arrayBuffer: async () => bytes.buffer });
+  assert.throws(() => parseSavedProviderReport(raw, other), /SESSION_MISMATCH/u);
   const changed = fixture(); changed.reportJson += ' ';
   assert.throws(() => parseSavedProviderReport(JSON.stringify(changed), session), /DIGEST_MISMATCH/u);
   const unsupported = fixture(); const report = JSON.parse(unsupported.reportJson);
@@ -61,4 +65,10 @@ test('history reload revalidates; invalid imports preserve the previous saved re
   assert.deepEqual([...storage.data.entries()], snapshot);
   storage.data.set(snapshot[0][0], '{broken');
   assert.throws(() => new LocalProviderReportStore(storage).read(session), /FILE_INVALID/u);
+});
+
+test('changing cached evidence with the original digest cannot rebind an archived report', () => {
+  assert.throws(() => parseSavedProviderReport(raw, { ...session, durationS: 999 }), /SESSION_INTEGRITY_INVALID/u);
+  const samples = session.samples.map(s => ({ ...s })); samples[0].poseXM = 999;
+  assert.throws(() => parseSavedProviderReport(raw, { ...session, samples }), /SESSION_INTEGRITY_INVALID/u);
 });
