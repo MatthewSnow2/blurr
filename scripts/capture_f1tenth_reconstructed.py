@@ -36,6 +36,39 @@ ASSET_HASHES = {
 CHILD_ENVIRONMENT = {"PYTHONSAFEPATH": "1", "PYTHONDONTWRITEBYTECODE": "1", "PYGLET_HEADLESS": "true",
                      "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "1",
                      "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMBA_NUM_THREADS": "1"}
+WORKER_PHASE = "not_started"
+WORKER_PHASES = frozenset(("not_started", "source_preflight", "import_adapter", "import_gym", "construct_adapter",
+                          "capture_loop", "cleanup", "metadata", "candidate_write", "offline_probe"))
+
+
+def mark_worker_phase(phase):
+    global WORKER_PHASE
+    if phase not in WORKER_PHASES:
+        raise ValueError("unknown worker diagnostic phase")
+    WORKER_PHASE = phase
+
+
+def audit_denial_record(event):
+    """Bounded module/function/line metadata only: no args, paths or locals."""
+    def label(value):
+        return re.sub(r"[^A-Za-z0-9_.<>]", "_", value[:80]) if isinstance(value, str) else "unknown"
+
+    frames = []
+    frame = sys._getframe(2)
+    try:
+        for _ in range(6):
+            if frame is None:
+                break
+            frames.append({"module": label(frame.f_globals.get("__name__")),
+                           "function": label(frame.f_code.co_name), "line": frame.f_lineno})
+            frame = frame.f_back
+    finally:
+        del frame
+    known_events = {"socket.__new__", "socket.bind", "socket.connect", "socket.gethostname", "socket.sethostname",
+                    "socket.gethostbyname", "socket.gethostbyaddr", "socket.getaddrinfo", "socket.getnameinfo",
+                    "socket.sendto", "socket.sendmsg", "subprocess.Popen", "os.system", "os.exec", "os.posix_spawn", "os.spawn"}
+    return {"schema_version": "blurr.worker-audit-denial.v1", "event": event if event in known_events else "socket.other",
+            "phase": WORKER_PHASE, "frames": frames, "arguments_recorded": False}
 
 
 def digest(path):
@@ -101,6 +134,11 @@ def deny_python_network_and_children(event, arguments):
     # Process-local guard, not a claim of native-code sandboxing. Pinned source
     # review remains necessary. Installed imports must not download or spawn.
     if event.startswith("socket.") or event in ("subprocess.Popen", "os.system", "os.exec", "os.posix_spawn", "os.spawn"):
+        try:
+            sys.stderr.write(json.dumps(audit_denial_record(event), sort_keys=True) + "\n")
+            sys.stderr.flush()
+        except Exception:
+            pass  # Diagnostics must never permit an otherwise denied operation.
         raise RuntimeError("network/process creation forbidden in capture worker")
 
 
@@ -116,6 +154,7 @@ def runtime_receipt(state):
 
 
 def cleanup_runtime(state):
+    mark_worker_phase("cleanup")
     # Surface the raw close failure that EnvState.close would otherwise swallow.
     raw = state._env
     try:
@@ -132,25 +171,33 @@ def run_worker(args):
         raise ValueError("real adapter requires Python >=3.11,<3.14")
     if os.environ.get("NUMBA_CACHE_DIR") != str(Path(args.staging) / "numba-cache"):
         raise ValueError("Numba cache must remain in the owned worker staging directory")
+    mark_worker_phase("source_preflight")
     source = inspect_sources(args.source_root, args.gym_root)
     sys.addaudithook(deny_python_network_and_children)
     expected_module = (Path(args.source_root) / "src/f1tenth_mcp/env_state.py").resolve()
     sys.path.insert(0, str(Path(args.gym_root).resolve()))
     sys.path.insert(0, str(Path(args.source_root).resolve() / "src"))
+    mark_worker_phase("import_adapter")
     adapter = importlib.import_module("f1tenth_mcp.env_state")
     if Path(adapter.__file__).resolve() != expected_module:
         raise ValueError("actual adapter import differs from pinned module")
+    mark_worker_phase("import_gym")
     gym_package = importlib.import_module("f1tenth_gym")
     if not Path(gym_package.__file__).resolve().is_relative_to(Path(args.gym_root).resolve()):
         raise ValueError("actual gym import differs from pinned checkout")
     started = datetime.now(timezone.utc).isoformat()
-    candidate = collect(adapter.EnvState(), CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout),
+    mark_worker_phase("construct_adapter")
+    state = adapter.EnvState()
+    mark_worker_phase("capture_loop")
+    candidate = collect(state, CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout),
                         runtime_receipt, cleanup_runtime)
+    mark_worker_phase("metadata")
     candidate.update({"producer": source, "started_at_utc": started,
                       "python": {"executable": sys.executable, "version": platform.python_version(),
                                  "packages": {name: importlib.metadata.version(name) for name in ("f1tenth_gym", "gymnasium", "numpy", "numba")}},
                       "child_environment": {name: os.environ.get(name) for name in CHILD_ENVIRONMENT},
                       "adapter_module_path": str(expected_module), "gym_module_path": str(Path(gym_package.__file__).resolve())})
+    mark_worker_phase("candidate_write")
     target = Path(args.staging) / "candidate.json"
     with target.open("xb") as stream:
         stream.write(encode(candidate))

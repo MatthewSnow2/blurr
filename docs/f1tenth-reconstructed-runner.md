@@ -1,5 +1,10 @@
 # Newly reconstructed F1TENTH capture runner
 
+This diagnostic descendant changes runner bytes and adds an imports-only probe.
+The command hashes below are the preserved historical b3865e9 capture handoff;
+they do not authorize or match the diagnostic successor. See
+`f1tenth-guard-diagnostics.md` for the new diagnostic scope and current hashes.
+
 This is new implementation, not recovery of the historical capture harness. It
 is qualified only by offline mocked-adapter tests. No real simulator was run.
 The existing original-circuit capture and original deliverables are preserved.
