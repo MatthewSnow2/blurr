@@ -37,7 +37,7 @@ CHILD_ENVIRONMENT = {"PYTHONSAFEPATH": "1", "PYTHONDONTWRITEBYTECODE": "1", "PYG
                      "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "1",
                      "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMBA_NUM_THREADS": "1"}
 WORKER_PHASE = "not_started"
-WORKER_PHASES = frozenset(("not_started", "source_preflight", "import_adapter", "import_gym", "construct_adapter",
+WORKER_PHASES = frozenset(("not_started", "source_preflight", "import_adapter", "import_gym", "import_track", "construct_adapter",
                           "capture_loop", "cleanup", "metadata", "candidate_write", "offline_probe"))
 
 

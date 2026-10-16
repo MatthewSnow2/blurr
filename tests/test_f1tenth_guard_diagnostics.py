@@ -91,7 +91,7 @@ class GuardDiagnosticTests(unittest.TestCase):
 
 class ImportProbeTests(unittest.TestCase):
     def test_mocked_supervised_probe_is_twenty_seconds_and_writes_no_session(self):
-        expected = {"status": "imports_only_complete", "capture_performed": False, "steps": 0,
+        expected = {"status": "deferred_import_complete", "capture_performed": False, "steps": 0,
                     "envstate_or_gym_make_called_by_probe": False, "guard_policy": "unchanged"}
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / "diagnostic"
@@ -113,15 +113,47 @@ class ImportProbeTests(unittest.TestCase):
             calls.append(name)
             if name == "f1tenth_mcp.env_state":
                 return SimpleNamespace(__file__="/mock-adapter/src/f1tenth_mcp/env_state.py", EnvState=forbidden)
+            if name == "f1tenth_gym.envs.track":
+                return SimpleNamespace(__file__="/mock-gym/f1tenth_gym/envs/track/__init__.py", Track=SimpleNamespace(from_track_name=forbidden))
             return SimpleNamespace(__file__="/mock-gym/f1tenth_gym/__init__.py", make=forbidden)
         original_path = list(sys.path)
         try:
             result = probe.import_probe("/mock-adapter", "/mock-gym", importer=importer)
         finally:
             sys.path[:] = original_path
-        self.assertEqual(calls, ["f1tenth_mcp.env_state", "f1tenth_gym"])
+        self.assertEqual(calls, ["f1tenth_mcp.env_state", "f1tenth_gym", "f1tenth_gym.envs.track"])
         self.assertEqual(result["steps"], 0)
         self.assertFalse(result["envstate_or_gym_make_called_by_probe"])
+
+    def test_deferred_import_failure_stops_and_preserves_phase(self):
+        calls = []
+        def importer(name):
+            calls.append(name)
+            if name.endswith(".track"):
+                raise RuntimeError("simulated import denial")
+            path = "/mock-adapter/src/f1tenth_mcp/env_state.py" if name.startswith("f1tenth_mcp") else "/mock-gym/f1tenth_gym/__init__.py"
+            return SimpleNamespace(__file__=path)
+        original_path = list(sys.path)
+        try:
+            with self.assertRaisesRegex(RuntimeError, "simulated import denial"):
+                probe.import_probe("/mock-adapter", "/mock-gym", importer=importer)
+        finally:
+            sys.path[:] = original_path
+        self.assertEqual(runner.WORKER_PHASE, "import_track")
+        self.assertEqual(len(calls), 3)
+
+    def test_wrong_track_origin_is_rejected(self):
+        def importer(name):
+            paths = {"f1tenth_mcp.env_state": "/mock-adapter/src/f1tenth_mcp/env_state.py",
+                     "f1tenth_gym": "/mock-gym/f1tenth_gym/__init__.py",
+                     "f1tenth_gym.envs.track": "/other/f1tenth_gym/envs/track/__init__.py"}
+            return SimpleNamespace(__file__=paths[name])
+        original_path = list(sys.path)
+        try:
+            with self.assertRaisesRegex(ValueError, "track import mismatch"):
+                probe.import_probe("/mock-adapter", "/mock-gym", importer=importer)
+        finally:
+            sys.path[:] = original_path
 
     def test_default_probe_and_wrong_hashes_do_not_import_dependencies_or_query_host(self):
         stream = io.StringIO()

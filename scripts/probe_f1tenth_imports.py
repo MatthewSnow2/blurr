@@ -29,7 +29,11 @@ def import_probe(source_root, gym_root, importer=importlib.import_module):
     gym = importer("f1tenth_gym")
     if not Path(gym.__file__).resolve().is_relative_to(gym_root):
         raise ValueError("gym import mismatch")
-    return {"status": "imports_only_complete", "capture_performed": False, "steps": 0,
+    runner.mark_worker_phase("import_track")
+    track = importer("f1tenth_gym.envs.track")
+    if not Path(track.__file__).resolve().is_relative_to(gym_root / "f1tenth_gym" / "envs" / "track"):
+        raise ValueError("track import mismatch")
+    return {"status": "deferred_import_complete", "capture_performed": False, "steps": 0,
             "envstate_or_gym_make_called_by_probe": False, "guard_policy": "unchanged"}
 
 
@@ -80,7 +84,7 @@ def main(argv=None):
                        "--worker-token", token, "--staging", staging]
             try:
                 result = runner.supervise(command, staging, 20, environment)
-                if result != {"status": "imports_only_complete", "capture_performed": False, "steps": 0,
+                if result != {"status": "deferred_import_complete", "capture_performed": False, "steps": 0,
                               "envstate_or_gym_make_called_by_probe": False, "guard_policy": "unchanged"}:
                     raise ValueError("unexpected diagnostic result")
                 args.output.mkdir()
@@ -91,13 +95,14 @@ def main(argv=None):
                     if source.is_file():
                         with source.open("rb") as stream, (args.output / name).open("xb") as target:
                             target.write(stream.read(65536))
+                print("SUCCESS: deferred track import completed; zero steps; no simulator constructed.", flush=True)
                 print(json.dumps(result))
             except BaseException as error:
                 runner.retain_failure(args.output, staging, error)
                 raise
         return 0
     except (ValueError, RuntimeError, OSError, KeyError, TypeError) as error:
-        print(f"import probe failed: {type(error).__name__}", file=sys.stderr)
+        print(f"FAILED: deferred import probe stopped ({type(error).__name__}); preserve diagnostics; do not retry or relax the guard.", file=sys.stderr)
         return 2
 
 
