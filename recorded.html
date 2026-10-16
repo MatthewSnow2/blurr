@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blurr — Recorded telemetry</title>
+</head>
+<body>
+  <header><strong>Blurr</strong><span>Simulator evidence lab</span><a id="sealed-history-link" href="./index.html">Back to sealed sessions</a></header>
+  <main>
+    <h1>Recorded telemetry</h1>
+    <p>Inspect a completed recording locally. Original clocks, units and evidence labels stay visible.</p>
+    <section aria-labelledby="import-title">
+      <h2 id="import-title">Open a recorded session</h2>
+      <p>This view currently accepts the checked JSON export from the offline recorded CSV importer. Raw CSV requires that importer first.</p>
+      <form id="recorded-form">
+        <label>Recorded session JSON<input id="recorded-file" type="file" accept="application/json,.json" required></label>
+        <label>Expected JSON SHA-256 from the import receipt<input id="recorded-digest" type="text" autocomplete="off" spellcheck="false" pattern="[a-f0-9]{64}" required></label>
+        <button id="open-file" type="submit">Validate and open recording</button>
+        <button id="open-fixture" type="button">Open synthetic fixture</button>
+        <button id="clear-recording" type="button">Clear recording</button>
+      </form>
+      <p>15 MiB maximum; 50,000 samples maximum. Data stays in this tab and clears on reload. No inference calls or saved coaching reports are attached.</p>
+      <p id="import-status" role="status" aria-live="polite"></p>
+      <p id="import-error" role="alert" hidden></p>
+    </section>
+    <p id="empty-recording">No recording open. Select a file with its receipt hash, or open the synthetic fixture.</p>
+    <section id="recording" hidden aria-labelledby="recording-title">
+      <h2 id="recording-title">Selected recorded evidence</h2>
+      <p id="evidence-label" class="notice"></p>
+      <dl id="recording-summary"></dl>
+      <h3>Evidence limits</h3><ul id="recording-limits"></ul>
+      <h3>Browse samples</h3>
+      <label>Recorded sample<input id="sample-slider" type="range" min="0" value="0" step="1"></label>
+      <dl id="sample-details"></dl>
+      <h3>Original source and file provenance</h3><dl id="recording-provenance"></dl>
+    </section>
+  </main>
+  <script type="module" src="/src/recordedMain.ts"></script>
+</body>
+</html>

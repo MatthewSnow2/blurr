@@ -1,0 +1,138 @@
+{
+  "capabilities": {
+    "braking": "unavailable",
+    "collision": "unavailable",
+    "encoder_counts": "source_float_precision_not_exact_count_proof",
+    "numeric_channels": "reported_source_units_unverified",
+    "reference": "unavailable",
+    "speed_mps": "unavailable"
+  },
+  "declared_evidence_kind": "synthetic_fixture",
+  "excluded_export_channels": [
+    "front_camera_path",
+    "rear_camera_path",
+    "export_time_lidar_ranges"
+  ],
+  "input_sha256": "388bb4fbe58883d37aaa0181ce8fa413bd117c75bafc7be626b115534396230e",
+  "provenance": {
+    "clock": "unity_DateTime.Now_local_wall_clock",
+    "live_capture_verified": false,
+    "mode": "post_session_recorded_file",
+    "monotonic_reception_verified": false,
+    "physical_output_enabled": false,
+    "producer_authentication": "not_established",
+    "timezone": "unrecorded",
+    "utc_reconstruction": false
+  },
+  "sample_count": 3,
+  "samples": [
+    {
+      "recorded_wall_time": "2026_10_16_12_00_00_000",
+      "sequence": 1,
+      "telemetry": {
+        "angular_velocity_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "encoder_ticks_reported_float": [
+          10.0,
+          11.0
+        ],
+        "linear_acceleration_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "orientation_euler_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "position_source": [
+          1.0,
+          2.0,
+          0.0
+        ],
+        "steering_source": -0.1,
+        "throttle_source": 0.2,
+        "velocity_local_z_source": 0.5
+      },
+      "wall_offset_s": 0.0
+    },
+    {
+      "recorded_wall_time": "2026_10_16_12_00_00_100",
+      "sequence": 2,
+      "telemetry": {
+        "angular_velocity_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "encoder_ticks_reported_float": [
+          10.0,
+          11.0
+        ],
+        "linear_acceleration_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "orientation_euler_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "position_source": [
+          1.0,
+          2.0,
+          0.0
+        ],
+        "steering_source": 0.0,
+        "throttle_source": 0.0,
+        "velocity_local_z_source": 0.0
+      },
+      "wall_offset_s": 0.1
+    },
+    {
+      "recorded_wall_time": "2026_10_16_12_00_00_200",
+      "sequence": 3,
+      "telemetry": {
+        "angular_velocity_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "encoder_ticks_reported_float": [
+          12.0,
+          13.0
+        ],
+        "linear_acceleration_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "orientation_euler_source": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "position_source": [
+          0.9,
+          2.0,
+          0.0
+        ],
+        "steering_source": 0.1,
+        "throttle_source": -0.1,
+        "velocity_local_z_source": -0.2
+      },
+      "wall_offset_s": 0.2
+    }
+  ],
+  "schema_version": "blurr.autodrive-recorded-session.v1",
+  "source_contract_commit": "635dbb6d86ec98e25ea845a97188f7bbe85a09e8",
+  "source_format": "autodrive_0.3.0_vehicle_csv_21_columns",
+  "source_kind": "autodrive_recorded_csv",
+  "status": "imported_recorded_file",
+  "wall_span_s": 0.2
+}
