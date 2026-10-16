@@ -5,7 +5,6 @@ can have side effects; the unchanged socket/process guard remains installed.
 """
 import argparse
 import importlib
-import importlib.metadata
 import json
 import os
 from pathlib import Path
@@ -62,14 +61,7 @@ def main(argv=None):
             runner.mark_worker_phase("source_preflight")
             runner.inspect_sources(args.source_root, args.gym_root)
             sys.addaudithook(runner.deny_python_network_and_children)
-            runner.mark_worker_phase("metadata")
-            versions = {}
-            for name in ("numpy", "gymnasium", "numba", "pygame", "f1tenth_gym"):
-                try:
-                    versions[name] = importlib.metadata.version(name)[:80]
-                except importlib.metadata.PackageNotFoundError:
-                    versions[name] = "unavailable"
-            print(json.dumps({"schema_version": "blurr.worker-import-probe.v1", "phase": "before_imports", "package_versions": versions}), flush=True)
+            print(json.dumps({"schema_version": "blurr.worker-import-probe.v1", "phase": "before_imports", "guard_policy": "unchanged"}), flush=True)
             result = import_probe(args.source_root, args.gym_root)
             with (Path(args.staging) / "candidate.json").open("xb") as stream:
                 stream.write(runner.encode(result))

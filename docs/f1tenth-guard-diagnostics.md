@@ -50,7 +50,7 @@ was relaxed.
 A new small `probe_f1tenth_imports.py` entry defaults to plan-only. Its future
 explicit --probe mode reuses source/resource checks, the same guard and a parent
 supervisor with a20-second owned-worker limit. It imports only the adapter and
-gym package and reports installed package versions. It never calls EnvState(),
+gym package and records their import phases. It never calls EnvState(),
 gym.make(), load/reset/step or a server. Dependency import initializers still
 execute and are the operation being diagnosed; no native sandbox is claimed.
 
@@ -63,7 +63,7 @@ qualification promotion is produced.
 Current file hashes:
 - capture_f1tenth_reconstructed.py: ae4d56c504a17231f2f5a7151b0cc8009d2b33879eb74f76b1d4b029a1cd7706
 - f1tenth_capture_core.py (unchanged): 3efedb9fe06ab1d27cd6919a566e494f51829e9bbba86ec9f31edad2970ac8f8
-- probe_f1tenth_imports.py: e9007d8b0a0d7645c64a018a25296cbc9bda2a04cbc69111d560f259ff25d524
+- probe_f1tenth_imports.py: 75c506f98ea2145f703774827d42cfd24fdc3b38dfdf1cd968280da03aa25241
 
 Proposed future staging root (not present/verified/staged by this task):
 `C:\Users\matth\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnostics-v1`
@@ -77,7 +77,7 @@ $Diag = 'C:\Users\matth\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnosti
 $Probe = Join-Path $Diag 'scripts\probe_f1tenth_imports.py'
 $Runner = Join-Path $Diag 'scripts\capture_f1tenth_reconstructed.py'
 $Core = Join-Path $Diag 'scripts\f1tenth_capture_core.py'
-$ProbeHash = 'e9007d8b0a0d7645c64a018a25296cbc9bda2a04cbc69111d560f259ff25d524'
+$ProbeHash = '75c506f98ea2145f703774827d42cfd24fdc3b38dfdf1cd968280da03aa25241'
 $RunnerHash = 'ae4d56c504a17231f2f5a7151b0cc8009d2b33879eb74f76b1d4b029a1cd7706'
 $CoreHash = '3efedb9fe06ab1d27cd6919a566e494f51829e9bbba86ec9f31edad2970ac8f8'
 if ((Get-FileHash $Probe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ProbeHash) { throw 'Probe hash mismatch' }
