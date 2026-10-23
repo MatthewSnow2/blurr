@@ -88,6 +88,39 @@ class GuardDiagnosticTests(unittest.TestCase):
         self.assertTrue(any(frame["module"] == "platform" and frame["function"] == "_node" for frame in record["frames"]))
         self.assertTrue(any(frame["module"] == "platform" and frame["function"] == "uname" for frame in record["frames"]))
 
+    def isolated(self, body, folder):
+        script = ("import sys, socket, subprocess, platform; "
+                  f"sys.path.insert(0, {str(ROOT / 'scripts')!r}); import capture_f1tenth_reconstructed as r; "
+                  "r.mark_worker_phase('offline_probe')\n" + body)
+        return subprocess.run([sys.executable, "-c", script], cwd=folder, capture_output=True, text=True, timeout=5)
+
+    def test_primed_platform_metadata_passes_windows_style_lookup_while_guard_still_denies(self):
+        body = ("platform._uname_cache = None\n"
+                "platform.os.uname = lambda: (_ for _ in ()).throw(AttributeError('simulate unavailable Windows os.uname'))\n"
+                "primed = r.prime_platform_metadata()\n"
+                "sys.addaudithook(r.deny_python_network_and_children)\n"
+                "assert platform.machine() == primed.machine and platform.node() == primed.node\n"
+                "print('metadata_ok')\n"
+                "for operation in (socket.gethostname, socket.socket, lambda: subprocess.Popen([sys.executable, '-c', 'pass'])):\n"
+                " try:\n  operation()\n except RuntimeError:\n  print('blocked_as_before')\n"
+                " else:\n  raise AssertionError('guard permitted operation')\n")
+        with tempfile.TemporaryDirectory() as folder:
+            result = self.isolated(body, folder)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.split(), ["metadata_ok"] + ["blocked_as_before"] * 3)
+        events = [json.loads(line)["event"] for line in result.stderr.splitlines()]
+        self.assertEqual(events, ["socket.gethostname", "socket.__new__", "subprocess.Popen"])
+
+    def test_workers_prime_platform_metadata_before_installing_guard(self):
+        for path, name in [(runner.__file__, "run_worker"), (probe.__file__, "main")]:
+            tree = ast.parse(Path(path).read_text())
+            function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name)
+            calls = {ast.unparse(node.func): node.lineno for node in ast.walk(function) if isinstance(node, ast.Call)}
+            with self.subTest(worker=name):
+                primed = calls.get("runner.prime_platform_metadata", calls.get("prime_platform_metadata"))
+                self.assertIsNotNone(primed)
+                self.assertLess(primed, calls["sys.addaudithook"])
+
 
 class ImportProbeTests(unittest.TestCase):
     def test_mocked_supervised_probe_is_twenty_seconds_and_writes_no_session(self):

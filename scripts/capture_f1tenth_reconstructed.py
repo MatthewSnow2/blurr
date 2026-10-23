@@ -130,6 +130,16 @@ def windows_resources():
     return {"cpu_sample_percent": load, "available_memory_gib": available, "sample_interval_s": 0.1}
 
 
+def prime_platform_metadata():
+    """Resolve CPython's cached uname before the guard is installed; the guard is unchanged.
+
+    Without os.uname (Windows), platform.uname() reads the node name through
+    socket.gethostname(). Numba calls platform.machine() during import, so the
+    guard denied that local lookup. Later socket and process events stay denied.
+    """
+    return platform.uname()
+
+
 def deny_python_network_and_children(event, arguments):
     # Process-local guard, not a claim of native-code sandboxing. Pinned source
     # review remains necessary. Installed imports must not download or spawn.
@@ -173,6 +183,7 @@ def run_worker(args):
         raise ValueError("Numba cache must remain in the owned worker staging directory")
     mark_worker_phase("source_preflight")
     source = inspect_sources(args.source_root, args.gym_root)
+    prime_platform_metadata()
     sys.addaudithook(deny_python_network_and_children)
     expected_module = (Path(args.source_root) / "src/f1tenth_mcp/env_state.py").resolve()
     sys.path.insert(0, str(Path(args.gym_root).resolve()))

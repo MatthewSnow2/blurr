@@ -64,6 +64,7 @@ def main(argv=None):
                 raise ValueError("unexpected cache path")
             runner.mark_worker_phase("source_preflight")
             runner.inspect_sources(args.source_root, args.gym_root)
+            runner.prime_platform_metadata()
             sys.addaudithook(runner.deny_python_network_and_children)
             print(json.dumps({"schema_version": "blurr.worker-import-probe.v1", "phase": "before_imports", "guard_policy": "unchanged"}), flush=True)
             result = import_probe(args.source_root, args.gym_root)
