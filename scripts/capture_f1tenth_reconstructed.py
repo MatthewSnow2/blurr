@@ -290,7 +290,7 @@ def finalize(candidate, args, resources):
     return {"schema_version": "blurr.telemetry-session.v1", "source_kind": "f1tenth", "status": "sealed",
             "captured_at_utc": candidate["started_at_utc"],
             "circuit": {"name": "Silverstone · reconstructed runner (qualification pending)", "track_name": "Silverstone",
-                        "provenance": "installed GPL-v3 track assets; redistribution not cleared",
+                        "provenance": "f1tenth/f1tenth_racetracks@b95c4ef Silverstone assets (GPL-3.0); see THIRD-PARTY-NOTICES.txt",
                         "distributable_fixture": False, "raceline_geometry_sha256": candidate["geometry_sha256"]},
             "runtime": {"simulator": "f1tenth_gym", "seed": args.seed, "timestep_s": 0.01,
                         "analysis_version": "raceline-v2", "reference_kind": "raceline",

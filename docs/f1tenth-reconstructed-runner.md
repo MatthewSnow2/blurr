@@ -122,8 +122,9 @@ if ($LASTEXITCODE -ne 0) { throw 'Capture comparison failed; qualification remai
 
 The controller may terminate early or diverge on Silverstone. Do not silently
 change controller/track/limits to force a successful run. Inspect source/runtime
-receipts and failure diagnostics and scope any fix separately. Named track assets
-have GPL v3 provenance; this private proof does not clear public redistribution.
+receipts and failure diagnostics and scope any fix separately. The Silverstone
+track assets come from `f1tenth/f1tenth_racetracks` at `b95c4ef` under GPL-3.0
+and are cleared for redistribution with that license (see `THIRD-PARTY-NOTICES.txt`).
 
 ## Offline verification and remaining real qualification
 
