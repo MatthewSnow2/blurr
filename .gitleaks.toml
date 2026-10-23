@@ -1,0 +1,9 @@
+# Scoped false-positive allowlist for the global pre-push gitleaks hook.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Token-count prose in saved-report docs (e.g. 'including518reasoning') matches generic-api-key; it is a usage count, not a credential."
+targetRules = ["generic-api-key"]
+paths = ['''^docs/saved-report-format\.md$''']
+regexes = ['''^including\d+reasoning$''']
