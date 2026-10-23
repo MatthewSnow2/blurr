@@ -221,6 +221,15 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             with self.subTest(mutate=mutate), self.assertRaises(ValueError):
                 runner.finalize(value, args, {})
 
+    def test_environment_recorded_after_gymnasium_import_passes_and_real_drift_rejects(self):
+        # gymnasium/__init__.py sets PYGAME_HIDE_SUPPORT_PROMPT="hide" on import; the worker records env after capture.
+        args = SimpleNamespace(steps=4, seed=20261009, timeout=120)
+        value = candidate(); value["child_environment"]["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+        runner.finalize(value, args, {})
+        value = candidate(); value["child_environment"]["SDL_VIDEODRIVER"] = "windows"
+        with self.assertRaises(ValueError):
+            runner.finalize(value, args, {})
+
     def test_exclusive_bundle_receipt_and_existing_output_preserved(self):
         doc = runner.finalize(candidate(), SimpleNamespace(steps=4, seed=20261009, timeout=120), {})
         with tempfile.TemporaryDirectory() as folder:

@@ -34,7 +34,7 @@ ASSET_HASHES = {
     "Silverstone_raceline.csv": "cc2925c22468c3cb57b225dc88eab933589c037805af4de6823fff340a64fd97",
 }
 CHILD_ENVIRONMENT = {"PYTHONSAFEPATH": "1", "PYTHONDONTWRITEBYTECODE": "1", "PYGLET_HEADLESS": "true",
-                     "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "1",
+                     "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "hide",
                      "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMBA_NUM_THREADS": "1"}
 WORKER_PHASE = "not_started"
 WORKER_PHASES = frozenset(("not_started", "source_preflight", "import_adapter", "import_gym", "import_track", "construct_adapter",
