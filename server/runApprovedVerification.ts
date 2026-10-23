@@ -9,16 +9,23 @@ import { createBoundedNebiusExchange } from './nebiusHttpExchange.ts';
 import { FileAttemptJournal } from './attemptJournal.ts';
 import { readApprovedNebiusCredential } from './sharedCredential.ts';
 
-const approval = 'Sentinel_966ed275be20819184341cad7ffe1d9b';
+// Each owner approval gets a new constant. Consumed: Sentinel_966ed275be20819184341cad7ffe1d9b (synthetic fixture, 2026-10-15).
+const approval = 'Approval_f1tenth_run_a_20261023';
+// Only this canonical session may be coached under this approval.
+const expectedSessionSha256 = '7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14';
+// Fixed ledger outside any output directory, so a fresh output path cannot reuse an approval.
+const ledger = '~/.local/state/blurr/nebius-approvals';
 const endpoint = 'https://api.tokenfactory.nebius.com/v1/chat/completions';
 const model = 'nvidia/nemotron-3-super-120b-a12b';
-const [mode, output] = process.argv.slice(2);
-if (!['--prepare', '--execute'].includes(mode) || !output) throw new Error('EXPLICIT_MODE_AND_OUTPUT_REQUIRED');
+const [mode, output, sessionPath] = process.argv.slice(2);
+if (!['--prepare', '--execute'].includes(mode) || !output || !sessionPath) throw new Error('EXPLICIT_MODE_OUTPUT_AND_SESSION_REQUIRED');
 const directory = resolve(output);
 mkdirSync(directory, { recursive: true });
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
-const raw = new Uint8Array(readFileSync(new URL('../fixtures/autodrive-synthetic-session.json', import.meta.url)));
-const session = await importSealedSessionFile({ name: 'autodrive-synthetic-session.json', size: raw.length, arrayBuffer: async () => raw.buffer });
+const raw = new Uint8Array(readFileSync(resolve(sessionPath)));
+const session = await importSealedSessionFile({ name: 'session.json', size: raw.length, arrayBuffer: async () => raw.buffer });
+const bundle = buildSealedEvidenceBundle(session);
+if (bundle.sessionSha256 !== expectedSessionSha256) throw new Error('SESSION_NOT_APPROVED');
 const schema = JSON.parse(readFileSync(new URL('../schemas/coaching-report.v1.schema.json', import.meta.url), 'utf8'));
 const fixtureReport = { contract_version: 'coaching-report.v1', claims: [{ id: 'primary', type: 'metric_value', evidence_id: 'sample_count' }],
   interpretations: [{ template_id: 'review_claim_in_drill', slot_bindings: { claim: 'primary', drill: 'steady_line' } }], drill_id: 'steady_line' };
@@ -26,13 +33,17 @@ let dispatchCount = 0;
 let key = '';
 let safeProvider: unknown = null;
 const guardPath = join(directory, approval + '.attempt.json');
-if (mode === '--execute' && existsSync(guardPath)) throw new Error('APPROVAL_ALREADY_CONSUMED_DO_NOT_RETRY');
+const ledgerPath = join(ledger, approval + '.attempt.json');
+if (mode === '--execute' && (existsSync(guardPath) || existsSync(ledgerPath))) throw new Error('APPROVAL_ALREADY_CONSUMED_DO_NOT_RETRY');
 const http = createBoundedNebiusExchange({
   attempts: new FileAttemptJournal(join(directory, 'attempt-journal')),
   credential: () => key,
   fetcher: async (url, init) => {
     if (dispatchCount !== 0) throw new Error('SECOND_DISPATCH_FORBIDDEN');
-    writeFileSync(guardPath, JSON.stringify({ approval, dispatchCount: 1, state: 'dispatch_start_delivery_unknown', startedAtUtc: new Date().toISOString() }), { flag: 'wx', mode: 0o600 });
+    const marker = JSON.stringify({ approval, sessionSha256: expectedSessionSha256, dispatchCount: 1, state: 'dispatch_start_delivery_unknown', startedAtUtc: new Date().toISOString() });
+    mkdirSync(ledger, { recursive: true, mode: 0o700 });
+    writeFileSync(ledgerPath, marker, { flag: 'wx', mode: 0o600 });
+    writeFileSync(guardPath, marker, { flag: 'wx', mode: 0o600 });
     dispatchCount++;
     // Native fetch, no SDK/retry agent/fallback; redirect rejection is in init.
     return fetch(url, init);
@@ -64,7 +75,7 @@ const adapter = prepareNebiusAdapter({ endpoint, modelId: model, maxTokens: 1024
 }, schema);
 let result: unknown = null;
 let errorCode: string | null = null;
-try { result = await adapter.coach(buildSealedEvidenceBundle(session)); }
+try { result = await adapter.coach(bundle); }
 catch (error) { const m = error instanceof Error ? error.message : ''; errorCode = /^[A-Z_]{1,100}$/u.test(m) ? m : 'VERIFICATION_FAILED'; }
 if (mode === '--prepare') {
   if (errorCode) throw new Error(errorCode);
