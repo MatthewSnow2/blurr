@@ -27,19 +27,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
         </button>
       </div>
 
-      {/* Bolt.new Badge */}
-      <a 
-        href="https://bolt.new/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="absolute bottom-5 right-5 z-20 transition-transform hover:scale-110"
-      >
-        <img 
-          src="/bolt-badge.png"
-          alt="Built with Bolt.new"
-          className="w-24 h-24 md:w-28 md:h-28"
-        />
-      </a>
     </div>
   );
 };

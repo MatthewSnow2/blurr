@@ -4,41 +4,41 @@
     "bytes": 1443791,
     "sha256": "2d401e26925014b0010307386b78b22af64baf9523aaa6c56bfcea42695aa6c5",
     "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "runtime_use": "removed from the public repository and its history; not used by src"
   },
   {
     "path": "public/Porsche.png",
     "bytes": 884283,
     "sha256": "22f5360803292020934138abbdd5e8d615e9f7df55e2b199cc4cf3d85804ed82",
     "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "runtime_use": "removed from the public repository and its history; not used by src"
   },
   {
     "path": "public/track_map (1).jpg",
     "bytes": 77516,
     "sha256": "bec1fc419a9390b9a9f72e7a60e83a132a0bde45f73c9889d4a2a627b252499f",
     "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "runtime_use": "removed from the public repository and its history; not used by src"
   },
   {
     "path": "public/corvette.png",
     "bytes": 3510325,
     "sha256": "e33e1ab7beaf413ce463c98bbe4eb29bb14bbd979a40649eef14f73508f24ede",
     "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "runtime_use": "removed from the public repository and its history; not used by src"
   },
   {
     "path": "public/bolt-badge.svg",
     "bytes": 0,
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "runtime_use": "removed from the public repository and its history; not used by src"
   },
   {
     "path": "public/THE ELITE DRIVING INTELLIGENCE.png",
     "bytes": 104487,
     "sha256": "eae78868d993153d9a1b5dd519facecbe0920c18c9d1962910a6a1005a210abd",
-    "publication_rights": "unverified",
-    "runtime_use": "inspect current LocalApp imports before release"
+    "publication_rights": "owner_confirmed",
+    "runtime_use": "Header logo (src/components/Header.tsx); original work of the repository owner, confirmed 2026-10-23"
   }
 ]

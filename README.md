@@ -19,8 +19,7 @@ npm run build
 npm run preview -- --host <lan-ip> --port 8843
 ```
 
-The prior build may be served at http://<lan-ip>:8843/; it is not replaced
-automatically by this branch. Import either JSON fixture below, select/reverse samples,
+Open http://<lan-ip>:8843/ from another device on the network. Import either JSON fixture below, select/reverse samples,
 return to history and refresh. Re-import is idempotent. Invalid JSON leaves
 existing history intact. The LAN hashing fallback does not require browser
 security flags. Sessions persist per browser/origin, not in a shared cloud.
@@ -93,3 +92,11 @@ selection is an owner decision. No public push, release or submission occurred.
 Unused legacy images are excluded from builds and the review-source bundle;
 their rights are not assumed. Archived vision/hardware notes are preserved in
 `docs/historical-vision.md` and are not current demo claims.
+
+## License
+
+Original code and documentation are licensed under the Apache License 2.0
+(`LICENSE`). The Silverstone run A capture and its saved report in
+`data/f1tenth-silverstone/` are derived from GPL-3.0 track assets and are
+licensed under GPL-3.0 (`data/f1tenth-silverstone/LICENSE`). Bundled
+third-party notices are in `THIRD-PARTY-NOTICES.txt`.

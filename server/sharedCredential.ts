@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 /** Literal assignment only: never execute/source the shared configuration. */
 export const parseNebiusCredential = (text: string): string => {
@@ -9,4 +11,4 @@ export const parseNebiusCredential = (text: string): string => {
   if (!/^[A-Za-z0-9._~+/=-]{16,4096}$/u.test(value)) throw new Error('CREDENTIAL_VALUE_INVALID');
   return value;
 };
-export const readApprovedNebiusCredential = (): string => parseNebiusCredential(readFileSync('~/.env.shared', 'utf8'));
+export const readApprovedNebiusCredential = (): string => parseNebiusCredential(readFileSync(join(homedir(), '.env.shared'), 'utf8'));

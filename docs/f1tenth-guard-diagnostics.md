@@ -66,14 +66,14 @@ Current file hashes:
 - probe_f1tenth_imports.py: 75c506f98ea2145f703774827d42cfd24fdc3b38dfdf1cd968280da03aa25241
 
 Proposed future staging root (not present/verified/staged by this task):
-`C:\Users\matth\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnostics-v1`
+`C:\Users\<you>\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnostics-v1`
 
 After separately reviewed staging of these exact three files and creation of
 its outputs parent, ordinary AlienPC PowerShell would run:
 
 ```powershell
-$Python = 'C:\Users\matth\projects\f1tenth-mcp\.venv\Scripts\python.exe'
-$Diag = 'C:\Users\matth\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnostics-v1'
+$Python = 'C:\Users\<you>\projects\f1tenth-mcp\.venv\Scripts\python.exe'
+$Diag = 'C:\Users\<you>\Documents\Codex\2026-10-16\blurr-f1tenth-guard-diagnostics-v1'
 $Probe = Join-Path $Diag 'scripts\probe_f1tenth_imports.py'
 $Runner = Join-Path $Diag 'scripts\capture_f1tenth_reconstructed.py'
 $Core = Join-Path $Diag 'scripts\f1tenth_capture_core.py'
@@ -83,7 +83,7 @@ $CoreHash = '3efedb9fe06ab1d27cd6919a566e494f51829e9bbba86ec9f31edad2970ac8f8'
 if ((Get-FileHash $Probe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ProbeHash) { throw 'Probe hash mismatch' }
 if ((Get-FileHash $Runner -Algorithm SHA256).Hash.ToLowerInvariant() -ne $RunnerHash) { throw 'Runner hash mismatch' }
 if ((Get-FileHash $Core -Algorithm SHA256).Hash.ToLowerInvariant() -ne $CoreHash) { throw 'Core hash mismatch' }
-& $Python -s $Probe --probe --source-root 'C:\Users\matth\Documents\Codex\2026-10-08\task\worktrees\f1tenth-raceline-reference' --gym-root 'C:\Users\matth\projects\f1tenth_gym' --output (Join-Path $Diag 'outputs\imports-only-attempt-1') --expected-probe-sha256 $ProbeHash --expected-runner-sha256 $RunnerHash --expected-core-sha256 $CoreHash
+& $Python -s $Probe --probe --source-root 'C:\Users\<you>\Documents\Codex\2026-10-08\task\worktrees\f1tenth-raceline-reference' --gym-root 'C:\Users\<you>\projects\f1tenth_gym' --output (Join-Path $Diag 'outputs\imports-only-attempt-1') --expected-probe-sha256 $ProbeHash --expected-runner-sha256 $RunnerHash --expected-core-sha256 $CoreHash
 if ($LASTEXITCODE -ne 0) { throw 'Import probe stopped; preserve diagnostics, do not relax or retry' }
 ```
 

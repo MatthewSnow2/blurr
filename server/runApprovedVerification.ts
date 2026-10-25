@@ -1,6 +1,7 @@
 /** One specific approval only. Default preparation is offline and reads no key. */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { importSealedSessionFile } from '../src/lib/sessionStore.ts';
 import { buildSealedEvidenceBundle } from '../src/coaching/sessionEvidence.ts';
@@ -14,7 +15,7 @@ const approval = 'Approval_f1tenth_run_a_20261023';
 // Only this canonical session may be coached under this approval.
 const expectedSessionSha256 = '7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14';
 // Fixed ledger outside any output directory, so a fresh output path cannot reuse an approval.
-const ledger = '~/.local/state/blurr/nebius-approvals';
+const ledger = join(homedir(), '.local', 'state', 'blurr', 'nebius-approvals');
 const endpoint = 'https://api.tokenfactory.nebius.com/v1/chat/completions';
 const model = 'nvidia/nemotron-3-super-120b-a12b';
 const [mode, output, sessionPath] = process.argv.slice(2);

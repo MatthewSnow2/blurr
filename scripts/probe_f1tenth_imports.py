@@ -40,8 +40,8 @@ def import_probe(source_root, gym_root, importer=importlib.import_module):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--probe", action="store_true")
-    parser.add_argument("--source-root", default=r"C:\Users\matth\Documents\Codex\2026-10-08\task\worktrees\f1tenth-raceline-reference")
-    parser.add_argument("--gym-root", default=r"C:\Users\matth\projects\f1tenth_gym")
+    parser.add_argument("--source-root", default=str(Path.home() / "Documents" / "Codex" / "2026-10-08" / "task" / "worktrees" / "f1tenth-raceline-reference"))
+    parser.add_argument("--gym-root", default=str(Path.home() / "projects" / "f1tenth_gym"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--expected-probe-sha256")
     parser.add_argument("--expected-runner-sha256")

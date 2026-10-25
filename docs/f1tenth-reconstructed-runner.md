@@ -90,13 +90,13 @@ Python3.12 and is rechecked by the worker. No reinstall or global environment ed
 
 ```powershell
 $ErrorActionPreference = 'Stop'
-$Python = 'C:\Users\matth\projects\f1tenth-mcp\.venv\Scripts\python.exe'
-$ProofRoot = 'C:\Users\matth\Documents\Codex\2026-10-16\blurr-f1tenth-proof'
+$Python = 'C:\Users\<you>\projects\f1tenth-mcp\.venv\Scripts\python.exe'
+$ProofRoot = 'C:\Users\<you>\Documents\Codex\2026-10-16\blurr-f1tenth-proof'
 $Runner = Join-Path $ProofRoot 'scripts\capture_f1tenth_reconstructed.py'
 $Core = Join-Path $ProofRoot 'scripts\f1tenth_capture_core.py'
 $Outputs = Join-Path $ProofRoot 'outputs'
-$Source = 'C:\Users\matth\Documents\Codex\2026-10-08\task\worktrees\f1tenth-raceline-reference'
-$Gym = 'C:\Users\matth\projects\f1tenth_gym'
+$Source = 'C:\Users\<you>\Documents\Codex\2026-10-08\task\worktrees\f1tenth-raceline-reference'
+$Gym = 'C:\Users\<you>\projects\f1tenth_gym'
 $RunnerHash = '4c47aa08789465257f3e4ef0781a9dc262392355c5962400cdfc47ccf99157f5'
 $CoreHash = '3efedb9fe06ab1d27cd6919a566e494f51829e9bbba86ec9f31edad2970ac8f8'
 if ((Get-FileHash -LiteralPath $Runner -Algorithm SHA256).Hash.ToLowerInvariant() -ne $RunnerHash) { throw 'Runner bytes differ from review' }
