@@ -24,6 +24,20 @@ test('actual saved provider report revalidates against the matching synthetic ca
   assert.equal(parsed.report.claims.length, 3);
 });
 
+test('default demo pair: Silverstone run A report revalidates against its sealed session', async () => {
+  const runA = new Uint8Array(readFileSync(new URL('../data/f1tenth-silverstone/run-a-session.json', import.meta.url)));
+  const runASession = await importSealedSessionFile({ name: 'run-a-session.json', size: runA.length, arrayBuffer: async () => runA.buffer });
+  const runAReport = readFileSync(new URL('../data/f1tenth-silverstone/run-a-nebius-report.json', import.meta.url), 'utf8');
+  const parsed = parseSavedProviderReport(runAReport, runASession);
+  assert.equal(runASession.canonicalSha256, '7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14');
+  assert.equal(runASession.sampleCount, 600);
+  assert.equal(parsed.saved.usage.inputTokens, 1362);
+  assert.equal(parsed.saved.usage.outputTokens, 594);
+  assert.equal(parsed.report.claims.length, 3);
+  // The synthetic report must not attach to the run A session.
+  assert.throws(() => parseSavedProviderReport(raw, runASession), /SESSION_MISMATCH/u);
+});
+
 test('wrong session, altered report bytes and rehashed unsupported claims fail closed', async () => {
   const changedCapture = JSON.parse(new TextDecoder().decode(capture));
   changedCapture.captured_at_utc = '2026-10-14T00:00:00Z';

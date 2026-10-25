@@ -6,8 +6,9 @@ import SessionReplay from './components/SessionReplay';
 import { importSealedSessionFile, LocalSessionStore, type StoredSession } from './lib/sessionStore';
 
 import { LocalProviderReportStore, parseSavedProviderReport } from './coaching/savedProviderReport';
-import demoCaptureJson from '../fixtures/autodrive-synthetic-session.json?raw';
-import demoReportJson from '../fixtures/autodrive-synthetic-nebius-report.json?raw';
+// Emitted as separate same-origin assets so the GPL-3.0 run A data stays out of the Apache-2.0 bundle.
+import demoCaptureUrl from '../data/f1tenth-silverstone/run-a-session.json?url&no-inline';
+import demoReportUrl from '../data/f1tenth-silverstone/run-a-nebius-report.json?url&no-inline';
 
 type Page = 'history' | 'upload' | 'replay';
 
@@ -71,9 +72,13 @@ function LocalApp() {
     const current = ++generation.current;
     setIsImporting(true); setError(null);
     try {
-      const file = new File([demoCaptureJson], 'autodrive-synthetic-session.json', { type: 'application/json' });
+      const [captureResponse, reportResponse] = await Promise.all([fetch(demoCaptureUrl), fetch(demoReportUrl)]);
+      if (!captureResponse.ok || !reportResponse.ok) throw new Error('DEMO_FETCH_FAILED');
+      const [captureBytes, reportJson] = await Promise.all([captureResponse.arrayBuffer(), reportResponse.text()]);
+      if (generation.current !== current) return;
+      const file = new File([captureBytes], 'run-a-session.json', { type: 'application/json' });
       const imported = await importSealedSessionFile(file);
-      const validated = parseSavedProviderReport(demoReportJson, imported);
+      const validated = parseSavedProviderReport(reportJson, imported);
       if (generation.current !== current) return;
       const stored = store.save(imported);
       new LocalProviderReportStore(window.localStorage).save(JSON.stringify(validated.saved), stored);

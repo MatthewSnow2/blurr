@@ -6,14 +6,17 @@ samples and preserves browser-local history. Unsupported units and channels stay
 unavailable. A typed report validator resolves every displayed claim to session
 evidence and renders suggestions only through reviewed templates.
 
-The current recorded demo combines a two-frame synthetic AutoDRIVE replay with
-the real archived Nemotron response generated for that exact session. One
+The current recorded demo opens the 600-sample F1TENTH Silverstone run A
+session (sealed 23 October 2026, reconstructed runner, qualification pending)
+with the real archived Nemotron report generated for that exact session. One
 authorized Token Factory API request used NVIDIA's
-`nvidia/nemotron-3-super-120b-a12b`; HTTP200, 1182input/655output tokens and valid
-coaching-report.v1. The app revalidates the saved response locally when opened.
-It does not issue a new inference request during replay. A separate retained
-600-sample fixture shows a genuine earlier f1tenth_gym execution on an original
-analytic synthetic circuit. Neither fixture is physical robot telemetry.
+`nvidia/nemotron-3-super-120b-a12b`; 1362input/594output tokens (USD0.0009432 at
+official rates) and valid coaching-report.v1. The app revalidates the saved
+report locally when opened. It does not issue a new inference request during
+replay. The earlier two-frame synthetic AutoDRIVE replay and its 15 October
+response still import manually, and a retained 600-sample fixture shows an
+earlier f1tenth_gym execution on an original analytic synthetic circuit. None
+of these is physical robot telemetry.
 
 Intended track for owner review: Physical AI, simulation-only. The official FAQ
 allows simulation, so a physical Wheelie demonstration is unnecessary for this

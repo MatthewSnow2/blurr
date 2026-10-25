@@ -60,19 +60,24 @@ provider keys in VITE/browser code or rerun a consumed attempt.
 
 ## Saved coaching experience
 
-Choose **Open recorded demo** in local history. This loads the bundled two-frame
-synthetic replay and its actual saved Nebius response without any network call.
+Choose **Open recorded demo** in local history. This loads the 600-sample F1TENTH
+Silverstone run A session and its actual saved Nebius report from
+`data/f1tenth-silverstone/` (GPL-3.0), served as same-origin files; it makes no
+provider call.
 The report shows evidence-backed claims, the reviewed suggestion, reported model,
 response ID, response time, usage and the exact session digest. Refresh/reopen
 preserves the report in browser-local history. The browser validates claims and
 file/session digests; imported provider metadata is attributed to the file, not
 cryptographically authenticated by the browser.
 
-For manual import: import `fixtures/autodrive-synthetic-session.json`, then use
-**Import saved report** with `fixtures/autodrive-synthetic-nebius-report.json`.
+For manual import: import `data/f1tenth-silverstone/run-a-session.json`, then use
+**Import saved report** with `data/f1tenth-silverstone/run-a-nebius-report.json`.
+The earlier synthetic pair (`fixtures/autodrive-synthetic-session.json` with
+`fixtures/autodrive-synthetic-nebius-report.json`) still imports the same way.
 A report for another session, changed bytes, unsupported claims, malformed usage
 or files over128KiB fail closed. An invalid import preserves the previous report.
-The F1 fixture has no provider report; its local replay remains available.
+`fixtures/f1tenth-original-synthetic-circuit.json` has no provider report; its
+local replay remains available.
 `docs/saved-report-format.md` describes the format and evidence limits.
 
 ## Submission status
