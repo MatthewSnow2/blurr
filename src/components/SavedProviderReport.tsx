@@ -43,6 +43,7 @@ export default function SavedProviderReport({ session }: { session: StoredSessio
     {error && <p className="mt-4 text-orange-300" role="alert">{error}</p>}
     {value ? <div className="mt-6 space-y-5" aria-live="polite">
       <p className="text-electric-300 font-semibold">Validated against this session · {value.saved.telemetryKind === 'synthetic_replay' ? 'Synthetic replay telemetry' : 'Recorded simulator telemetry'}</p>
+      <p className="text-sm text-chrome-300">Saved report, not a fresh response: recorded {value.saved.completedAtUtc} by {value.saved.model} (response {value.saved.responseId}).</p>
       <div><h3 className="font-semibold text-chrome-300">Evidence</h3><ul className="list-disc pl-6 mt-2 space-y-2">{value.report.claims.map(claim => <li key={claim.id}>{claim.rendered}</li>)}</ul></div>
       <div><h3 className="font-semibold text-chrome-300">Practice suggestion</h3>{value.report.interpretations.map((item, i) => <p className="mt-2" key={i}>{item.rendered}</p>)}</div>
       <details className="glass-card p-4 text-sm">

@@ -1,17 +1,59 @@
 [
   {
+    "file": "run-a-session.json",
+    "path": "data/f1tenth-silverstone/run-a-session.json",
+    "sha256": "4c2667dd19a367c5f6f154536b4e63bedbda24a4f68f7664f98a8be2584574fb",
+    "kind": "recorded_f1tenth_gym_silverstone_run_a",
+    "dataset_class": "recorded_simulator_capture",
+    "label": "Recorded F1TENTH simulator capture: Silverstone run A",
+    "session_canonical_sha256": "7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14",
+    "recorded_utc": "2026-10-23T22:05:52.238331+00:00",
+    "capture_runner_commit": "6eca279",
+    "capture_runner_public_commit": "5d28dde",
+    "distribution": "GPL-3.0 (data/f1tenth-silverstone/LICENSE)",
+    "default_demo": true,
+    "fresh_live_stream": false,
+    "physical_hardware_capture": false
+  },
+  {
+    "file": "run-a-nebius-report.json",
+    "path": "data/f1tenth-silverstone/run-a-nebius-report.json",
+    "sha256": "ad3cb661f6fb38689064599152240a6dae7229eabc030c128901eda896fd1248",
+    "kind": "archived_nebius_response_for_recorded_run_a",
+    "dataset_class": "saved_provider_report",
+    "provider_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider_response_id": "chatcmpl-5516fe22d301bbadc21c6ab2002aec0f",
+    "recorded_utc": "2026-10-23T22:32:50.976Z",
+    "session_canonical_sha256": "7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14",
+    "distribution": "GPL-3.0 (data/f1tenth-silverstone/LICENSE)",
+    "default_demo": true,
+    "new_provider_call_on_view": false,
+    "fresh_live_stream": false,
+    "physical_hardware_capture": false
+  },
+  {
     "file": "f1tenth-original-synthetic-circuit.json",
     "sha256": "9ce9cb26cc6aa8b29f32c04859220824baee1b61d3a477b361834c3cc076cad0",
     "kind": "retained_f1tenth_gym_original_synthetic_circuit",
     "fresh_live_stream": false,
-    "physical_hardware_capture": false
+    "physical_hardware_capture": false,
+    "path": "fixtures/f1tenth-original-synthetic-circuit.json",
+    "dataset_class": "legacy_example",
+    "label": "Legacy example: earlier f1tenth_gym run on an original synthetic circuit",
+    "session_canonical_sha256": "ad6a7aae0962688bd86e92a53248850d4fd7eb4d6192dbd99d61de59a86ffb50",
+    "distribution": "Apache-2.0"
   },
   {
     "file": "autodrive-synthetic-session.json",
     "sha256": "5ef8395c5911e0ba02e5e354362cd0730334579316b3d5633cf35df4bd233c9f",
     "kind": "synthetic_replay_compatibility_fixture",
     "fresh_live_stream": false,
-    "physical_hardware_capture": false
+    "physical_hardware_capture": false,
+    "path": "fixtures/autodrive-synthetic-session.json",
+    "dataset_class": "synthetic_fixture",
+    "label": "Synthetic fixture: two-frame AutoDRIVE compatibility replay",
+    "session_canonical_sha256": "6752d098e909ae9d064641ff0721b045a4f0c285bf70989fb9c40e93a921a3fb",
+    "distribution": "Apache-2.0"
   },
   {
     "file": "autodrive-synthetic-nebius-report.json",
@@ -22,6 +64,22 @@
     "provider_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider_response_id": "chatcmpl-a297366406b7f4bf",
     "session_canonical_sha256": "6752d098e909ae9d064641ff0721b045a4f0c285bf70989fb9c40e93a921a3fb",
-    "new_provider_call_on_view": false
+    "new_provider_call_on_view": false,
+    "path": "fixtures/autodrive-synthetic-nebius-report.json",
+    "dataset_class": "saved_provider_report",
+    "recorded_utc": "2026-10-15T02:13:34.980Z",
+    "distribution": "Apache-2.0"
+  },
+  {
+    "file": "recorded-synthetic-session.json",
+    "path": "fixtures/recorded-synthetic-session.json",
+    "sha256": "68e7f67b63071c0a52feb7432f1b971bbf71dbf05474ae74aebc10d23aacf2b8",
+    "kind": "synthetic_recorded_display_fixture",
+    "dataset_class": "synthetic_fixture",
+    "label": "Synthetic fixture: three-sample recorded-display page input (recorded.html)",
+    "recorded_utc": null,
+    "distribution": "Apache-2.0",
+    "fresh_live_stream": false,
+    "physical_hardware_capture": false
   }
 ]

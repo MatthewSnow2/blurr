@@ -5,12 +5,20 @@ import SealedSessionUpload from './components/SealedSessionUpload';
 import SessionReplay from './components/SessionReplay';
 import { importSealedSessionFile, LocalSessionStore, type StoredSession } from './lib/sessionStore';
 
-import { LocalProviderReportStore, parseSavedProviderReport } from './coaching/savedProviderReport';
+import { LocalProviderReportStore } from './coaching/savedProviderReport';
+import { labelForSession, parseDatasetManifest } from './demo/datasets';
+import { loadRecordedDemo, recordedDemoMessage } from './demo/recordedDemo';
+import manifestJson from '../fixtures/provenance.json?raw';
 // Emitted as separate same-origin assets so the GPL-3.0 run A data stays out of the Apache-2.0 bundle.
 import demoCaptureUrl from '../data/f1tenth-silverstone/run-a-session.json?url&no-inline';
 import demoReportUrl from '../data/f1tenth-silverstone/run-a-nebius-report.json?url&no-inline';
 
 type Page = 'history' | 'upload' | 'replay';
+type NavState = { page: Page; sessionId?: string };
+
+const manifest = parseDatasetManifest(manifestJson);
+const DEMO_CAPTURE_FILE = 'run-a-session.json';
+const DEMO_REPORT_FILE = 'run-a-nebius-report.json';
 
 function LocalApp() {
   const store = useMemo(() => new LocalSessionStore(window.localStorage), []);
@@ -25,11 +33,29 @@ function LocalApp() {
   const refresh = useCallback(() => setSessions(store.list()), [store]);
 
   useEffect(() => refresh(), [refresh]);
+  // Browser back/forward move between history, upload and an open replay instead of leaving the app.
+  useEffect(() => {
+    window.history.replaceState({ page: 'history' } satisfies NavState, '');
+    const onPop = (event: PopStateEvent) => {
+      const state = event.state as NavState | null;
+      generation.current += 1;
+      setIsImporting(false); setError(null); setVideoUrl(null);
+      const session = state?.page === 'replay' ? store.list().find((entry) => entry.id === state.sessionId) : undefined;
+      if (session) { setSelected(session); setPage('replay'); return; }
+      setSelected(null);
+      setPage(state?.page === 'upload' ? 'upload' : 'history');
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [store]);
+  const navigate = (state: NavState) => window.history.pushState(state, '');
   useEffect(() => () => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
   }, [videoUrl]);
 
   const leaveReplay = () => {
+    // Every replay/upload entry was pushed on top of a history entry, so stepping back keeps one consistent stack.
+    if ((window.history.state as NavState | null)?.page !== 'history') { window.history.back(); return; }
     generation.current += 1;
     setIsImporting(false);
     setSelected(null);
@@ -58,6 +84,8 @@ function LocalApp() {
       refresh();
       setSelected(stored);
       setVideoUrl(video ? URL.createObjectURL(video) : null);
+      // Replace the upload entry so Back from this replay returns to local history.
+      window.history.replaceState({ page: 'replay', sessionId: stored.id } satisfies NavState, '');
       setPage('replay');
     } catch (caught: unknown) {
       if (generation.current === currentGeneration) {
@@ -72,19 +100,14 @@ function LocalApp() {
     const current = ++generation.current;
     setIsImporting(true); setError(null);
     try {
-      const [captureResponse, reportResponse] = await Promise.all([fetch(demoCaptureUrl), fetch(demoReportUrl)]);
-      if (!captureResponse.ok || !reportResponse.ok) throw new Error('DEMO_FETCH_FAILED');
-      const [captureBytes, reportJson] = await Promise.all([captureResponse.arrayBuffer(), reportResponse.text()]);
+      const { session, validated } = await loadRecordedDemo((url) => fetch(url), demoCaptureUrl, demoReportUrl, DEMO_CAPTURE_FILE);
       if (generation.current !== current) return;
-      const file = new File([captureBytes], 'run-a-session.json', { type: 'application/json' });
-      const imported = await importSealedSessionFile(file);
-      const validated = parseSavedProviderReport(reportJson, imported);
-      if (generation.current !== current) return;
-      const stored = store.save(imported);
+      const stored = store.save(session);
       new LocalProviderReportStore(window.localStorage).save(JSON.stringify(validated.saved), stored);
-      refresh(); setSelected(stored); setVideoUrl(null); setPage('replay');
-    } catch {
-      if (generation.current === current) setError('The recorded demo could not be opened or stored. Existing history is preserved.');
+      refresh(); setSelected(stored); setVideoUrl(null);
+      navigate({ page: 'replay', sessionId: stored.id }); setPage('replay');
+    } catch (caught: unknown) {
+      if (generation.current === current) setError(recordedDemoMessage(caught, DEMO_CAPTURE_FILE, DEMO_REPORT_FILE));
     } finally { if (generation.current === current) setIsImporting(false); }
   };
 
@@ -98,8 +121,8 @@ function LocalApp() {
             sessions={sessions}
             onLoadDemo={() => { void openRecordedDemo(); }}
             isLoadingDemo={isImporting}
-            onImport={() => { generation.current += 1; setIsImporting(false); setError(null); setPage('upload'); }}
-            onOpen={(session) => { generation.current += 1; setIsImporting(false); setError(null); setVideoUrl(null); setSelected(session); setPage('replay'); }}
+            onImport={() => { generation.current += 1; setIsImporting(false); setError(null); navigate({ page: 'upload' }); setPage('upload'); }}
+            onOpen={(session) => { generation.current += 1; setIsImporting(false); setError(null); setVideoUrl(null); setSelected(session); navigate({ page: 'replay', sessionId: session.id }); setPage('replay'); }}
           />
         )}
         {page === 'upload' && (
@@ -111,7 +134,7 @@ function LocalApp() {
           />
         )}
         {page === 'replay' && selected && (
-          <SessionReplay session={selected} videoUrl={videoUrl} onBack={leaveReplay} />
+          <SessionReplay session={selected} datasetLabel={labelForSession(manifest, selected.canonicalSha256)} videoUrl={videoUrl} onBack={leaveReplay} />
         )}
       </main>
     </div>

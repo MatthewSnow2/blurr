@@ -2,9 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Database, Video } from 'lucide-react';
 import SavedProviderReport from './SavedProviderReport';
 import type { ReplaySample, StoredSession } from '../lib/sessionStore';
+import type { DatasetLabel } from '../demo/datasets';
 
 interface SessionReplayProps {
   session: StoredSession;
+  datasetLabel: DatasetLabel;
   videoUrl: string | null;
   onBack: () => void;
 }
@@ -14,7 +16,7 @@ type PositionedSample = ReplaySample & { poseXM: number; poseYM: number };
 const isPositioned = (sample: ReplaySample): sample is PositionedSample =>
   sample.poseXM !== null && sample.poseYM !== null;
 
-const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack }) => {
+const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, videoUrl, onBack }) => {
   const [sampleIndex, setSampleIndex] = useState(0);
   const sample = session.samples[sampleIndex];
   const trace = useMemo(() => {
@@ -46,6 +48,16 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack
         <ArrowLeft className="h-5 w-5 mr-2" />
         Back to local history
       </button>
+
+      <div role="note" aria-label="Recorded replay notice" className="glass-card p-4 border border-amber-400/40 text-sm">
+        <p className="font-semibold text-amber-300 uppercase tracking-wider">Recorded replay · not live simulation or inference</p>
+        <p className="mt-1 text-chrome-200">
+          {datasetLabel.label} · {isF1
+            ? `${session.durationS.toFixed(2)} s simulated over ${session.sampleCount} steps${session.timestepS === null ? '' : ` at ${session.timestepS} s`}`
+            : `${session.durationS.toFixed(3)} s reception span over ${session.sampleCount} frames`}
+        </p>
+        <p className="mt-1 text-chrome-400">This demonstrates ingestion and reporting, not proven driving improvement or a completed lap.</p>
+      </div>
 
       <div className="carbon-card p-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -132,6 +144,8 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, videoUrl, onBack
           <Provenance label="Source SHA-256" value={session.sourceFileSha256} />
           <Provenance label="Captured" value={session.capturedAtUtc} />
           <Provenance label="Imported" value={session.importedAtUtc} />
+          <Provenance label="Dataset" value={datasetLabel.label} />
+          <Provenance label="Distribution" value={datasetLabel.distribution ?? 'not listed in the bundled manifest'} />
         </dl>
       </div>
 
