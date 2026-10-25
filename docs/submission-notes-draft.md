@@ -35,14 +35,36 @@ usage supported this bounded verification. Public machine-readable model prices
 were available at `/api/public/models_info`, while the interactive catalog was
 less accessible to plain web retrieval. Explicit separation of response
 provenance from claim validity helped avoid treating a fixture as provider proof.
-Only one request was observed; no latency/quality/general reliability benchmark
+Two requests were observed (15 and 23 October); no latency/quality/general reliability benchmark
 or driver-improvement claim is supported.
 
-Owner gates still open: eligibility/track decision, source/asset rights and root
-open-source license, public repository and reproducible judge access/test build,
-public YouTube video strictly shorter than3minutes, final English description,
-feedback and update explanation, and owner submission/legal acceptance. Further
-paid calls need new approval; the one-request allowance is consumed.
+Owner gates settled: root license Apache-2.0 with the Silverstone data under
+GPL-3.0, asset redistribution cleared 23 October 2026, and the public repository
+https://github.com/MatthewSnow2/blurr. Owner gates still open: eligibility/track
+decision, judge access check on the published build, public YouTube video
+strictly shorter than 3 minutes, final English description, feedback and update
+explanation, and owner submission/legal acceptance. Further paid calls need new
+approval; both one-request allowances are consumed.
+
+## Claim-to-evidence list
+
+Status: **verified** means checked against files or a run on 25 October 2026
+(`qualification-review-2026-10-25.md`); **recorded** means taken from an
+owner-held 23 October receipt and not re-run; **open** means not yet true.
+
+| Claim | Source | Limitation | Status |
+|---|---|---|---|
+| The default demo is F1TENTH Silverstone run A, 600 steps, 5.99 s simulated | `fixtures/provenance.json`, `data/f1tenth-silverstone/run-a-session.json`, `tests/recordedDemo.test.ts` | About 14.5 m of one straight, not a lap | verified |
+| The bundled run A files are byte-identical to the sealed originals | sha256 in the manifest and the qualification review | Receipts are not in the repository | verified |
+| Run A was reproduced by run B with identical stable fields | capture receipt `f1tenth-capture-6eca279-20261023` | Simulated only; `real_simulator_qualification` pending | recorded |
+| One real Nebius Token Factory call used `nvidia/nemotron-3-super-120b-a12b` on run A | `run-a-nebius-report.json`, receipt `nebius-run-a-20261023` | Provider metadata is attributed to the file, not authenticated by the browser | recorded |
+| That call cost USD 0.0009432 | receipt `cost-proof.json`, 1362 input and 594 output tokens at 0.30 and 0.90 USD per million | Calculated from published rates; invoice not observed | recorded |
+| Every displayed report claim resolves to session evidence | `docs/report-contract.md`, `tests/reportContract.test.ts`, `tests/savedProviderReport.test.ts` | Validates claims, not coaching quality | verified |
+| Viewing the demo makes no provider call and no external request | `src/demo/recordedDemo.ts`, browser journey | Checked in Chromium only | verified |
+| A missing or mismatched demo file fails closed with a specific message | `tests/recordedDemo.test.ts`, browser 404 check | | verified |
+| AutoDRIVE input is supported | `fixtures/autodrive-synthetic-session.json` | Synthetic two-frame fixture; no live stream | verified (import only) |
+| The app shows proven driving improvement | none | Not claimed | not claimed |
+| Demo video under 3 minutes | `docs/demo-sequence-draft.md` | Not recorded | open |
 
 Official sources rechecked15October2026:
 https://nebiusglobalaihackathon.devpost.com/rules

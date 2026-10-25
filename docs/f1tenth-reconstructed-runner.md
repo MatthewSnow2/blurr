@@ -9,6 +9,10 @@ This is new implementation, not recovery of the historical capture harness. It
 is qualified only by offline mocked-adapter tests. No real simulator was run.
 The existing original-circuit capture and original deliverables are preserved.
 
+Later note (25 October 2026): the two sentences above predate the 23 October
+Silverstone runs A and B, which this runner captured. Qualification is still
+pending. See `qualification-review-2026-10-25.md`.
+
 ## Scope and behavior
 
 The runner uses the reviewed b3525a0 EnvState public load/reset/step/raceline/

@@ -23,6 +23,9 @@ The saved provider response now renders three validated measurements and one
 reviewed suggestion in the application. It demonstrates actual sponsor usage
 and offline replay/validation, not measured driver improvement or final eligibility.
 No further paid call is authorized or needed for this recording.
+The replay banner ("Recorded replay · not live simulation or inference") and the
+report line "Saved report, not a fresh response" are now on screen in the app,
+so the 1:42 to 2:15 clip shows these labels without an overlay.
 
 Keep filenames, timestamps and hashes matched between clips. Do not include
 credentials, account screens, raw personal data, unlicensed images/music, or
