@@ -68,3 +68,21 @@ d4972c5dc551ac617c4d9f5cc35cb9dc60ea6f368047f032de6897b5be8a467c  Chicane/Chican
 a5a431c0f31f1607b08e90ef037ed6f5ea42e7fd1ff09a79b37e4416b1d09ad5  Chicane/Chicane_map.yaml
 776d3b9e89c91e016f88d28b51aede833aaa8e4d3f241dfdb66271efcc43fea9  Chicane/Chicane_raceline.csv
 ```
+
+## Run A
+
+Each `<track>-run-a-session.json` is a 600-step capture (seed 20261009, 2.5 m/s)
+from the runner at commit d485b22 on AlienPC, 26 October 2026. A second run B
+with the same settings matched each one on every compared field (`--compare`:
+`identical_stable_fields`). Simulated, not real-world driving; qualification
+stays pending.
+
+| Track | Mean / max raceline deviation | End point | Saved report |
+|---|---|---|---|
+| `Turn` | 0.029 m / 0.101 m | (8.00, 8.17) | `chatcmpl-93153bfb23cc6a01779ecafaf51911bd`, 1364 in / 909 out tokens |
+| `TwoTurns` | 0.060 m / 0.108 m | (1.90, 7.50) | `chatcmpl-9c425c3e20842529425950a42cc2adb4`, 1358 in / 722 out tokens |
+| `Chicane` | 0.030 m / 0.081 m | (14.22, 2.34) | `chatcmpl-5c8bda4a6d7223bd16876e7fb4d3cd8b`, 1360 in / 699 out tokens |
+
+Each `<track>-run-a-nebius-report.json` is the saved report from one Nebius call
+on that run. Viewing it makes no new call. Load a run with **Import capture**,
+then its report with **Import saved report**.

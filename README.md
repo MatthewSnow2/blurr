@@ -55,7 +55,10 @@ the manifest is shown as an unlisted import.
 |---|---|---|
 | `data/f1tenth-silverstone/run-a-session.json` | `recorded_simulator_capture` | 600 steps (5.99 s simulated) of f1tenth_gym on Silverstone, about 14.5 m of one straight, captured 23 October 2026. Not a lap. Default demo. |
 | `data/f1tenth-silverstone/run-a-nebius-report.json` | `saved_provider_report` | The saved report from one real Nebius call on run A. Default demo. |
-| `data/f1tenth-circle/run-a-session.json` | `recorded_simulator_capture` | 600 steps (5.99 s simulated) of f1tenth_gym on the original 8 m circle, about 14.5 m (30%) of the lap, captured 26 October 2026. No saved report. |
+| `data/f1tenth-circle/run-a-session.json` | `recorded_simulator_capture` | 600 steps (5.99 s simulated) of f1tenth_gym on the original 8 m circle, about 14.5 m (30%) of the lap, captured 26 October 2026. |
+| `data/f1tenth-circle/run-a-nebius-report.json` | `saved_provider_report` | The saved report from one real Nebius call on the circle run A (26 October). |
+| `data/f1tenth-ladder/{turn,twoturns,chicane}-run-a-session.json` | `recorded_simulator_capture` | 600 steps each of f1tenth_gym on the original rung 3 (one turn), 4.1 (hairpin) and 4.2 (chicane) tracks, captured 26 October 2026. |
+| `data/f1tenth-ladder/{turn,twoturns,chicane}-run-a-nebius-report.json` | `saved_provider_report` | One saved report per ladder run, each from one real Nebius call on 26 October. |
 | `fixtures/f1tenth-original-synthetic-circuit.json` | `legacy_example` | An earlier f1tenth_gym run (9 October 2026) on an original analytic circuit. |
 | `fixtures/autodrive-synthetic-session.json` | `synthetic_fixture` | Two-frame AutoDRIVE compatibility replay. Not a Unity capture. |
 | `fixtures/autodrive-synthetic-nebius-report.json` | `saved_provider_report` | Saved report from one earlier Nebius call (15 October) on that synthetic replay. |

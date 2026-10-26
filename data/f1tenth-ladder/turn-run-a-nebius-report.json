@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "blurr.saved-provider-report.v1",
+  "sessionSha256": "4feb42b466e2f083c775b03af99ac1ae1c6916c35851096a1bdd350851f9aed8",
+  "telemetryKind": "recorded_simulation",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "responseId": "chatcmpl-93153bfb23cc6a01779ecafaf51911bd",
+  "completedAtUtc": "2026-10-26T23:25:55.500Z",
+  "usage": {
+    "inputTokens": 1364,
+    "outputTokens": 909,
+    "reasoningTokens": 679,
+    "totalTokens": 2273
+  },
+  "reportJson": "{\"contract_version\": \"coaching-report.v1\", \"claims\": [{\"id\": \"c1\", \"type\": \"metric_value\", \"evidence_id\": \"sample_count\"}, {\"id\": \"c2\", \"type\": \"metric_value\", \"evidence_id\": \"duration_s\"}, {\"id\": \"c3\", \"type\": \"metric_value\", \"evidence_id\": \"mean_abs_lateral_deviation_m\"}, {\"id\": \"c4\", \"type\": \"metric_value\", \"evidence_id\": \"max_abs_lateral_deviation_m\"}, {\"id\": \"c5\", \"type\": \"metric_value\", \"evidence_id\": \"mean_speed_mps\"}], \"interpretations\": [{\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c3\", \"drill\": \"steady_line\"}}, {\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c4\", \"drill\": \"steady_line\"}}], \"drill_id\": \"steady_line\"}",
+  "reportSha256": "16b50bd8010d8f01b1908b0a4d1c1908c363e5361a5a25b218771a410700039a"
+}

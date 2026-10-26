@@ -45,4 +45,7 @@ stays pending.
 - The car runs a steady 5 to 6 cm inside the raceline. That fits the controller
   aiming 14 points (1.4 m) ahead, which cuts the chord on a constant curve.
 
-No provider report is saved for this run. Load it with **Import capture**.
+`run-a-nebius-report.json` is the saved report from one Nebius call on this run
+(26 October 2026, response `chatcmpl-62f542eaa71906fe6321ff32aedacf9e`, 1359 input
+and 920 output tokens). Load the run with **Import capture**, then the report with
+**Import saved report**.

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "blurr.saved-provider-report.v1",
+  "sessionSha256": "4db4c06e4a3d066270af2c9a8ca19fafcb3c61df06377288403ab822db4d9dda",
+  "telemetryKind": "recorded_simulation",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "responseId": "chatcmpl-62f542eaa71906fe6321ff32aedacf9e",
+  "completedAtUtc": "2026-10-26T23:26:16.203Z",
+  "usage": {
+    "inputTokens": 1359,
+    "outputTokens": 920,
+    "reasoningTokens": 671,
+    "totalTokens": 2279
+  },
+  "reportJson": "{\"contract_version\": \"coaching-report.v1\", \"claims\": [{\"id\": \"claim_sample_count\", \"type\": \"metric_value\", \"evidence_id\": \"sample_count\"}, {\"id\": \"claim_duration_s\", \"type\": \"metric_value\", \"evidence_id\": \"duration_s\"}, {\"id\": \"claim_dropped_frames\", \"type\": \"metric_value\", \"evidence_id\": \"dropped_frames\"}, {\"id\": \"claim_mean_abs_lateral_deviation_m\", \"type\": \"metric_value\", \"evidence_id\": \"mean_abs_lateral_deviation_m\"}, {\"id\": \"claim_max_abs_lateral_deviation_m\", \"type\": \"metric_value\", \"evidence_id\": \"max_abs_lateral_deviation_m\"}, {\"id\": \"claim_mean_speed_mps\", \"type\": \"metric_value\", \"evidence_id\": \"mean_speed_mps\"}], \"interpretations\": [{\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"claim_mean_abs_lateral_deviation_m\", \"drill\": \"steady_line\"}}], \"drill_id\": \"steady_line\"}",
+  "reportSha256": "c084af511a65d74eab58dfb610cd8a4fa2873ca76ae25635446cf101f22f6dfd"
+}
