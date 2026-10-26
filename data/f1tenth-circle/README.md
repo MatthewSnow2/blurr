@@ -29,7 +29,20 @@ f05fa3dec2cef90dc49a44633040948e1faec7fa0528ffe685dcf66c3dad1c7a  Circle_racelin
 Checked offline only: PNG values {0, 255}, free area 110.57 m2 against the
 ideal ring's 110.58 m2, walls 0.06 m outside each edge occupied all the way
 round, `s` strictly increasing, `psi` within 6e-7 rad of the neighbour
-tangent. Not yet loaded in the gym or driven. To use it, copy `Circle/` into
-the gym's `maps/` folder and load the track by the name `Circle`; the runner
-currently hardcodes Silverstone and its asset hashes, so it needs a change
-before it can drive this track.
+tangent. To use it, copy `Circle/` into the gym's `maps/` folder and run the
+capture runner with `--track Circle`, which pins these four hashes.
+
+## Run A
+
+`run-a-session.json` is a 600-step capture (seed 20261009, 2.5 m/s) from the
+runner at commit 06473e7 on AlienPC, 26 October 2026. A second run B with the
+same settings matched it on every compared field (`--compare`:
+`identical_stable_fields`). Simulated, not real-world driving; qualification
+stays pending.
+
+- Covers about 14.5 m of the 50.27 m lap (start (7.99, 0.30), end (-2.24, 7.62)).
+- Mean |raceline deviation| 0.051 m, max 0.061 m, max heading error 0.022 rad.
+- The car runs a steady 5 to 6 cm inside the raceline. That fits the controller
+  aiming 14 points (1.4 m) ahead, which cuts the chord on a constant curve.
+
+No provider report is saved for this run. Load it with **Import capture**.
