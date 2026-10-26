@@ -27,11 +27,30 @@ from f1tenth_capture_core import CaptureConfig, MAX_BYTES, collect, encode, fini
 ADAPTER_COMMIT = "b3525a0ae3abb69e84a2e937a1cd2f9cc8b6b33e"
 GYM_COMMIT = "5a301bd0ae1ceaf7dec653e7549c8d099db58a6b"
 MODULE_SHA256 = "bc595f23e1150205abb4c72fbdc6b347533fe5832011e80920e2a9600010177b"
-ASSET_HASHES = {
-    "Silverstone_map.yaml": "0f97cde428cbfd762c571a2fa3479980be9c5a96c198472d8561f124c896108a",
-    "Silverstone_map.png": "074bfe8080ab70b18068c77ab19179f8c289305b1964888ad72a503d4c7baf4a",
-    "Silverstone_centerline.csv": "4abf0f78b3264bd08e989370cf006343abd7c70862245ab4f4ea2e8ce98444ab",
-    "Silverstone_raceline.csv": "cc2925c22468c3cb57b225dc88eab933589c037805af4de6823fff340a64fd97",
+# Each named track is loaded from <gym>/maps/<name>/ only after all four files match these bytes.
+TRACKS = {
+    "Silverstone": {
+        "assets": {
+            "Silverstone_map.yaml": "0f97cde428cbfd762c571a2fa3479980be9c5a96c198472d8561f124c896108a",
+            "Silverstone_map.png": "074bfe8080ab70b18068c77ab19179f8c289305b1964888ad72a503d4c7baf4a",
+            "Silverstone_centerline.csv": "4abf0f78b3264bd08e989370cf006343abd7c70862245ab4f4ea2e8ce98444ab",
+            "Silverstone_raceline.csv": "cc2925c22468c3cb57b225dc88eab933589c037805af4de6823fff340a64fd97",
+        },
+        "circuit": {"name": "Silverstone · reconstructed runner (qualification pending)",
+                    "provenance": "f1tenth/f1tenth_racetracks@b95c4ef Silverstone assets (GPL-3.0); see THIRD-PARTY-NOTICES.txt",
+                    "distributable_fixture": False},
+    },
+    "Circle": {
+        "assets": {
+            "Circle_map.yaml": "5f54a8dcfb63545a8b48a5c265614c7ea42028f2474a5d211559a144060a5c87",
+            "Circle_map.png": "09a050710f582863624c95b8c942720b289275df43b7b84e06a7d9f54b9b37f2",
+            "Circle_centerline.csv": "d9a2ad5954d94d13888e102b2f6ff9a943ce3aeeaaa5a490f62d4b6e99040659",
+            "Circle_raceline.csv": "f05fa3dec2cef90dc49a44633040948e1faec7fa0528ffe685dcf66c3dad1c7a",
+        },
+        "circuit": {"name": "Circle (rung 2, R 8 m) · reconstructed runner (qualification pending)",
+                    "provenance": "blurr original geometry from data/f1tenth-circle/make_circle.py (Apache-2.0)",
+                    "distributable_fixture": True},
+    },
 }
 CHILD_ENVIRONMENT = {"PYTHONSAFEPATH": "1", "PYTHONDONTWRITEBYTECODE": "1", "PYGLET_HEADLESS": "true",
                      "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "hide",
@@ -83,19 +102,22 @@ def check_git(root, expected):
         raise ValueError("source HEAD or tracked state differs from pinned review")
 
 
-def inspect_sources(source_root, gym_root):
+def inspect_sources(source_root, gym_root, track):
     source_root, gym_root = Path(source_root).resolve(), Path(gym_root).resolve()
+    if track not in TRACKS:
+        raise ValueError("track is not in the pinned track table")
     check_git(source_root, ADAPTER_COMMIT)
     check_git(gym_root, GYM_COMMIT)
     module = source_root / "src/f1tenth_mcp/env_state.py"
     if not module.resolve().is_relative_to(source_root) or digest(module) != MODULE_SHA256:
         raise ValueError("corrected adapter module digest/path mismatch")
-    for name, expected in ASSET_HASHES.items():
-        asset = gym_root / "maps/Silverstone" / name
+    assets = TRACKS[track]["assets"]
+    for name, expected in assets.items():
+        asset = gym_root / "maps" / track / name
         if not asset.resolve().is_relative_to(gym_root) or digest(asset) != expected:
-            raise ValueError(f"local Silverstone asset differs from reviewed bytes: {name}")
+            raise ValueError(f"local {track} asset differs from reviewed bytes: {name}")
     return {"adapter_root": str(source_root), "adapter_commit": ADAPTER_COMMIT, "adapter_module_sha256": MODULE_SHA256,
-            "gym_root": str(gym_root), "gym_commit": GYM_COMMIT, "local_track_asset_sha256": ASSET_HASHES}
+            "gym_root": str(gym_root), "gym_commit": GYM_COMMIT, "local_track_asset_sha256": assets}
 
 
 def windows_resources():
@@ -182,7 +204,7 @@ def run_worker(args):
     if os.environ.get("NUMBA_CACHE_DIR") != str(Path(args.staging) / "numba-cache"):
         raise ValueError("Numba cache must remain in the owned worker staging directory")
     mark_worker_phase("source_preflight")
-    source = inspect_sources(args.source_root, args.gym_root)
+    source = inspect_sources(args.source_root, args.gym_root, args.track)
     prime_platform_metadata()
     sys.addaudithook(deny_python_network_and_children)
     expected_module = (Path(args.source_root) / "src/f1tenth_mcp/env_state.py").resolve()
@@ -201,7 +223,7 @@ def run_worker(args):
     state = adapter.EnvState()
     mark_worker_phase("capture_loop")
     candidate = collect(state, CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout),
-                        runtime_receipt, cleanup_runtime)
+                        runtime_receipt, cleanup_runtime, track_name=args.track)
     mark_worker_phase("metadata")
     candidate.update({"producer": source, "started_at_utc": started,
                       "python": {"executable": sys.executable, "version": platform.python_version(),
@@ -257,7 +279,10 @@ def finalize(candidate, args, resources):
         raise ValueError("candidate sample count outside requested bounds")
     if candidate["producer"]["adapter_commit"] != ADAPTER_COMMIT or candidate["producer"]["gym_commit"] != GYM_COMMIT:
         raise ValueError("candidate source pin mismatch")
-    if (candidate["producer"]["adapter_module_sha256"] != MODULE_SHA256 or candidate["producer"]["local_track_asset_sha256"] != ASSET_HASHES
+    if candidate["track_name"] != args.track or args.track not in TRACKS:
+        raise ValueError("candidate track differs from requested run")
+    if (candidate["producer"]["adapter_module_sha256"] != MODULE_SHA256
+            or candidate["producer"]["local_track_asset_sha256"] != TRACKS[args.track]["assets"]
             or candidate["runtime_receipt"]["timestep_s"] != 0.01 or candidate["runtime_receipt"]["render_mode"] is not None):
         raise ValueError("candidate producer/runtime differs from pinned settings")
     if not re.fullmatch(r"[a-f0-9]{64}", candidate["geometry_sha256"]):
@@ -289,9 +314,10 @@ def finalize(candidate, args, resources):
         raise ValueError("candidate summary mismatch")
     return {"schema_version": "blurr.telemetry-session.v1", "source_kind": "f1tenth", "status": "sealed",
             "captured_at_utc": candidate["started_at_utc"],
-            "circuit": {"name": "Silverstone · reconstructed runner (qualification pending)", "track_name": "Silverstone",
-                        "provenance": "f1tenth/f1tenth_racetracks@b95c4ef Silverstone assets (GPL-3.0); see THIRD-PARTY-NOTICES.txt",
-                        "distributable_fixture": False, "raceline_geometry_sha256": candidate["geometry_sha256"]},
+            "circuit": {"name": TRACKS[args.track]["circuit"]["name"], "track_name": args.track,
+                        "provenance": TRACKS[args.track]["circuit"]["provenance"],
+                        "distributable_fixture": TRACKS[args.track]["circuit"]["distributable_fixture"],
+                        "raceline_geometry_sha256": candidate["geometry_sha256"]},
             "runtime": {"simulator": "f1tenth_gym", "seed": args.seed, "timestep_s": 0.01,
                         "analysis_version": "raceline-v2", "reference_kind": "raceline",
                         "sim_time_origin": "counted_adapter_steps_since_reset_return"},
@@ -385,6 +411,7 @@ def parser():
     result.add_argument("--compare", type=Path, nargs=2, metavar=("RUN_A", "RUN_B"), help="Read-only receipt/sample comparison; no simulator")
     result.add_argument("--source-root", default=str(Path.home() / "Documents" / "Codex" / "2026-10-08" / "task" / "worktrees" / "f1tenth-raceline-reference"))
     result.add_argument("--gym-root", default=str(Path.home() / "projects" / "f1tenth_gym"))
+    result.add_argument("--track", choices=sorted(TRACKS), default="Silverstone", help="Named track under <gym>/maps with pinned asset hashes")
     result.add_argument("--seed", type=int, default=20261009)
     result.add_argument("--steps", type=int, default=600)
     result.add_argument("--timeout", type=float, default=120)
@@ -410,7 +437,7 @@ def main(argv=None):
             return 2
     if not args.run:
         print(json.dumps({"mode": "plan_only_no_simulator_import", "runner": "newly_reconstructed", "real_qualification": "pending",
-                          "track": "Silverstone_existing_pinned_assets", "adapter_commit": ADAPTER_COMMIT, "gym_commit": GYM_COMMIT}))
+                          "track": f"{args.track}_existing_pinned_assets", "adapter_commit": ADAPTER_COMMIT, "gym_commit": GYM_COMMIT}))
         return 0
     try:
         CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout).validate()
@@ -422,13 +449,13 @@ def main(argv=None):
         if args.output is None or args.output.exists() or not args.output.parent.is_dir():
             raise ValueError("select a nonexistent output directory under an existing approved parent")
         resources = windows_resources()
-        inspect_sources(args.source_root, args.gym_root)
+        inspect_sources(args.source_root, args.gym_root, args.track)
         with tempfile.TemporaryDirectory(prefix="blurr-f1-worker-", dir=args.output.parent) as staging:
             token = secrets.token_hex(16)
             environment = dict(os.environ, **CHILD_ENVIRONMENT, PYTHONPATH=str(Path(args.source_root).resolve() / "src"),
                                NUMBA_CACHE_DIR=str(Path(staging) / "numba-cache"), BLURR_F1_WORKER_TOKEN=token)
             command = [sys.executable, "-s", str(Path(__file__).resolve()), "--run", "--source-root", args.source_root, "--gym-root", args.gym_root,
-                       "--seed", str(args.seed), "--steps", str(args.steps), "--timeout", str(args.timeout),
+                       "--track", args.track, "--seed", str(args.seed), "--steps", str(args.steps), "--timeout", str(args.timeout),
                        "--expected-runner-sha256", args.expected_runner_sha256, "--expected-core-sha256", args.expected_core_sha256,
                        "--worker-token", token, "--staging", staging]
             try:

@@ -63,7 +63,7 @@ def main(argv=None):
             if os.environ.get("NUMBA_CACHE_DIR") != str(Path(args.staging) / "numba-cache"):
                 raise ValueError("unexpected cache path")
             runner.mark_worker_phase("source_preflight")
-            runner.inspect_sources(args.source_root, args.gym_root)
+            runner.inspect_sources(args.source_root, args.gym_root, "Silverstone")
             runner.prime_platform_metadata()
             sys.addaudithook(runner.deny_python_network_and_children)
             print(json.dumps({"schema_version": "blurr.worker-import-probe.v1", "phase": "before_imports", "guard_policy": "unchanged"}), flush=True)
@@ -74,7 +74,7 @@ def main(argv=None):
         if args.output is None or args.output.exists() or not args.output.parent.is_dir():
             raise ValueError("select a fresh diagnostic output under an approved existing parent")
         runner.windows_resources()
-        runner.inspect_sources(args.source_root, args.gym_root)
+        runner.inspect_sources(args.source_root, args.gym_root, "Silverstone")
         with tempfile.TemporaryDirectory(prefix="blurr-f1-import-probe-", dir=args.output.parent) as staging:
             token = secrets.token_hex(16)
             environment = dict(os.environ, **runner.CHILD_ENVIRONMENT, BLURR_F1_WORKER_TOKEN=token,

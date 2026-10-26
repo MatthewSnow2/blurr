@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { loadRecordedDemo, recordedDemoMessage, RecordedDemoError } from '../src/demo/recordedDemo.ts';
 import { defaultDemoPair, labelForSession, parseDatasetManifest } from '../src/demo/datasets.ts';
+import { importSealedSessionFile } from '../src/lib/sessionStore.ts';
 
 const repo = (path: string) => new URL(`../${path}`, import.meta.url);
 const manifest = parseDatasetManifest(readFileSync(repo('fixtures/provenance.json'), 'utf8'));
@@ -65,4 +66,18 @@ test('a malformed capture is rejected before any report is considered', async ()
 test('sessions outside the manifest are labeled as unlisted imports', () => {
   assert.equal(labelForSession(manifest, '0'.repeat(64)).datasetClass, 'unlisted_import');
   assert.equal(labelForSession(manifest, '6752d098e909ae9d064641ff0721b045a4f0c285bf70989fb9c40e93a921a3fb').datasetClass, 'synthetic_fixture');
+});
+
+test('Circle run A imports through Import capture and is labeled from the manifest, not as the default demo', async () => {
+  const entry = manifest.find(e => e.path === 'data/f1tenth-circle/run-a-session.json');
+  assert.ok(entry);
+  const bytes = new Uint8Array(readFileSync(repo(entry.path)));
+  const session = await importSealedSessionFile({ name: entry.file, size: bytes.length, arrayBuffer: async () => bytes.buffer });
+  assert.equal(session.canonicalSha256, entry.session_canonical_sha256);
+  assert.equal(session.sampleCount, 600);
+  assert.match(session.circuitName, /^Circle /u);
+  const label = labelForSession(manifest, session.canonicalSha256);
+  assert.equal(label.datasetClass, 'recorded_simulator_capture');
+  assert.equal(label.distribution, 'Apache-2.0');
+  assert.notEqual(demoSession.path, entry.path);
 });

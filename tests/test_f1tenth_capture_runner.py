@@ -26,7 +26,8 @@ class FakeState:
         self.terminal_at, self.truncated_at, self.fail, self.count = terminal_at, truncated_at, fail, count
 
     def load_track(self, name):
-        assert name == "Silverstone"
+        assert name in runner.TRACKS
+        self.track_name = name
         self.loaded += 1
         if self.fail == "load":
             raise RuntimeError("fake load failed")
@@ -73,16 +74,17 @@ class FakeState:
             raise RuntimeError("fake close failed")
 
 
-def capture(state=None, config=None, clock=lambda: 0):
+def capture(state=None, config=None, clock=lambda: 0, track="Silverstone"):
     state = state or FakeState()
     return core.collect(state, config or core.CaptureConfig(steps=4),
-                        lambda state: {"timestep_s": .01, "render_mode": None}, lambda state: state.close(), clock=clock)
+                        lambda state: {"timestep_s": .01, "render_mode": None}, lambda state: state.close(),
+                        track_name=track, clock=clock)
 
 
-def candidate():
-    value = capture()
+def candidate(track="Silverstone"):
+    value = capture(track=track)
     value.update({"producer": {"adapter_commit": runner.ADAPTER_COMMIT, "gym_commit": runner.GYM_COMMIT,
-                               "adapter_module_sha256": runner.MODULE_SHA256, "local_track_asset_sha256": runner.ASSET_HASHES},
+                               "adapter_module_sha256": runner.MODULE_SHA256, "local_track_asset_sha256": runner.TRACKS[track]["assets"]},
                   "started_at_utc": "2026-10-16T00:00:00+00:00", "python": {"version": "mock_fixture"},
                   "child_environment": dict(runner.CHILD_ENVIRONMENT),
                   "adapter_module_path": "mock_fixture", "gym_module_path": "mock_fixture"})
@@ -143,7 +145,7 @@ class CaptureCoreTests(unittest.TestCase):
         for receipt in ({"timestep_s": .02, "render_mode": None}, {"timestep_s": .01, "render_mode": "human"}):
             state = FakeState()
             with self.assertRaises(ValueError):
-                core.collect(state, core.CaptureConfig(steps=1), lambda state: receipt, lambda state: state.close(), clock=lambda: 0)
+                core.collect(state, core.CaptureConfig(steps=1), lambda state: receipt, lambda state: state.close(), track_name="Silverstone", clock=lambda: 0)
             self.assertEqual(state.closed, 1)
 
     def test_controller_nonfinite_or_outside_bound_never_reaches_step(self):
@@ -165,7 +167,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
         value = capture(config=core.CaptureConfig(steps=600))
         template = candidate()
         template.update(value)
-        document = runner.finalize(template, SimpleNamespace(steps=600, seed=20261009, timeout=120), {})
+        document = runner.finalize(template, SimpleNamespace(track="Silverstone", steps=600, seed=20261009, timeout=120), {})
         document["provenance"]["offline_mock_fixture"] = True
         document["circuit"]["name"] = "Offline mocked comparison fixture"
         with tempfile.TemporaryDirectory() as folder:
@@ -209,7 +211,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
                 runner.supervise([sys.executable, "-c", script, folder], folder, 2, dict(os.environ))
 
     def test_finalization_recomputes_summary_and_keeps_qualification_pending(self):
-        args = SimpleNamespace(steps=4, seed=20261009, timeout=120)
+        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120)
         doc = runner.finalize(candidate(), args, {"kind": "mock_resource_fixture"})
         self.assertEqual(doc["provenance"]["real_simulator_qualification"], "pending")
         self.assertFalse(doc["circuit"]["distributable_fixture"])
@@ -223,7 +225,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
 
     def test_environment_recorded_after_gymnasium_import_passes_and_real_drift_rejects(self):
         # gymnasium/__init__.py sets PYGAME_HIDE_SUPPORT_PROMPT="hide" on import; the worker records env after capture.
-        args = SimpleNamespace(steps=4, seed=20261009, timeout=120)
+        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120)
         value = candidate(); value["child_environment"]["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
         runner.finalize(value, args, {})
         value = candidate(); value["child_environment"]["SDL_VIDEODRIVER"] = "windows"
@@ -231,7 +233,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             runner.finalize(value, args, {})
 
     def test_exclusive_bundle_receipt_and_existing_output_preserved(self):
-        doc = runner.finalize(candidate(), SimpleNamespace(steps=4, seed=20261009, timeout=120), {})
+        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {})
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / "new-bundle"
             receipt = runner.publish(doc, output)
@@ -242,7 +244,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             self.assertEqual(raw, (output / "session.json").read_bytes())
 
     def test_explicit_mock_export_roundtrips_existing_blurr_f1tenth_importer(self):
-        document = runner.finalize(candidate(), SimpleNamespace(steps=4, seed=20261009, timeout=120), {"kind": "mock"})
+        document = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {"kind": "mock"})
         document["provenance"]["offline_mock_fixture"] = True
         document["circuit"]["name"] = "Offline mock fixture · reconstructed runner (qualification pending)"
         with tempfile.TemporaryDirectory() as folder:
@@ -262,7 +264,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             self.assertIn("qualification pending", parsed["name"])
 
     def test_partial_publication_cleanup_and_failure_evidence(self):
-        doc = runner.finalize(candidate(), SimpleNamespace(steps=4, seed=20261009, timeout=120), {})
+        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {})
         original = Path.open
 
         def failing_open(path, *args, **kwargs):
@@ -322,20 +324,59 @@ class SourceAndCliTests(unittest.TestCase):
             module = Path(folder) / "src/f1tenth_mcp/env_state.py"
             module.parent.mkdir(parents=True); module.write_text("raise RuntimeError('must never execute')")
             with patch.object(runner, "check_git"), self.assertRaisesRegex(ValueError, "digest/path mismatch"):
-                runner.inspect_sources(folder, folder)
+                runner.inspect_sources(folder, folder, "Silverstone")
 
     def test_missing_or_changed_assets_fail_before_any_simulator_import(self):
         with tempfile.TemporaryDirectory() as folder:
             module = Path(folder) / "src/f1tenth_mcp/env_state.py"
             module.parent.mkdir(parents=True); module.write_text("# mocked inert source")
             with patch.object(runner, "check_git"), patch.object(runner, "MODULE_SHA256", runner.digest(module)), self.assertRaises(FileNotFoundError):
-                runner.inspect_sources(folder, folder)
+                runner.inspect_sources(folder, folder, "Silverstone")
             assets = Path(folder) / "maps/Silverstone"
             assets.mkdir(parents=True)
-            for name in runner.ASSET_HASHES:
+            for name in runner.TRACKS["Silverstone"]["assets"]:
                 (assets / name).write_text("changed mock asset")
             with patch.object(runner, "check_git"), patch.object(runner, "MODULE_SHA256", runner.digest(module)), self.assertRaisesRegex(ValueError, "asset differs"):
-                runner.inspect_sources(folder, folder)
+                runner.inspect_sources(folder, folder, "Silverstone")
+
+    def test_circle_pins_match_committed_map_bytes(self):
+        folder = ROOT / "data/f1tenth-circle/Circle"
+        self.assertEqual({path.name: runner.digest(path) for path in folder.iterdir()}, runner.TRACKS["Circle"]["assets"])
+
+    def test_named_track_selects_its_own_asset_folder_and_rejects_unknown_names(self):
+        with tempfile.TemporaryDirectory() as folder:
+            module = Path(folder) / "src/f1tenth_mcp/env_state.py"
+            module.parent.mkdir(parents=True); module.write_text("# mocked inert source")
+            assets = Path(folder) / "maps/Circle"
+            assets.mkdir(parents=True)
+            for path in (ROOT / "data/f1tenth-circle/Circle").iterdir():
+                (assets / path.name).write_bytes(path.read_bytes())
+            with patch.object(runner, "check_git"), patch.object(runner, "MODULE_SHA256", runner.digest(module)):
+                self.assertEqual(runner.inspect_sources(folder, folder, "Circle")["local_track_asset_sha256"], runner.TRACKS["Circle"]["assets"])
+                with self.assertRaises(FileNotFoundError):
+                    runner.inspect_sources(folder, folder, "Silverstone")
+                with self.assertRaisesRegex(ValueError, "pinned track table"):
+                    runner.inspect_sources(folder, folder, "../Circle")
+
+    def test_circle_capture_loads_circle_and_seals_circle_provenance(self):
+        state = FakeState()
+        capture(state, track="Circle")
+        self.assertEqual(state.track_name, "Circle")
+        args = SimpleNamespace(track="Circle", steps=4, seed=20261009, timeout=120)
+        doc = runner.finalize(candidate("Circle"), args, {})
+        self.assertEqual(doc["circuit"]["track_name"], "Circle")
+        self.assertTrue(doc["circuit"]["distributable_fixture"])
+        self.assertEqual(doc["provenance"]["producer"]["local_track_asset_sha256"], runner.TRACKS["Circle"]["assets"])
+        relabelled = candidate("Circle"); relabelled["track_name"] = "Silverstone"
+        for value in (candidate("Silverstone"), relabelled):
+            with self.subTest(track=value["track_name"]), self.assertRaisesRegex(ValueError, "track differs"):
+                runner.finalize(value, args, {})
+
+    def test_plan_output_names_selected_track_without_simulator(self):
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/capture_f1tenth_reconstructed.py"), "--track", "Circle"],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["track"], "Circle_existing_pinned_assets")
 
     def test_git_head_and_dirty_tracked_source_reject_without_execution(self):
         for replies in (["wrong"], [runner.ADAPTER_COMMIT, " M src/f1tenth_mcp/env_state.py"]):
