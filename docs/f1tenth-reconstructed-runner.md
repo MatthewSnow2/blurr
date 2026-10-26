@@ -17,7 +17,10 @@ pending. See `qualification-review-2026-10-25.md`.
 
 The runner uses the reviewed b3525a0 EnvState public load/reset/step/raceline/
 analysis methods. Since that API loads named tracks, this first reconstruction
-uses only the existing, hash-pinned Silverstone assets. It does not recreate the
+uses only the existing, hash-pinned Silverstone assets. `--track Circle` (added
+26 October 2026) selects the rung-2 circle from `data/f1tenth-circle/Circle/`,
+copied into the gym's `maps/Circle/` and pinned the same way; Silverstone stays
+the default. It does not recreate the
 old original analytic circuit or claim identical historical controller behavior.
 The new controller selects the nearest waypoint, targets 14 points ahead, wraps
 heading error, applies gain0.65 and clamps steering to0.35 rad at a2.5 m/s target.
@@ -35,7 +38,7 @@ reads completed bundles; it never imports the simulator.
   instance before stepping. Simulator-relative time counts adapter steps after
   reset returns; it does not fabricate wall-clock or network reception timing.
 - Root/HEAD/clean-tracked-source checks pin adapter b3525a0 and gym5a301bd;
-  module byte hash and all four Silverstone asset hashes are checked before
+  module byte hash and all four asset hashes of the selected track are checked before
   imports. Runtime imported module paths are checked. Missing/changed assets
   fail before load_track can download them. Existing untracked smoke files are
   not executed or changed.

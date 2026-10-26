@@ -95,11 +95,12 @@ def steering_for(obs, points, config):
     return max(-config.steering_limit_rad, min(config.steering_limit_rad, config.steering_gain * error))
 
 
-def collect(state, config, verify_runtime, cleanup, clock=time.monotonic):
+def collect(state, config, verify_runtime, cleanup, *, track_name, clock=time.monotonic):
     """Collect a candidate, never write or claim a sealed/live-qualified session.
 
     Caller owns cleanup of partially failed load_track as well. The same deadline
     covers load/reset/pages/steps/cleanup; a parent process bounds blocked calls.
+    The caller pins track_name's asset bytes before this loads it.
     """
     config.validate()
     start = clock()
@@ -114,7 +115,7 @@ def collect(state, config, verify_runtime, cleanup, clock=time.monotonic):
 
     try:
         check_deadline()
-        state.load_track("Silverstone")
+        state.load_track(track_name)
         check_deadline()
         runtime_receipt = verify_runtime(state)
         if finite(runtime_receipt.get("timestep_s"), "actual timestep") != config.timestep_s or runtime_receipt.get("render_mode") is not None:
@@ -151,7 +152,7 @@ def collect(state, config, verify_runtime, cleanup, clock=time.monotonic):
             if terminated or truncated:
                 break
         deviations = [abs(sample["analysis"]["lateral_dev_m"]) for sample in samples]
-        candidate = {"capture_config": dict(vars(config)), "samples": samples, "outcome": {"sample_count": len(samples),
+        candidate = {"capture_config": dict(vars(config)), "track_name": track_name, "samples": samples, "outcome": {"sample_count": len(samples),
             "mean_abs_raceline_deviation_m": sum(deviations) / len(deviations),
             "max_abs_raceline_deviation_m": max(deviations), "terminated": terminated, "truncated": truncated,
             "stop_reason": "terminated" if terminated else "truncated" if truncated else "step_limit"},
