@@ -15,10 +15,10 @@ https://nebiusglobalaihackathon.devpost.com/details/faqs
 | Submission Period ends 30 October 2026, 10:00 PT (17:00 UTC) | Open |
 | Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | Eight real Token Factory calls to `nvidia/nemotron-3-super-120b-a12b` produced the bundled reports. The judged app replays them offline; judges cannot trigger a new call. Owner framing decision (gate G1). |
 | Track | Physical AI, simulation only. The FAQ allows simulation. |
-| Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves `116d943`. Gate G3. |
+| Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves `116d943`. The site's primary custom domain does not resolve. See section 10. Gate G3. |
 | Public repo with a detectable OSI license in About | https://github.com/MatthewSnow2/blurr, public, Apache-2.0 detected |
 | README with setup, Nemotron usage, where Token Factory helped | README sections "Quick start", "Viewing the Silverstone baseline and retest lap attempts", "How Nemotron and Token Factory are used" |
-| Video under 3 minutes, public on YouTube, at least 1 minute of key modules if no hardware | Script and rehearsal in `demo-sequence-draft.md` (2:50, 2:05 of app). Not recorded. Gate G2. |
+| Video under 3 minutes, public on YouTube, at least 1 minute of key modules if no hardware | Silent screen-recorded draft with burned-in narration captions (2:50, 2:05 of app), see `demo-sequence-draft.md`. No voiceover, not uploaded. Gate G2. |
 | Existing projects explain significant updates | Owner to confirm when work began; see section 6 |
 | Original work, solely owned, no third-party IP violation | Gate G5 (GPL-3.0 track data) |
 | English | All materials in English |
@@ -45,11 +45,12 @@ browser re-validates every claim and renders it with local code. Eight calls
 produced every report in the repository, under one US cent in total.
 
 **What we showed.** On Silverstone, a full-lap attempt with the default
-controller ended in a collision after 12.14 s (about 30 m along the raceline). The controller was then swept
+controller ended after 12.14 s, when the simulator terminated the episode
+(the manifest labels it a collision), about 30 m along the raceline. The controller was then swept
 over 100 settings on four simple practice tracks and the most accurate setting
 was kept. With it, the held-out Silverstone retest stayed within 7 mm of the
-raceline and reached about 68 m before its run also ended in a collision, at
-27.44 s; that crash is not diagnosed. In the browser, each report validated
+raceline and reached about 68 m before its run also terminated, at 27.44 s,
+with the same manifest label; why is not diagnosed. In the browser, each report validated
 against its own run and was refused on the other.
 
 **Limits, stated plainly.** Simulation only. Neither attempt completed a lap.
@@ -58,7 +59,7 @@ from learning; nothing feeds a report back into the controller. Speed is fixed
 at 2.5 m/s. The coaching is shallow (measurements plus a drill suggestion) and
 has not been shown to help a human driver.
 
-**What's next.** Diagnose the retest crash, add a measured braking channel, and
+**What's next.** Diagnose why the retest run terminated, add a measured braking channel, and
 test whether a validated report changes what a driver or controller does.
 
 ## 3. Architecture
@@ -140,18 +141,78 @@ reports, the F1TENTH ladder sweep, and the Silverstone baseline and retest.
 | `data/f1tenth-silverstone/*` (captures and reports) | GPL-3.0 (`data/f1tenth-silverstone/LICENSE`) | Derived from `f1tenth/f1tenth_racetracks@b95c4ef` Silverstone assets |
 | Circle and ladder tracks and captures | Apache-2.0 | Original geometry |
 | Bundled UI runtime (react, react-dom, scheduler) | MIT | `THIRD-PARTY-NOTICES.txt` |
-| Nemotron outputs in saved reports | Not assessed here | Owner question |
+| Nemotron outputs in saved reports | NVIDIA Nemotron Open Model License; Nebius Token Factory terms | See the source facts below |
 
 Repo files state that Silverstone redistribution under GPL-3.0 was "cleared on
 23 October 2026". This audit did not verify that decision and gives no legal
-opinion. Open questions for Matt (gate G5):
+opinion.
+
+### Source facts (read 2026-10-27, 05:12Z to 05:17Z)
+
+Quotes are verbatim. None of them settles a question below; they are what a
+decision would rest on.
+
+- **F1TENTH tracks** at `b95c4ef`: the only license file is the stock FSF
+  GPL-3.0 text, with no named copyright holder and no per-track exception
+  (https://github.com/f1tenth/f1tenth_racetracks/tree/b95c4eff766f6367d66b310ea20cd2c9563712c0).
+  Its README says the maps are "based on the f1 racketrack database
+  (https://github.com/TUMFTM/racetrack-database)" and that "the original center
+  lines ... were fetched as GPS points from the OpenStreetMap project".
+  TUMFTM's repository is LGPL-3.0 today (license at the time of derivation not
+  checked). OpenStreetMap data is ODbL: "you may distribute the result only
+  under the same license" (https://www.openstreetmap.org/copyright).
+  `THIRD-PARTY-NOTICES.txt` names F1TENTH but not TUMFTM or OpenStreetMap.
+- **NVIDIA Nemotron Open Model License** (v. 15 December 2025, linked from the
+  model card
+  https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16):
+  "NVIDIA does not claim ownership to any outputs generated using the Works or
+  Derivative Works." Sec. 7: "You will indemnify and hold harmless NVIDIA from
+  and against any claim by any third party arising out of or related to your
+  use or distribution of ... output from the Works". No clause read restricts
+  publishing outputs. Which license version Nebius serves was not verified.
+- **Nebius Token Factory Supplemental Terms**, effective 22 October 2026
+  (https://docs.nebius.com/legal/token-factory), Sec. 3.1: "Customer retains
+  ownership of Customer Content, including its Input and Output." Sec. 2.7
+  incorporates model-card EULAs. The old Token Factory terms apply only to
+  accounts with an active reserve on 15 September 2026; whether this account
+  had one was not checked.
+- **Nebius Services Agreement** 18.7 (https://docs.nebius.com/legal/agreement):
+  "Any references to Nebius shall only be published ... with the prior written
+  consent of Nebius". The README, saved reports and submission copy name Nebius
+  Token Factory, which the hackathon rules require entrants to describe.
+- **Hackathon rules** (https://nebiusglobalaihackathon.devpost.com/rules),
+  Sec. 4: the submission must "be solely owned by you ... with no other person
+  or entity having any right or interest in it", and an entrant "may submit a
+  Submission that includes the use of open source software or hardware,
+  provided the Entrant complies with applicable open source licenses". Sec. 11:
+  an entrant who believes a term "is or may be ambiguous ... must submit a
+  written request for clarification". The FAQ says nothing on third-party data.
+- **GPL-3.0 Sec. 5**: "Inclusion of a covered work in an aggregate does not
+  cause this License to apply to the other parts of the aggregate." The FSF
+  FAQ calls the line between separate and combined works "a legal question,
+  which ultimately judges will decide"
+  (https://www.gnu.org/licenses/gpl-faq.en.html#MereAggregation).
+
+Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-research.md`
+(outside the repo).
+
+### Open questions for Matt (gate G5)
 
 1. The rules require a submission "solely owned by the Entrant". The GPL-3.0
    Silverstone data is not solely owned. Does that conflict, and should the
    submission describe the data as a separately licensed third-party input?
-2. Do the Nemotron model's terms impose anything on redistributing its outputs
-   in a public repo?
-3. `windsurf_test.txt` is a tracked stray test file at the repo root (from
+   Options: (a) describe `data/f1tenth-silverstone/` as a separately licensed
+   aggregate and rely on the open-source sentence; (b) send Devpost a Sec. 11
+   clarification request before 30 October; (c) drop the Silverstone files
+   from the judged build and use only the original-geometry tracks.
+2. Should `THIRD-PARTY-NOTICES.txt` also credit TUMFTM (Alexander Heilmeier)
+   and OpenStreetMap contributors, as the F1TENTH README does?
+3. Does naming Nebius in the README and submission need Nebius's written
+   consent under Agreement 18.7, or does the Nebius-sponsored hackathon's
+   own requirement to describe Token Factory use cover it?
+4. Are you comfortable with the Nemotron Sec. 7 and Token Factory Sec. 8.1
+   indemnities for publishing the saved reports?
+5. `windsurf_test.txt` is a tracked stray test file at the repo root (from
    commit `c5d098f`). Remove it?
 
 ## 8. Acceptance checklist
@@ -163,8 +224,11 @@ opinion. Open questions for Matt (gate G5):
 | Browser QA: Run A, imports, wrong report, switching, malformed and missing input, no stale leaks, console and network | Done, no blocking defect | `blurr-qa` notes in the handoff; Chromium only |
 | README matches the verified experience | Done | README diff in this commit |
 | Submission copy, architecture, evidence index | Done (draft) | Sections 2 to 4 |
-| Video script rehearsed | Done; not recorded | `demo-sequence-draft.md` |
+| Video script rehearsed | Done | `demo-sequence-draft.md` |
+| Silent captioned video draft recorded and inspected | Done; no voiceover | `demo-sequence-draft.md`, "Recorded draft" |
 | License audit with owner flags | Done; questions open | Section 7 |
+| Judge-access facts | Done; decision open | Section 10 |
+| Nebius credit check before any new call | Not verifiable; no call made | Section 11 |
 | Checks at final head | See commit message and handoff | |
 | Video recorded and public on YouTube | Open | Gate G2 |
 | Judge-accessible build with these files | Open | Gate G3 |
@@ -174,10 +238,47 @@ opinion. Open questions for Matt (gate G5):
 
 - **G1 runtime-call framing:** present the app as offline replay of real
   Token Factory outputs, with the runner shown in the README and video.
-- **G2 video:** record from the script, upload publicly to YouTube.
+- **G2 video:** add a voiceover to the silent draft (or re-record with
+  narration), review it, upload publicly to YouTube.
 - **G3 judge access:** merge PR 4 and let Netlify deploy main, or name another
-  link that stays up until 15 December 2026.
+  link that stays up until 15 December 2026. Separately, decide what to do
+  about the unresolved custom domain (section 10).
 - **G4 Devpost:** fill the form; the Devpost connector here needs `/mcp`
   re-authorization.
 - **G5 licensing:** questions in section 7.
 - **G6 submit:** only Matt submits; record the confirmation receipt.
+
+## 10. Judge access facts (read-only, 27 October 2026)
+
+| URL | Serves | Notes |
+|---|---|---|
+| https://strong-strudel-8072a3.netlify.app/ | main `be1ab6e` (bundle `main-DFd3u24-.js`) | HTTP 200; no baseline/retest files |
+| https://deploy-preview-4--strong-strudel-8072a3.netlify.app/ | PR 4 head `116d943` (bundle `main-Dttd0-9S.js`) | HTTP 200; has baseline/retest; `x-robots-tag: noindex` |
+| https://drivingcoachapexai.com/ | nothing | Listed as the Netlify project's primary URL, but DNS does not resolve |
+
+- The local docs commit builds the same bundle as `116d943`, so pushing it
+  changes no app behavior on the preview.
+- The Netlify team is on the Pro plan. Netlify deletes deploys after 30 days,
+  or 90 on paid plans, and always keeps the published deploy, the latest
+  production deploy and the latest deploy of each branch
+  (https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/).
+  That page does not mention deploy previews, so preview 4 alone is not a
+  safe judge link through 15 December.
+- Recommendation: merging PR 4 makes this build the protected production
+  deploy at the `netlify.app` URL. Give judges that URL, not the custom domain,
+  unless its DNS is fixed first.
+
+## 11. Runtime call and Nebius credit
+
+- No Nebius call was made after the eight in section 4. None is needed for
+  this package: the judged app replays saved reports offline.
+- Matt approved spending from existing credit on 27 October, conditional on
+  verifying the balance first. Token Factory documents no balance API; the
+  balance appears only in the logged-in console
+  (https://docs.tokenfactory.nebius.com/other-capabilities/billing-new.md),
+  and a public feature request asks for one
+  (https://ideas.nebius.com/p/account-balance-api-endpoint-for-nebius-token-factory).
+  The same page says card payers are charged automatically when the balance
+  goes negative. The balance could not be verified, so calls stay deferred.
+- If Matt wants a fresh call on camera, he should read the console balance
+  first; one call costs about USD 0.0011 at published rates (section 4).

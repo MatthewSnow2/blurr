@@ -124,12 +124,12 @@ apart, so the chosen lookahead becomes 3 points there (the same 0.6 m).
 
 | Silverstone lap attempt | Setting | Stopped | Distance | Mean / max \|deviation\| |
 |---|---|---|---|---|
-| Baseline | 0.65 / 14 points (2.8 m) | collision at 12.14 s | about 30 m of 446 m | 0.039 / 0.182 m |
-| Retest | 1.05 / 3 points (0.6 m) | collision at 27.44 s | about 68 m of 446 m | 0.002 / 0.007 m |
+| Baseline | 0.65 / 14 points (2.8 m) | terminated at 12.14 s (manifest: collided) | about 30 m of 446 m | 0.039 / 0.182 m |
+| Retest | 1.05 / 3 points (0.6 m) | terminated at 27.44 s (manifest: collided) | about 68 m of 446 m | 0.002 / 0.007 m |
 
 Read the table with these limits. The baseline cut inside the first right-hander
-(0.18 m off the line when it hit). The retest stayed within 7 mm of the line and
-still collided at the entry to a tight right-hander (radius about 3 m); that
+(0.18 m off the line when the run ended). The retest stayed within 7 mm of the line and
+still ended at the entry to a tight right-hander (radius about 3 m); that
 cause is not diagnosed yet. Deviation means over runs of different length are
 not comparable, so distance reached comes first. The comparison changes gain and
 lookahead distance together, each condition is one deterministic run (run B
