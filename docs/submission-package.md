@@ -315,24 +315,77 @@ judges test.
 Options for Matt:
 
 1. Submit as is, describing the runner and the offline replay plainly.
-2. Ask for clarification first (draft below). Sec. 11 requires a written
-   request for an ambiguous term; the rules give support@devpost.com and the
-   FAQ points to the Nebius Discord.
+2. Ask for clarification first (draft below). Sec. 11 requires "a written
+   request for clarification" for an ambiguous term but names no recipient.
+   Contact routes found (re-checked 2026-10-27, 21:10Z):
+   - **Verified:** support@devpost.com. The live rules page, Sec. 15, says
+     "For questions, send an email to" an address that Cloudflare obfuscates
+     in the page HTML; decoded, it is support@devpost.com. It is the only
+     address on the page.
+   - **Not verified as a route:** the FAQ says "Please reach out via the
+     Nebius Discord!", but no invite link was captured. The one Discord link
+     on the rules page (`discord.com/invite/HP4BhW3hnp`) is in the Devpost site
+     footer, not shown to be Nebius's.
+   - An email gives the written record Sec. 11 asks for.
 3. Add a live call path judges can trigger. That needs a server holding a
    key, spend limits and abuse controls: new architecture and spending,
    outside the current goal.
 
-Draft request, not sent:
+Draft request (revised 27 October 2026, not sent; Matt decides whether and
+when to send it, from his own account):
 
-> Subject: Rules clarification: "runtime call" for a Physical AI entry
+> To: support@devpost.com
 >
-> Hello. Section 4 of the Official Rules defines "Runs on Nebius Token
-> Factory" as: "the project makes a runtime call to the Token Factory
-> inference API". Our project, Blurr (Physical AI track, simulation only),
-> includes a server-side runner that calls `nvidia/nemotron-3-super-120b-a12b`
-> on Token Factory once per recorded simulator session and saves the
-> response. The public demo validates and displays those saved responses in
-> the browser without making a new call, so no API key is exposed. The
-> runner's source and the saved responses are in our public repository.
-> Does this satisfy the runtime-call requirement, or must the judge-facing
-> demo make a live Token Factory call during testing? Thank you.
+> Subject: Nebius x NVIDIA Global AI Hackathon: rules clarification on
+> "runtime call" and testing for a Physical AI entry
+>
+> Hello,
+>
+> Under Section 11 of the Official Rules I am requesting written
+> clarification of two terms before the 30 October deadline.
+>
+> Section 4 says "'Runs on Nebius Token Factory or Nebius AI Cloud' means
+> the project makes a runtime call to the Token Factory inference API".
+> The Testing provision says "Access must be provided to an Entrant's
+> working Project for judging and testing by providing a link to a website,
+> functioning demo, or a test build" and that the Entrant "must make the
+> Project available free of charge and without any restriction".
+>
+> Our entry, Blurr (Physical AI track, simulation only, no hardware), has
+> three parts:
+>
+> 1. A free hosted test build that replays recorded F1TENTH simulator
+>    sessions and the saved NVIDIA Nemotron reports for them. It checks each
+>    report against its session in the browser. It makes no model call, so
+>    no API key is exposed.
+> 2. A free, offline step in the public repository that builds the exact
+>    Token Factory request for any bundled session, with no key and no
+>    network access.
+> 3. A separate server-side runner in the same repository that sends that
+>    request to `nvidia/nemotron-3-super-120b-a12b` on Token Factory, one call
+>    per session, with no retry. Eight such calls produced the bundled
+>    reports. Running it needs the runner's own Nebius API key and credit.
+>
+> Our questions:
+>
+> 1. Do these three parts together satisfy the Section 4 runtime-call
+>    requirement and the free-of-charge testing requirement?
+> 2. If not, what live access must judges have? For example: a hosted
+>    endpoint that makes a Token Factory call on request at our expense, or
+>    documented steps that judges run with their own Nebius key, or
+>    something else.
+>
+> Thank you,
+> Matthew Snow
+
+What sending it does and does not do:
+
+- It is organizer contact, which is not approved.
+- It does not change eligibility by itself; the answer would.
+- It is separate from whether to push the local docs commits `f7c4bac` and
+  `574455d` (a publication decision).
+- It is separate from any commitment to keep a preview deploy alive (a
+  Netlify retention and plan decision).
+- The request names the parts as they exist today. If Matt adds a hosted
+  live endpoint later, that is new architecture and spending, outside the
+  current goal.

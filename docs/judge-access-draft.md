@@ -71,7 +71,10 @@ Not executed for this draft. No call was made.
    runner's home directory. The file is parsed, never executed
    (`server/sharedCredential.ts`).
 3. Node 24 and a checkout of `7491717`.
-4. A new output directory containing the `request.json` from path B.
+4. An output directory that has never held an attempt, containing the
+   `request.json` from path B.
+5. A separate authorization for this attempt from whoever pays for it. The
+   approval names in the code are not that authorization.
 
 ### `cost-proof.json`
 
@@ -90,12 +93,21 @@ exactly (`server/runApprovedVerification.ts:74-78`):
 | `officialPricingVerified` | `true` |
 | `publishedTemplateByteBoundVerified` | `true` |
 
-- **Not machine-checked:** the two booleans are the runner's own attestations.
-  Nothing in the repo fetches prices or renders the chat template, so the
-  checks they claim are not reproducible from the repo.
-  - On 26 October they were backed by `rendered-prompt.txt` and a price fetch
-    outside the repo (saved).
-  - If published prices change, the hard-coded 0.3 and 0.9 still pass.
+- **Set the two booleans to `true` only with evidence, never just to pass the
+  guard.** The runner checks only that they equal `true`; nothing in the repo
+  fetches prices or renders the chat template.
+  - `officialPricingVerified`: requires an official Nebius price source, read
+    at the time of the attempt, showing input 0.30 and output 0.90 USD per
+    million tokens for `nvidia/nemotron-3-super-120b-a12b`. On 26 October the
+    source was `https://tokenfactory.nebius.com/api/public/models_info`
+    (saved). If current prices differ, the proof is false and the attempt must
+    not run; the hard-coded 0.3 and 0.9 would still pass the guard.
+  - `publishedTemplateByteBoundVerified`: requires the prompt rendered with the
+    model's published chat template, with its byte count at or below 16,000.
+    On 26 October this was `rendered-prompt.txt` at 4,945 bytes (saved). The
+    renderer used then is not in the repo, so this step is not reproducible
+    from the repo.
+  - Without both pieces of evidence, stop: the cost bound is unproven.
 - Matt's 26 October proof also carried informational fields the runner
   ignores: `checkedAtUtc`, `renderedBytes`, `pricingSource`, `boundBasis`,
   `approval`, `sessionSha256`, `ownerCapUsd`, `actualBilledCostUsd`,
@@ -110,6 +122,11 @@ node --experimental-strip-types server/runApprovedVerification.ts --execute ./ju
 **Expected output (from the code, not observed here)**
 
 - One JSON line: `{"dispatchCount":1,"errorCode":null,"httpStatus":200,"receipt":".../result.json"}`.
+  - `dispatchCount: 1` means the runner started one dispatch (its counter
+    rises just before `fetch`).
+  - It does not prove delivery or billing. Only provider evidence supports
+    those: an HTTP status and provider response ID in `httpObservation` and
+    `provider`, or the provider's own usage or billing records.
 - `result.json` is written with mode 600.
 - An attempt marker goes in both `./judge-run/` and the ledger.
 - `attempt-journal/` is created.
@@ -119,13 +136,23 @@ node --experimental-strip-types server/runApprovedVerification.ts --execute ./ju
 | Outcome | When |
 |---|---|
 | Thrown, nothing written: `EXPLICIT_MODE_OUTPUT_SESSION_AND_APPROVAL_REQUIRED`, `APPROVAL_UNKNOWN`, `SESSION_NOT_APPROVED`, `APPROVAL_ALREADY_CONSUMED_DO_NOT_RETRY` | Before any network call. Never retry a consumed approval. |
-| `result.json` with `dispatchCount: 0` and `errorCode: PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN` | A bad `cost-proof.json` or key file. The adapter rewrites `COST_PROOF_INVALID` and `CREDENTIAL_*` into this generic code (`server/nebiusAdapter.ts`, the catch around `exchange`). `dispatchCount: 0` is the reliable sign that nothing was sent. |
-| `result.json` with `dispatchCount: 1` and an `errorCode` such as `PROVIDER_TOKEN_BOUND_EXCEEDED` | The call was made and billed, but the response failed a check. For example, output over 1,024 tokens: reasoning counts, and the baseline used 890. |
+| `result.json` with `dispatchCount: 0` and `errorCode: PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN` | A bad `cost-proof.json` or key file. The adapter rewrites `COST_PROOF_INVALID` and `CREDENTIAL_*` into this generic code (`server/nebiusAdapter.ts`, the catch around `exchange`). With `dispatchCount: 0`, the code never reached `fetch`. |
+| `result.json` with `dispatchCount: 1` and an `errorCode` | A dispatch was attempted; delivery and billing are unknown unless provider evidence shows them. `PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN` here means the request may or may not have reached Nebius. A code such as `PROVIDER_TOKEN_BOUND_EXCEEDED` means a response arrived and failed a check (for example, output over 1,024 tokens: reasoning counts, and the baseline used 890). Treat it as probably billed, not proven billed. |
 | `REPORT_CLAIMS_UNSUPPORTED` | At import, if the model cites evidence the session does not hold |
 
-**Use a new output directory after any refusal.** `result.json` is written
-with an exclusive-create flag. In a reused directory, a later successful call
-would be made and billed, and then fail to write its receipt.
+**Stop and inspect after any refusal or failure. Do not rerun.**
+
+- Read `result.json`, the attempt marker and `attempt-journal/` first.
+- Never retry a consumed approval: one with a ledger or directory marker.
+- Never retry when delivery is uncertain: `dispatchCount: 1`, or any
+  `..._DELIVERY_UNKNOWN` code.
+- A fresh output directory is only for a separately authorized new attempt.
+  Use it only after the earlier attempt has been shown not to dispatch
+  (`dispatchCount: 0` and no ledger marker) and its cause has been fixed.
+  - Why: `result.json` is written with an exclusive-create flag. In the old
+    directory, a new attempt would dispatch first and then fail to write its
+    receipt.
+  - A fresh directory prevents that collision. It is not a retry permission.
 
 ### Cost
 
@@ -138,9 +165,12 @@ would be made and billed, and then fail to write its receipt.
 
 1. **Hard-coded balance:** `result.json` always records
    `ownerReportedBalanceUsd: 25` (`server/runApprovedVerification.ts:100`),
-   whoever runs it. In a judge's receipt that field is false and must be
-   ignored. The runner was not changed to fix this.
-2. **Self-attested proof:** the cost-proof booleans are attestations (above).
+   whoever runs it. The field name marks it as the owner's reported balance
+   for Matt's runs. For
+   anyone else's run it is unsupported, carries no information about their
+   account, and should be disregarded. The runner was not changed.
+2. **Proof on trust:** the guard accepts the cost-proof booleans as written.
+   Their truth rests on the evidence described above, not on the runner.
 3. **Provider not authenticated:** a receipt is the runner's own record. The
    app validates claims and digests but does not authenticate the provider
    (README "Evidence").
