@@ -43,6 +43,37 @@ and a **Recorded Nebius demo** card. Choose **Open recorded demo**.
 
 Back (in-app or browser) returns to history. Opening the demo again does not
 duplicate it. History is stored per browser and origin, not in a shared cloud.
+The app has no button to clear history; use the browser's site-data controls.
+
+### Viewing the Silverstone baseline and retest lap attempts
+
+These two captures are bundled but not opened by the demo button. Import each
+session first, then its report; the report is refused until its own session is
+open.
+
+1. **Import capture** -> `data/f1tenth-silverstone/baseline-lap-session.json`.
+   Expect the label "Recorded F1TENTH simulator capture: Silverstone baseline lap
+   attempt (gain 0.65, lookahead 14), collided at 12.14 s", 1,214 samples, mean
+   |raceline deviation| 0.038774 m and max 0.182421 m.
+2. **Import saved report** -> `data/f1tenth-silverstone/baseline-lap-nebius-report.json`.
+   Expect response `chatcmpl-29bd4e657c1abfde41231d6c810805a8`, 1362 input and
+   890 output tokens, three validated claims (two measurements and one
+   mean-below-max comparison) and one reviewed suggestion.
+3. Back to history, **Import capture** -> `retest-lap-session.json`. Expect the
+   retest label (gain 1.05, lookahead 3, collided at 27.44 s), 2,744 samples,
+   mean 0.002096 m and max 0.006944 m.
+4. **Import saved report** -> `retest-lap-nebius-report.json`. Expect response
+   `chatcmpl-d153e03a0258dd5907332011d4bd9fa1`, 1360 input and 765 output
+   tokens, three validated measurements and three reviewed suggestions.
+
+Importing the baseline report while the retest is open is refused with "This
+report belongs to a different session" and the current report stays. History
+cards for the three Silverstone sessions share one title; tell them apart by
+sample count and digest.
+
+The last sample of each lap attempt shows zero speed and zero heading while
+the position stays where the car stopped. Those zeros come from the simulator
+resetting state on termination; they are not evidence of a spin.
 
 ## Bundled data
 
@@ -107,6 +138,37 @@ tuning on simple tracks carrying over to a held-out track in simulation; it is
 not a learned driver, not coaching that caused the change, and not evidence
 about human drivers.
 
+## How Nemotron and Token Factory are used
+
+Nebius Token Factory is the only inference provider, and
+`nvidia/nemotron-3-super-120b-a12b` is the only model. The call happens on a
+server, after a session is sealed, never during replay:
+
+1. `server/runApprovedVerification.ts` (server-only, needs a Nebius key and a
+   one-time approval constant) sends the session's sealed evidence bundle,
+   the reviewed template catalogue and the report schema to
+   `https://api.tokenfactory.nebius.com/v1/chat/completions` at temperature 0.
+2. Nemotron returns a `coaching-report.v1` JSON object. It chooses which
+   evidence IDs to cite as typed claims and which reviewed template and drill
+   to attach; it writes no prose that the app displays.
+3. The runner refuses a reused approval and records the attempt before
+   sending, allows one dispatch with no retry, checks the endpoint, model and
+   response size, and the result is saved with model, response ID, token usage
+   and the session's sha256.
+4. The browser (this app) re-validates every claim against the session it has
+   open and renders the claims and templates with local code. It makes no
+   provider call.
+
+What Token Factory contributed: an OpenAI-compatible endpoint for an NVIDIA
+open model, deterministic settings, and usage fields (including reasoning
+tokens) that let each call be costed and audited. Eight calls were made in
+total, one per bundled report, between 15 and 27 October 2026 (UTC). Their saved
+reports are the only model output in the repository.
+
+**Offline vs live:** everything a viewer does is offline replay of saved
+files. Generating a new report is a separate, credentialed, approved server
+step and is not exposed in the app.
+
 ## Simulators: what is and is not here
 
 - **F1TENTH (f1tenth_gym):** the working path. Run A was captured with the
@@ -139,11 +201,11 @@ returns to history; reopen the session from there.
 ## Checks
 
 ```sh
-npm test            # Node test runner, 70 tests
+npm test            # Node test runner, 73 tests
 npm run typecheck
 npm run lint
 npm run build
-python3 -m unittest discover -s tests -p 'test_*.py'   # runner and guard tests, Python 3.11 to 3.14
+python3 -m unittest discover -s tests -p 'test_*.py'   # 53 runner, guard and sweep tests, Python 3.11 to 3.14
 ```
 
 The Python tests use fake adapters and standard-library helpers only; they need
@@ -186,10 +248,18 @@ cryptographically authenticate the provider.
 
 - The demo segment is short: 14.5 m of one straight with about 6 mm mean raceline
   deviation, so the coaching signal is weak.
-- Two provider calls in total were observed; no latency, quality or reliability
-  benchmark is claimed.
-- Calculated cost for the run A call is USD 0.0009432 at published rates; the
-  invoice charge was not observed.
+- Eight provider calls in total, one per saved report; no latency, quality or
+  reliability benchmark is claimed.
+- Calculated cost for all eight is about USD 0.0088 at the published 0.30 and
+  0.90 USD per million input and output tokens (run A alone: USD 0.0009432); the
+  invoice charges were not observed.
+- The coaching content is thin: saved reports cite three to six typed claims and
+  attach a reviewed drill suggestion. They do not explain a crash or suggest a
+  controller change, and nothing feeds a report back into the controller.
+- Braking and collision are not telemetry channels, so the report panel lists
+  them as unavailable even for attempts the manifest labels as collided. The
+  capture records only `stop_reason: terminated` before a lap was completed;
+  "collided" is the manifest's reading of that, not a sample channel.
 - Archived vision and hardware notes are in `docs/historical-vision.md` and are
   not current demo claims.
 

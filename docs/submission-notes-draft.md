@@ -1,4 +1,4 @@
-# Submission notes — private draft, not an entry
+# Submission notes: private draft, not an entry
 
 Blurr is a simulator evidence lab for reviewing a sealed session before acting
 on a coaching suggestion. It imports F1TENTH and AutoDRIVE JSON, replays recorded
@@ -21,7 +21,7 @@ of these is physical robot telemetry.
 Intended track for owner review: Physical AI, simulation-only. The official FAQ
 allows simulation, so a physical Wheelie demonstration is unnecessary for this
 version. The rules require at least one minute of key modules operating when
-hardware is absent. The existing2:40 video plan meets the length target but must
+hardware is absent. The 2:50 video plan in `demo-sequence-draft.md` meets the length target but must
 still be recorded and checked. No video has been uploaded by this task.
 
 The October work adds sealed import/history/replay, byte-identical LAN-safe
@@ -35,8 +35,10 @@ usage supported this bounded verification. Public machine-readable model prices
 were available at `/api/public/models_info`, while the interactive catalog was
 less accessible to plain web retrieval. Explicit separation of response
 provenance from claim validity helped avoid treating a fixture as provider proof.
-Two requests were observed (15 and 23 October); no latency/quality/general reliability benchmark
-or driver-improvement claim is supported.
+Eight requests were observed between 15 and 27 October 2026 (UTC), one per saved
+report, about USD 0.0088 in total at published rates (inventory in
+`submission-package.md`). No latency/quality/general reliability benchmark or
+driver-improvement claim is supported.
 
 Owner gates settled: root license Apache-2.0 with the Silverstone data under
 GPL-3.0, asset redistribution cleared 23 October 2026, and the public repository
@@ -67,10 +69,12 @@ owner-held 23 October receipt and not re-run; **open** means not yet true.
 | AutoDRIVE input is supported | `fixtures/autodrive-synthetic-session.json` | Synthetic two-frame fixture; no live stream | verified (import only) |
 | A ladder-swept controller setting got further on held-out Silverstone than the default (68 m vs 30 m before a collision) | `data/f1tenth-sweep/`, `data/f1tenth-silverstone/{baseline,retest}-lap-*`, `tests/test_select_sweep_setting.py` | Offline tuning, not learning; one deterministic run per condition; gain and lookahead distance change together; neither completed a lap; retest crash not diagnosed | verified |
 | The app shows proven driving improvement | none | Not claimed | not claimed |
+| Eight Nebius calls in total, about USD 0.0088 | the eight saved `*-nebius-report.json` files (model, response ID, usage) | Calculated from published rates; invoices not observed | verified (files) |
+| Baseline and retest lap attempts import and validate in the app | browser QA on 27 October 2026 at commit `116d943`, `submission-package.md` | Chromium only | verified |
 | Demo video under 3 minutes | `docs/demo-sequence-draft.md` | Not recorded | open |
 
-Official sources rechecked15October2026:
+Official sources rechecked 2026-10-27T04:38Z (rules and FAQ):
 https://nebiusglobalaihackathon.devpost.com/rules
 https://nebiusglobalaihackathon.devpost.com/details/faqs
-Deadline30October2026 at10:00PDT =17:00UTC. No registration, submission, terms
+Deadline 30 October 2026 at 10:00 PDT = 17:00 UTC. No registration, submission, terms
 acceptance, publication or physical action occurred in this checkpoint.
