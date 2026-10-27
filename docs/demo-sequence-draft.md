@@ -36,15 +36,55 @@ captions. Frame checks confirmed each scene cut and every on-screen value in
 the table. Files are outside the repo, in
 `/home/apexaipc/content/blurr/2026-10-27-submission-video-draft/`:
 
-- `blurr-demo-draft-silent-captioned.mp4`: 2:50, H.264, 25 fps, captions
-  burned in
-- `blurr-demo-draft-silent-clean.mp4`: same footage, no captions, for a
-  voiceover
-- `captions.srt`: the narration as 41 timed captions
-- `record.cjs`: the recording script
+| File | sha256 |
+|---|---|
+| `blurr-demo-draft-silent-captioned.mp4` (the upload candidate) | `8b029f722aadc7851b0248635c411ea75cb6ef15f9e38aadb08a895e0d937153` |
+| `blurr-demo-draft-silent-clean.mp4` (no captions, for an optional voiceover) | `9ca3b54dd4d8b3984764bed344f359be10d5451b90258cfb4134fb6a16a29aa9` |
+| `captions.srt` (41 timed captions) | `3fdebbc551566803502227a879e20a1d44d9b1db3d33f0b0a7ae6b11c8963810` |
+| `record.cjs` (recording script) | `d514f813206f17a0b59fb33ed171ef896a726b533d5f01f20151dd902de76d8f` |
 
-What is not done: no voiceover (no local text-to-speech is installed), no
-human review, no YouTube upload. Title and closing cards are plain HTML
+### Start-to-finish check (27 October 2026)
+
+Both MP4s: 170.000 s, 4,250 frames, H.264 1280x720 at 25 fps, no audio
+track. The captioned file was checked with frames every 2.5 s across the
+whole run, a frame every 5 s after the fix below, full-size frames at caption
+changes, and ffmpeg scene, freeze and black detection.
+
+- **Scenes:** cuts at 8.12, 20.36, 59.96, 91.2, 110.0, 145.04 and 159.96 s
+  match the script's marks (8, 20, 60, 90, 110, 145, 160). No black frames.
+  Static spans of 5 to 8 s (history screen, wrong-report refusal, retest
+  report, both closing cards) carry captions throughout.
+- **App footage:** the app is on screen from 8.12 to 145.04 s (136.9 s); the
+  key modules (replay, report validation, refusal) from 20.36 to 145.04 s
+  (124.7 s), above the one-minute minimum for Physical AI entries without
+  hardware.
+- **Opening and ending:** title card 0 to 8.12 s; README-points card 145.04
+  to 159.96 s; "Limits" card with the repo URL to 170 s.
+- **Captions:** 41, 0.30 to 169.65 s, no overlaps, single line, at most 60
+  characters, shortest 1.78 s, fastest 15.2 characters per second. Each
+  caption's wording matches the narration column above, including
+  "ended after 12 seconds" and "ended at a tight corner" (the capture
+  records `stop_reason: terminated`; "collided" appears on screen only as
+  the manifest's dataset label).
+- **On-screen values:** match the table (600 / 1214 / 2744 samples, the
+  three response IDs, deviations, the refusal message with the baseline
+  report kept, sample 2744 at 27.440 s and 0.000 m/s).
+- **Nothing private:** the recording is the page viewport only. No browser
+  address bar, tabs, terminal, account page, key, token or unrelated screen
+  appears. Visible identifiers are the public model name, response IDs,
+  file names and sha256 digests already in the repo.
+- **Defect fixed:** the first render burned captions over the app, so
+  fragments of UI text showed beside the caption box (for example at 1:41).
+  The current render scales the footage to 1152x648 and puts captions in a
+  72 px band below it. The clean file is unchanged.
+
+What is not done: no human review and no YouTube upload. A spoken voiceover
+is optional: the rules ask for a video under three minutes, public on
+YouTube, showing the project working and, for Physical AI without hardware,
+at least one minute of "the key application modules in action"; they say
+nothing about narration or audio (rules read 27 October 2026, live page
+rechecked).
+ Title and closing cards are plain HTML
 cards; the 2:25 to 2:40 scene shows a card with the README's "How Nemotron
 and Token Factory are used" points instead of the README page itself.
 
@@ -52,7 +92,7 @@ To re-record: serve the build on port 8843, copy the four Silverstone
 baseline/retest JSON files into one folder, then run
 `node record.cjs <that folder> <output folder>`. The script hardcodes ProBook's
 playwright-core and Chromium paths; edit them on another machine. Burn captions with
-`ffmpeg -i clean.mp4 -vf "subtitles=captions.srt:force_style='FontName=DejaVu Sans,FontSize=12,BorderStyle=3'" -an out.mp4`.
+`ffmpeg -i clean.mp4 -vf "scale=1152:648:flags=lanczos,pad=1280:720:64:0:color=0x05070f,subtitles=captions.srt:force_style='FontName=DejaVu Sans,FontSize=11,BorderStyle=1,Outline=0,Shadow=0,Alignment=2,MarginV=9'" -c:v libx264 -crf 20 -pix_fmt yuv420p -an out.mp4`.
 
 ## Recording rules
 

@@ -13,12 +13,12 @@ https://nebiusglobalaihackathon.devpost.com/details/faqs
 | Requirement (rules) | Blurr status |
 |---|---|
 | Submission Period ends 30 October 2026, 10:00 PT (17:00 UTC) | Open |
-| Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | Eight real Token Factory calls to `nvidia/nemotron-3-super-120b-a12b` produced the bundled reports. The judged app replays them offline; judges cannot trigger a new call. Owner framing decision (gate G1). |
+| Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | Eight real Token Factory calls to `nvidia/nemotron-3-super-120b-a12b` produced the bundled reports. The judged app replays them offline; judges cannot trigger a new call. Whether that meets the rule is unresolved (gate G1, section 12). |
 | Track | Physical AI, simulation only. The FAQ allows simulation. |
 | Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves `116d943`. The site's primary custom domain does not resolve. See section 10. Gate G3. |
 | Public repo with a detectable OSI license in About | https://github.com/MatthewSnow2/blurr, public, Apache-2.0 detected |
 | README with setup, Nemotron usage, where Token Factory helped | README sections "Quick start", "Viewing the Silverstone baseline and retest lap attempts", "How Nemotron and Token Factory are used" |
-| Video under 3 minutes, public on YouTube, at least 1 minute of key modules if no hardware | Silent screen-recorded draft with burned-in narration captions (2:50, 2:05 of app), see `demo-sequence-draft.md`. No voiceover, not uploaded. Gate G2. |
+| Video under 3 minutes, public on YouTube, at least 1 minute of key modules if no hardware | Silent screen-recorded draft with captions, checked start to finish (2:50; key modules 20.4 to 145.0 s), see `demo-sequence-draft.md`. The rules do not ask for narration, so a voiceover is optional. Not uploaded. Gate G2. |
 | Existing projects explain significant updates | Owner to confirm when work began; see section 6 |
 | Original work, solely owned, no third-party IP violation | Gate G5 (GPL-3.0 track data) |
 | English | All materials in English |
@@ -225,7 +225,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 | README matches the verified experience | Done | README diff in this commit |
 | Submission copy, architecture, evidence index | Done (draft) | Sections 2 to 4 |
 | Video script rehearsed | Done | `demo-sequence-draft.md` |
-| Silent captioned video draft recorded and inspected | Done; no voiceover | `demo-sequence-draft.md`, "Recorded draft" |
+| Silent captioned video draft recorded and checked start to finish | Done; voiceover optional | `demo-sequence-draft.md`, "Recorded draft" |
 | License audit with owner flags | Done; questions open | Section 7 |
 | Judge-access facts | Done; decision open | Section 10 |
 | Nebius credit check before any new call | Not verifiable; no call made | Section 11 |
@@ -236,10 +236,13 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 
 ## 9. Owner gates
 
-- **G1 runtime-call framing:** present the app as offline replay of real
-  Token Factory outputs, with the runner shown in the README and video.
-- **G2 video:** add a voiceover to the silent draft (or re-record with
-  narration), review it, upload publicly to YouTube.
+- **G1 runtime call (unresolved):** no primary source read here says
+  whether offline replay of saved Token Factory responses, plus a separate
+  server-side runner in the repo, meets the "runtime call" definition. The
+  eight call receipts show calls were made; they do not show the rule is
+  met. Options and a draft clarification request are in section 12.
+- **G2 video:** watch the captioned draft, optionally add a voiceover, then
+  upload it publicly to YouTube.
 - **G3 judge access:** merge PR 4 and let Netlify deploy main, or name another
   link that stays up until 15 December 2026. Separately, decide what to do
   about the unresolved custom domain (section 10).
@@ -282,3 +285,54 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   goes negative. The balance could not be verified, so calls stay deferred.
 - If Matt wants a fresh call on camera, he should read the console balance
   first; one call costs about USD 0.0011 at published rates (section 4).
+
+## 12. G1: runtime-call requirement (unresolved)
+
+What the rules say (https://nebiusglobalaihackathon.devpost.com/rules, read
+27 October 2026):
+
+- Sec. 4: "'Runs on Nebius Token Factory or Nebius AI Cloud' means the
+  project makes a runtime call to the Token Factory inference API, or is
+  deployed/run using Nebius AI Cloud compute".
+- Sec. 4, Functionality: "The Project must be capable of being successfully
+  installed and running consistently on the platform for which it is
+  intended and must function as depicted in the video and/or expressed in
+  the text description."
+- Sec. 6, Stage One: pass/fail on whether the project "reasonably applies
+  the required APIs/SDKs featured in the Hackathon".
+- FAQ (https://nebiusglobalaihackathon.devpost.com/details/faqs): "Calling an
+  NVIDIA model through Token Factory (e.g. via a Serverless Endpoint)
+  satisfies this - the rest of your app (web frontend, unrelated backend
+  processing) doesn't also need to be hosted on Nebius AI Cloud."
+
+What Blurr does: `server/runApprovedVerification.ts` makes the call
+(one approved call per sealed session, no retry); eight such calls produced
+the bundled reports. The hosted app makes no call; it validates and shows
+the saved responses. The rules do not say whether "the project" means the
+repository or the judge-facing demo, or whether a call must happen while
+judges test.
+
+Options for Matt:
+
+1. Submit as is, describing the runner and the offline replay plainly.
+2. Ask for clarification first (draft below). Sec. 11 requires a written
+   request for an ambiguous term; the rules give support@devpost.com and the
+   FAQ points to the Nebius Discord.
+3. Add a live call path judges can trigger. That needs a server holding a
+   key, spend limits and abuse controls: new architecture and spending,
+   outside the current goal.
+
+Draft request, not sent:
+
+> Subject: Rules clarification: "runtime call" for a Physical AI entry
+>
+> Hello. Section 4 of the Official Rules defines "Runs on Nebius Token
+> Factory" as: "the project makes a runtime call to the Token Factory
+> inference API". Our project, Blurr (Physical AI track, simulation only),
+> includes a server-side runner that calls `nvidia/nemotron-3-super-120b-a12b`
+> on Token Factory once per recorded simulator session and saves the
+> response. The public demo validates and displays those saved responses in
+> the browser without making a new call, so no API key is exposed. The
+> runner's source and the saved responses are in our public repository.
+> Does this satisfy the runtime-call requirement, or must the judge-facing
+> demo make a live Token Factory call during testing? Thank you.
