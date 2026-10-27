@@ -7,6 +7,11 @@ import time
 
 MAX_BYTES = 15 * 1024 * 1024
 MAX_POINTS = 10_000
+MAX_STEPS = 20_000  # a full Silverstone lap at 2.5 m/s is about 18,500 steps
+MAX_TIMEOUT_S = 1200.0
+# Gain and lookahead may be swept inside these bounds; timestep, speed and the steering limit stay fixed.
+GAIN_RANGE = (0.1, 2.0)
+LOOKAHEAD_RANGE = (1, 60)
 
 
 @dataclass(frozen=True)
@@ -23,12 +28,16 @@ class CaptureConfig:
     def validate(self):
         if type(self.seed) is not int or not 0 <= self.seed < 2**32:
             raise ValueError("seed outside uint32 range")
-        if type(self.steps) is not int or not 1 <= self.steps <= 600:
-            raise ValueError("steps must be an integer in 1..600")
-        if type(self.timeout_s) not in (int, float) or not math.isfinite(self.timeout_s) or not 0 < self.timeout_s <= 120:
-            raise ValueError("timeout must be finite in (0,120]")
-        if (self.timestep_s, self.lookahead_points, self.speed_mps, self.steering_gain, self.steering_limit_rad) != (0.01, 14, 2.5, 0.65, 0.35):
-            raise ValueError("only reviewed timestep/controller settings are supported")
+        if type(self.steps) is not int or not 1 <= self.steps <= MAX_STEPS:
+            raise ValueError(f"steps must be an integer in 1..{MAX_STEPS}")
+        if type(self.timeout_s) not in (int, float) or not math.isfinite(self.timeout_s) or not 0 < self.timeout_s <= MAX_TIMEOUT_S:
+            raise ValueError(f"timeout must be finite in (0,{MAX_TIMEOUT_S:g}]")
+        if type(self.lookahead_points) is not int or not LOOKAHEAD_RANGE[0] <= self.lookahead_points <= LOOKAHEAD_RANGE[1]:
+            raise ValueError(f"lookahead must be an integer in {LOOKAHEAD_RANGE[0]}..{LOOKAHEAD_RANGE[1]} points")
+        if type(self.steering_gain) not in (int, float) or not math.isfinite(self.steering_gain) or not GAIN_RANGE[0] <= self.steering_gain <= GAIN_RANGE[1]:
+            raise ValueError(f"steering gain must be finite in [{GAIN_RANGE[0]},{GAIN_RANGE[1]}]")
+        if (self.timestep_s, self.speed_mps, self.steering_limit_rad) != (0.01, 2.5, 0.35):
+            raise ValueError("only reviewed timestep/speed/steering-limit settings are supported")
 
 
 def finite(value, name):

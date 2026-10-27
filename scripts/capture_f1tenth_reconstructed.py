@@ -255,7 +255,7 @@ def run_worker(args):
     mark_worker_phase("construct_adapter")
     state = adapter.EnvState()
     mark_worker_phase("capture_loop")
-    candidate = collect(state, CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout),
+    candidate = collect(state, config_for(args),
                         runtime_receipt, cleanup_runtime, track_name=args.track)
     mark_worker_phase("metadata")
     candidate.update({"producer": source, "started_at_utc": started,
@@ -297,11 +297,16 @@ def supervise(command, staging, timeout, environment):
     return json.loads(candidate.read_text(encoding="utf-8"))
 
 
+def config_for(args):
+    return CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout,
+                         lookahead_points=args.lookahead, steering_gain=args.gain)
+
+
 def finalize(candidate, args, resources):
-    if candidate["capture_config"] != dict(vars(CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout))):
+    if candidate["capture_config"] != dict(vars(config_for(args))):
         raise ValueError("candidate configuration differs from requested run")
     expected_controller = {"kind": "new_reconstructed_nearest_waypoint_heading_error_v1", "historical_runner_recovered": False,
-                           "lookahead_points": 14, "speed_command_mps": 2.5, "steering_gain": .65, "steering_limit_rad": .35}
+                           "lookahead_points": args.lookahead, "speed_command_mps": 2.5, "steering_gain": args.gain, "steering_limit_rad": .35}
     if candidate["controller"] != expected_controller or candidate["child_environment"] != CHILD_ENVIRONMENT:
         raise ValueError("candidate controller/environment differs from reviewed reconstruction")
     stamp = datetime.fromisoformat(candidate["started_at_utc"])
@@ -419,11 +424,11 @@ def compare_bundles(paths):
         if receipt["sha256"] != raw_hash or receipt["bytes"] != len(raw):
             raise ValueError("comparison receipt/hash mismatch")
         doc = json.loads(raw)
+        count = doc["outcome"]["sample_count"]
         if (doc["schema_version"] != "blurr.telemetry-session.v1" or doc["source_kind"] != "f1tenth" or doc["status"] != "sealed"
-                or len(doc["samples"]) != 600 or doc["outcome"]["sample_count"] != 600 or receipt["sample_count"] != 600
-                or doc["outcome"]["terminated"] is not False or doc["outcome"]["truncated"] is not False
+                or type(count) is not int or len(doc["samples"]) != count or receipt["sample_count"] != count
                 or doc["provenance"]["real_simulator_qualification"] != "pending"):
-            raise ValueError("comparison requires two full, nonterminal 600-step reconstructed captures")
+            raise ValueError("comparison requires two sealed reconstructed captures with matching sample counts")
         documents.append(doc)
         hashes.append(raw_hash)
     normalized = []
@@ -434,7 +439,7 @@ def compare_bundles(paths):
         normalized.append(stable)
     if normalized[0] != normalized[1]:
         raise ValueError("capture samples/configuration/provenance are not identical")
-    return {"comparison": "identical_stable_fields", "samples_per_run": 600, "raw_sha256": hashes,
+    return {"comparison": "identical_stable_fields", "samples_per_run": documents[0]["outcome"]["sample_count"], "raw_sha256": hashes,
             "real_simulator_qualification": "pending", "ignored_fields": ["captured_at_utc", "provenance.resource_preflight"]}
 
 
@@ -448,6 +453,8 @@ def parser():
     result.add_argument("--seed", type=int, default=20261009)
     result.add_argument("--steps", type=int, default=600)
     result.add_argument("--timeout", type=float, default=120)
+    result.add_argument("--gain", type=float, default=0.65, help="Steering gain on heading error")
+    result.add_argument("--lookahead", type=int, default=14, help="Lookahead in raceline points")
     result.add_argument("--output", type=Path)
     result.add_argument("--expected-runner-sha256")
     result.add_argument("--expected-core-sha256")
@@ -473,7 +480,7 @@ def main(argv=None):
                           "track": f"{args.track}_existing_pinned_assets", "adapter_commit": ADAPTER_COMMIT, "gym_commit": GYM_COMMIT}))
         return 0
     try:
-        CaptureConfig(seed=args.seed, steps=args.steps, timeout_s=args.timeout).validate()
+        config_for(args).validate()
         if digest(__file__) != args.expected_runner_sha256 or digest(SCRIPT_DIR / "f1tenth_capture_core.py") != args.expected_core_sha256:
             raise ValueError("runner/core digests differ from approved invocation")
         if args.worker_token:
@@ -489,6 +496,7 @@ def main(argv=None):
                                NUMBA_CACHE_DIR=str(Path(staging) / "numba-cache"), BLURR_F1_WORKER_TOKEN=token)
             command = [sys.executable, "-s", str(Path(__file__).resolve()), "--run", "--source-root", args.source_root, "--gym-root", args.gym_root,
                        "--track", args.track, "--seed", str(args.seed), "--steps", str(args.steps), "--timeout", str(args.timeout),
+                       "--gain", repr(args.gain), "--lookahead", str(args.lookahead),
                        "--expected-runner-sha256", args.expected_runner_sha256, "--expected-core-sha256", args.expected_core_sha256,
                        "--worker-token", token, "--staging", staging]
             try:
