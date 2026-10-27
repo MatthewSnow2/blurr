@@ -51,6 +51,39 @@ TRACKS = {
                     "provenance": "blurr original geometry from data/f1tenth-circle/make_circle.py (Apache-2.0)",
                     "distributable_fixture": True},
     },
+    "Turn": {
+        "assets": {
+            "Turn_map.yaml": "6b62117e2f0e859fe3ce5c64685831a89c83ae363fffc8f69c5c1ceff5c21ffa",
+            "Turn_map.png": "d875b18a1ac03075e3d7d2b6be4e313a8748a4f4bcc01d5a4dcebba61e4896ba",
+            "Turn_centerline.csv": "8ad960f2dfad77ee7e8ce004a6fd4c51fa90a43aec761f28b34077c5716b91ea",
+            "Turn_raceline.csv": "73d78f765710594f0ecdc92e2bcf8d68ae9395bd3f9d656de669a0e6fa602292",
+        },
+        "circuit": {"name": "Turn (rung 3, one 90° turn, R 3 m) · reconstructed runner (qualification pending)",
+                    "provenance": "blurr original geometry from data/f1tenth-ladder/make_ladder.py (Apache-2.0)",
+                    "distributable_fixture": True},
+    },
+    "TwoTurns": {
+        "assets": {
+            "TwoTurns_map.yaml": "9ae3dba749805efe69dcc2768573460b0c647af273cf65528ddff2f3eb3aa2a5",
+            "TwoTurns_map.png": "819f8aec83ea10f888c05db2282ea9821ab9adce3c29ff0c832b7ed6252df85d",
+            "TwoTurns_centerline.csv": "9213a5285d10c596741786aa13025c4ca730b92b1f90535b2884eb8a4cf59760",
+            "TwoTurns_raceline.csv": "e97d7e4675f8b6bdd1a3e0353b13fccc94efc0f141180e59ee97d606915c7403",
+        },
+        "circuit": {"name": "TwoTurns (rung 4.1, hairpin of two 90° turns, R 3 m) · reconstructed runner (qualification pending)",
+                    "provenance": "blurr original geometry from data/f1tenth-ladder/make_ladder.py (Apache-2.0)",
+                    "distributable_fixture": True},
+    },
+    "Chicane": {
+        "assets": {
+            "Chicane_map.yaml": "a5a431c0f31f1607b08e90ef037ed6f5ea42e7fd1ff09a79b37e4416b1d09ad5",
+            "Chicane_map.png": "d4972c5dc551ac617c4d9f5cc35cb9dc60ea6f368047f032de6897b5be8a467c",
+            "Chicane_centerline.csv": "6bcc1a635d8ef2723a84c09d774925b69eae62014c3b32d0f7633fc96ae288b4",
+            "Chicane_raceline.csv": "776d3b9e89c91e016f88d28b51aede833aaa8e4d3f241dfdb66271efcc43fea9",
+        },
+        "circuit": {"name": "Chicane (rung 4.2, 45° left then right, R 4 m) · reconstructed runner (qualification pending)",
+                    "provenance": "blurr original geometry from data/f1tenth-ladder/make_ladder.py (Apache-2.0)",
+                    "distributable_fixture": True},
+    },
 }
 CHILD_ENVIRONMENT = {"PYTHONSAFEPATH": "1", "PYTHONDONTWRITEBYTECODE": "1", "PYGLET_HEADLESS": "true",
                      "SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy", "PYGAME_HIDE_SUPPORT_PROMPT": "hide",

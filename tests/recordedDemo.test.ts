@@ -81,3 +81,25 @@ test('Circle run A imports through Import capture and is labeled from the manife
   assert.equal(label.distribution, 'Apache-2.0');
   assert.notEqual(demoSession.path, entry.path);
 });
+
+test('each circle and ladder run imports with its saved report and is labeled from the manifest', async () => {
+  const pairs = [
+    ['data/f1tenth-circle/run-a-session.json', 'data/f1tenth-circle/run-a-nebius-report.json', /^Circle /u],
+    ['data/f1tenth-ladder/turn-run-a-session.json', 'data/f1tenth-ladder/turn-run-a-nebius-report.json', /^Turn /u],
+    ['data/f1tenth-ladder/twoturns-run-a-session.json', 'data/f1tenth-ladder/twoturns-run-a-nebius-report.json', /^TwoTurns /u],
+    ['data/f1tenth-ladder/chicane-run-a-session.json', 'data/f1tenth-ladder/chicane-run-a-nebius-report.json', /^Chicane /u],
+  ] as const;
+  for (const [capture, report, name] of pairs) {
+    const sessionEntry = manifest.find(e => e.path === capture);
+    const reportEntry = manifest.find(e => e.path === report);
+    assert.ok(sessionEntry && reportEntry, capture);
+    const { session, validated } = await loadRecordedDemo(served({ '/capture': capture, '/report': report }), '/capture', '/report', sessionEntry.file);
+    assert.equal(session.canonicalSha256, sessionEntry.session_canonical_sha256);
+    assert.equal(reportEntry.session_canonical_sha256, sessionEntry.session_canonical_sha256);
+    assert.equal(session.sampleCount, 600);
+    assert.match(session.circuitName, name);
+    assert.ok(validated.saved.responseId.startsWith('chatcmpl-'));
+    assert.equal(labelForSession(manifest, session.canonicalSha256).distribution, 'Apache-2.0');
+    assert.ok(!sessionEntry.default_demo && !reportEntry.default_demo);
+  }
+});

@@ -19,7 +19,9 @@ The runner uses the reviewed b3525a0 EnvState public load/reset/step/raceline/
 analysis methods. Since that API loads named tracks, this first reconstruction
 uses only the existing, hash-pinned Silverstone assets. `--track Circle` (added
 26 October 2026) selects the rung-2 circle from `data/f1tenth-circle/Circle/`,
-copied into the gym's `maps/Circle/` and pinned the same way; Silverstone stays
+copied into the gym's `maps/Circle/` and pinned the same way. `--track Turn`,
+`--track TwoTurns` and `--track Chicane` (rungs 3, 4.1 and 4.2, same day) select the
+ladder tracks from `data/f1tenth-ladder/` the same way. Silverstone stays
 the default. It does not recreate the
 old original analytic circuit or claim identical historical controller behavior.
 The new controller selects the nearest waypoint, targets 14 points ahead, wraps

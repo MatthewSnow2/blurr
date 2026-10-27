@@ -43,8 +43,9 @@ GPL-3.0, asset redistribution cleared 23 October 2026, and the public repository
 https://github.com/MatthewSnow2/blurr. Owner gates still open: eligibility/track
 decision, judge access check on the published build, public YouTube video
 strictly shorter than 3 minutes, final English description, feedback and update
-explanation, and owner submission/legal acceptance. Further paid calls need new
-approval; both one-request allowances are consumed.
+explanation, and owner submission/legal acceptance. Each paid call needs its own
+approval constant; every allowance so far is consumed (the synthetic fixture,
+Silverstone run A, and on 26 October the circle and the three ladder runs).
 
 ## Claim-to-evidence list
 

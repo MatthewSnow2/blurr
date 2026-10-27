@@ -343,6 +343,30 @@ class SourceAndCliTests(unittest.TestCase):
         folder = ROOT / "data/f1tenth-circle/Circle"
         self.assertEqual({path.name: runner.digest(path) for path in folder.iterdir()}, runner.TRACKS["Circle"]["assets"])
 
+    def test_ladder_pins_match_committed_bytes_and_regenerate_identically(self):
+        sys.path.insert(0, str(ROOT / "data/f1tenth-ladder"))
+        import make_ladder
+        with tempfile.TemporaryDirectory() as folder:
+            make_ladder.main(Path(folder))
+            for name in ("Turn", "TwoTurns", "Chicane"):
+                with self.subTest(track=name):
+                    committed = ROOT / "data/f1tenth-ladder" / name
+                    self.assertEqual({path.name: runner.digest(path) for path in committed.iterdir()}, runner.TRACKS[name]["assets"])
+                    self.assertEqual({path.name: runner.digest(path) for path in (Path(folder) / name).iterdir()}, runner.TRACKS[name]["assets"])
+
+    def test_ladder_loops_close_and_put_their_feature_in_the_capture_window(self):
+        sys.path.insert(0, str(ROOT / "data/f1tenth-ladder"))
+        import make_ladder
+        for name, segments in make_ladder.TRACKS.items():
+            with self.subTest(track=name):
+                points, gap, heading_gap, _total = make_ladder.trace(segments)
+                self.assertLess(gap, 1e-6)
+                self.assertLess(heading_gap, 1e-9)
+                # A 600-step capture covers about 14.5 m from a start within the first 1 m.
+                feature_end = next(p[4] for p in points[::-1] if p[4] < 15 and p[3] != 0)
+                self.assertLess(feature_end, 14.0)
+                self.assertTrue(all(abs(p[3]) <= 1 / 3.0 + 1e-12 for p in points), "radius below 3 m")
+
     def test_named_track_selects_its_own_asset_folder_and_rejects_unknown_names(self):
         with tempfile.TemporaryDirectory() as folder:
             module = Path(folder) / "src/f1tenth_mcp/env_state.py"

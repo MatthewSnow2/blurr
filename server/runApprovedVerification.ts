@@ -10,16 +10,26 @@ import { createBoundedNebiusExchange } from './nebiusHttpExchange.ts';
 import { FileAttemptJournal } from './attemptJournal.ts';
 import { readApprovedNebiusCredential } from './sharedCredential.ts';
 
-// Each owner approval gets a new constant. Consumed: Sentinel_966ed275be20819184341cad7ffe1d9b (synthetic fixture, 2026-10-15).
-const approval = 'Approval_f1tenth_run_a_20261023';
-// Only this canonical session may be coached under this approval.
-const expectedSessionSha256 = '7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14';
+// Each owner approval gets a new constant, bound to exactly one canonical session digest.
+// Consumed: Sentinel_966ed275be20819184341cad7ffe1d9b (synthetic fixture, 2026-10-15),
+// Approval_f1tenth_run_a_20261023 (Silverstone run A). The ledger below refuses any reuse.
+// The 2026-10-26 entries: Matthew approved Nebius credit use for the ladder captures that day.
+const approvals: Record<string, string> = {
+  Approval_f1tenth_run_a_20261023: '7008865c2a6439e82bf1cf60d8acbfcbaf4d1224fe3922e800b512d4f467ad14',
+  Approval_f1tenth_circle_run_a_20261026: '4db4c06e4a3d066270af2c9a8ca19fafcb3c61df06377288403ab822db4d9dda',
+  Approval_f1tenth_turn_run_a_20261026: '4feb42b466e2f083c775b03af99ac1ae1c6916c35851096a1bdd350851f9aed8',
+  Approval_f1tenth_twoturns_run_a_20261026: '1524ffcdd5b2a11dea00ad7e30092778089c5778211e28834c46c91bfa203ceb',
+  Approval_f1tenth_chicane_run_a_20261026: '35d193b767ead04eaecc4c585fc9bc41a158085c5554482439343fe607c4b5d5',
+};
 // Fixed ledger outside any output directory, so a fresh output path cannot reuse an approval.
 const ledger = join(homedir(), '.local', 'state', 'blurr', 'nebius-approvals');
 const endpoint = 'https://api.tokenfactory.nebius.com/v1/chat/completions';
 const model = 'nvidia/nemotron-3-super-120b-a12b';
-const [mode, output, sessionPath] = process.argv.slice(2);
-if (!['--prepare', '--execute'].includes(mode) || !output || !sessionPath) throw new Error('EXPLICIT_MODE_OUTPUT_AND_SESSION_REQUIRED');
+const [mode, output, sessionPath, approval] = process.argv.slice(2);
+if (!['--prepare', '--execute'].includes(mode) || !output || !sessionPath || !approval) throw new Error('EXPLICIT_MODE_OUTPUT_SESSION_AND_APPROVAL_REQUIRED');
+if (!Object.prototype.hasOwnProperty.call(approvals, approval)) throw new Error('APPROVAL_UNKNOWN');
+// Only this canonical session may be coached under this approval.
+const expectedSessionSha256 = approvals[approval];
 const directory = resolve(output);
 mkdirSync(directory, { recursive: true });
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
