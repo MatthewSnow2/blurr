@@ -123,7 +123,8 @@ None of these is needed to run or judge the app.
 - **Real provider call:** `server/runApprovedVerification.ts` is a server-only,
   one-shot runner that needs a Nebius key and an explicit per-call approval. Each
   approval is journaled and cannot be reused. Never put provider keys in `VITE_`
-  or browser code. Both recorded calls (15 and 23 October) are consumed.
+  or browser code. See `docs/submission-notes-draft.md` for the recorded-call
+  inventory and consumed approval allowances; saved reports do not authorize new calls.
 - **New F1TENTH capture:** `scripts/capture_f1tenth_reconstructed.py` needs a
   host with f1tenth_gym installed and Python 3.11 to 3.13. See
   `docs/f1tenth-reconstructed-runner.md` and `docs/f1tenth-guard-diagnostics.md`.
