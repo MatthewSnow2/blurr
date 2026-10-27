@@ -10,7 +10,9 @@ each genuine blocker. Deadline: 30 October 2026, 17:00 UTC (12:00 CDT,
 
 The package is not ready. Three of the remaining items can block it: G1,
 whether the offline replay meets the runtime-call rule; G3, giving judges a
-lasting link; and G5, ownership of the GPL-3.0 Silverstone data. G2 (the
+link that lasts until 15 December (the pinned permalink works now but is not
+protected from deletion, see `judge-access-draft.md` sec. 5); and G5,
+ownership of the GPL-3.0 Silverstone data. G2 (the
 video upload) and G6 (submitting) are also open, but the work for each is
 mechanical. Nothing below has been accepted on Matt's behalf.
 
@@ -60,11 +62,11 @@ has sha256 `6115d92d...0397`. Each clause below matched the 04:38Z capture
 | Area | Status | Evidence | Next action |
 |---|---|---|---|
 | Runtime call (G1) | **Owner decision** | Section 1 above; rules quote | Matt picks one option (below) |
-| Judge link through 15 Dec (G3) | **Gap** | The preview serves `7491717` (Netlify deploy `6ae0f4e0`, `commit_ref` match, new). Production serves `be1ab6e` without the baseline/retest files (saved, section 10 of `submission-package.md`). The custom domain does not resolve (saved). | Matt approves merging PR 4; the netlify.app production URL then becomes the judge link |
+| Judge link through 15 Dec (G3) | **Owner decision** | The pinned permalink `6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app` serves `7491717`. It is public and noindex (new). It is not protected from Netlify's automatic deletion: about 2027-01-25 at 90 days on a paid plan, or 2026-11-26 at 30 days on a free plan. Production serves `be1ab6e` (saved); the custom domain does not resolve (saved). See `judge-access-draft.md` sec. 5. | Smallest option: give judges the permalink and keep the team plan paid through 15 Dec. Merging PR 4 is a publication choice that removes the retention gap; it is not shown to be required. |
 | Public repo, OSI license | Pass | GitHub API (new): public, `license: Apache-2.0`, default branch `main` | None |
-| Repo default branch content | **Gap** | `origin/main` is `be1ab6e`, 6 commits behind PR 4 (new). Judges reading `main` see the old README without baseline/retest or the Nemotron section. | Same merge as G3 |
+| Repo default branch content | **Gap** | `origin/main` is `be1ab6e`, 6 commits behind PR 4 (new). Judges reading `main` see the old README without baseline/retest or the Nemotron section. `refs/pull/4/head` pins `7491717` (new). | Put the pinned tree URL in the testing instructions; a merge would also fix this (publication choice) |
 | Setup instructions | Pass with gap | README Quick start: Node 24, `npm ci`, build, preview, no credentials. Checks were green at `1ac7127`; the code is unchanged since (saved). But `.env.example` still asks for Supabase credentials, and legacy `src/App.tsx`, `Auth.tsx` and `supabase/functions/analyze-telemetry` (ElevenLabs TTS) sit in the repo unused by `src/main.tsx` (new). | Owner decision: delete or label the legacy files and `.env.example`. A small docs/cleanup commit, no architecture change. |
-| Live-call instructions | **Gap** | Section 1 | Part of G1 option B |
+| Live-call instructions | Drafted, not published | `judge-access-draft.md` sec. 2 to 4. Prepare is byte-identical to the 26 Oct request, and the import `jq` maps the saved receipt to the bundled report exactly (both new). The live call itself was not run. A judge's own key is not free reproduction, and judge credit coverage is unresolved. Receipts hard-code `ownerReportedBalanceUsd: 25`. | Matt approves publishing the guide (option B) |
 | Code license | Pass | `LICENSE` Apache-2.0; `THIRD-PARTY-NOTICES.txt` lists react, react-dom and scheduler (MIT) | None |
 | Silverstone data (G5) | **Owner decision** | `data/f1tenth-silverstone/LICENSE` is GPL-3.0 (new). Rules Sec. 4 require "solely owned" but allow open source if licenses are complied with and the entrant "creates software that enhances and builds upon" it. | Matt answers G5 Q1 (options a/b/c in `submission-package.md` sec. 7) |
 | Model output terms | **Owner decision** | `~/.claude/agents/.artifacts/blurr-licensing-rules-research.md` Q2 and Q3 (saved): NVIDIA claims no output ownership; Nebius gives the customer Output ownership but Agreement 18.7 needs consent for public references | Matt answers G5 Q3 and Q4 |
@@ -85,7 +87,7 @@ has sha256 `6115d92d...0397`. Each clause below matched the 04:38Z capture
 | Option | What it changes | Uses existing code | Needs |
 |---|---|---|---|
 | A. Submit as is | Nothing. The description states that saved Token Factory outputs are replayed and that the call runs from `server/runApprovedVerification.ts`. | Yes | Matt accepts the eligibility risk |
-| B. Document the live call for judges | One README section: the exact `--prepare`, `cost-proof.json` and `--execute` steps for one bundled session with the judge's own key. Docs only, no code change. | Yes | Matt's approval to commit and push docs |
+| B. Document the live call for judges | Drafted in `judge-access-draft.md`: the exact `--prepare`, `cost-proof.json`, `--execute` and import steps for one bundled session with the judge's own key. Docs only, no code change. | Yes | Matt's approval to push it. It does not make the live call free for judges. |
 | C. Ask the organizers | Send the draft in `submission-package.md` sec. 12 (Sec. 11 written clarification) | n/a | Matt sends it (outward contact) |
 | D. Show a fresh call | One more approved call recorded on camera | Yes | Credit verified in the console first, plus a new per-call approval constant; still not judge-triggerable |
 
