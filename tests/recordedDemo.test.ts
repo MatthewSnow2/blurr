@@ -103,3 +103,24 @@ test('each circle and ladder run imports with its saved report and is labeled fr
     assert.ok(!sessionEntry.default_demo && !reportEntry.default_demo);
   }
 });
+
+test('the Silverstone baseline and retest laps import with their saved reports and keep GPL labels', async () => {
+  // Retest uses the ladder-swept setting; it gets further (more samples) before the same kind of collision.
+  const laps = [['baseline', 1214, 0.65, 14], ['retest', 2744, 1.05, 3]] as const;
+  for (const [lap, samples, gain, lookahead] of laps) {
+    const capture = `data/f1tenth-silverstone/${lap}-lap-session.json`;
+    const report = `data/f1tenth-silverstone/${lap}-lap-nebius-report.json`;
+    const sessionEntry = manifest.find(e => e.path === capture);
+    const reportEntry = manifest.find(e => e.path === report);
+    assert.ok(sessionEntry && reportEntry, capture);
+    const { session, validated } = await loadRecordedDemo(served({ '/capture': capture, '/report': report }), '/capture', '/report', sessionEntry.file);
+    assert.equal(session.canonicalSha256, sessionEntry.session_canonical_sha256);
+    assert.equal(reportEntry.session_canonical_sha256, sessionEntry.session_canonical_sha256);
+    assert.equal(session.sampleCount, samples);
+    assert.ok(validated.saved.responseId.startsWith('chatcmpl-'));
+    assert.match(labelForSession(manifest, session.canonicalSha256).distribution ?? '', /^GPL-3\.0 /u);
+    assert.ok(!sessionEntry.default_demo && !reportEntry.default_demo);
+    const sealed = JSON.parse(readFileSync(repo(capture), 'utf8'));
+    assert.deepEqual([sealed.outcome.stop_reason, sealed.controller.steering_gain, sealed.controller.lookahead_points], ['terminated', gain, lookahead]);
+  }
+});

@@ -59,15 +59,53 @@ the manifest is shown as an unlisted import.
 | `data/f1tenth-circle/run-a-nebius-report.json` | `saved_provider_report` | The saved report from one real Nebius call on the circle run A (26 October). |
 | `data/f1tenth-ladder/{turn,twoturns,chicane}-run-a-session.json` | `recorded_simulator_capture` | 600 steps each of f1tenth_gym on the original rung 3 (one turn), 4.1 (hairpin) and 4.2 (chicane) tracks, captured 26 October 2026. |
 | `data/f1tenth-ladder/{turn,twoturns,chicane}-run-a-nebius-report.json` | `saved_provider_report` | One saved report per ladder run, each from one real Nebius call on 26 October. |
+| `data/f1tenth-silverstone/{baseline,retest}-lap-session.json` | `recorded_simulator_capture` | Full-lap attempts on Silverstone (26 October), before and after the ladder sweep. Both collide: the baseline at 12.14 s (about 30 m), the retest at 27.44 s (about 68 m). |
+| `data/f1tenth-silverstone/{baseline,retest}-lap-nebius-report.json` | `saved_provider_report` | One saved report per lap attempt, each from one real Nebius call on 26 October. |
 | `fixtures/f1tenth-original-synthetic-circuit.json` | `legacy_example` | An earlier f1tenth_gym run (9 October 2026) on an original analytic circuit. |
 | `fixtures/autodrive-synthetic-session.json` | `synthetic_fixture` | Two-frame AutoDRIVE compatibility replay. Not a Unity capture. |
 | `fixtures/autodrive-synthetic-nebius-report.json` | `saved_provider_report` | Saved report from one earlier Nebius call (15 October) on that synthetic replay. |
 | `fixtures/recorded-synthetic-session.json` | `synthetic_fixture` | Three-sample input for the separate `recorded.html` inspection page. |
 
+The sweep summaries in `data/f1tenth-sweep/` are not sessions and are not in the
+manifest; see the next section.
+
 None of these is physical robot data or human driving. To import a pair by hand,
 use **Import capture** with a session file, then **Import saved report** with its
 report. A report for another session, changed bytes, unsupported claims,
 malformed usage or a file over 128 KiB fails closed and keeps the previous view.
+
+
+## Controller sweep and Silverstone retest (offline tuning, not learning)
+
+On 26 October the same controller was run 100 times on each ladder rung
+(circle, turn, hairpin, chicane), one run per gain and lookahead on a 10 x 10
+grid: gain 0.35 to 1.25, lookahead 6 to 24 raceline points. Seed, timestep,
+2.5 m/s speed, 0.35 rad steering limit and 600 steps were the same for every
+run, so only the setting differed. All 400 runs completed without a collision.
+`scripts/select_sweep_setting.py` keeps settings that completed every rung and
+picks the lowest mean |raceline deviation| across rungs: gain 1.05, lookahead 6
+points (0.6 m). The default 0.65 / 14 ranked 38th. Nothing else carries over:
+no weights, memory or model state, and the coaching reports do not feed back
+into the controller.
+
+Silverstone was held out of the sweep. Its waypoints are about twice as far
+apart, so the chosen lookahead becomes 3 points there (the same 0.6 m).
+
+| Silverstone lap attempt | Setting | Stopped | Distance | Mean / max \|deviation\| |
+|---|---|---|---|---|
+| Baseline | 0.65 / 14 points (2.8 m) | collision at 12.14 s | about 30 m of 446 m | 0.039 / 0.182 m |
+| Retest | 1.05 / 3 points (0.6 m) | collision at 27.44 s | about 68 m of 446 m | 0.002 / 0.007 m |
+
+Read the table with these limits. The baseline cut inside the first right-hander
+(0.18 m off the line when it hit). The retest stayed within 7 mm of the line and
+still collided at the entry to a tight right-hander (radius about 3 m); that
+cause is not diagnosed yet. Deviation means over runs of different length are
+not comparable, so distance reached comes first. The comparison changes gain and
+lookahead distance together, each condition is one deterministic run (run B
+reproduced run A), and neither attempt completed a lap. This shows offline
+tuning on simple tracks carrying over to a held-out track in simulation; it is
+not a learned driver, not coaching that caused the change, and not evidence
+about human drivers.
 
 ## Simulators: what is and is not here
 
@@ -157,7 +195,7 @@ cryptographically authenticate the provider.
 ## License
 
 Original code and documentation are licensed under the Apache License 2.0
-(`LICENSE`). The Silverstone run A capture and its saved report in
+(`LICENSE`). The Silverstone captures and their saved reports in
 `data/f1tenth-silverstone/` are derived from GPL-3.0 track assets and are
 licensed under GPL-3.0 (`data/f1tenth-silverstone/LICENSE`). Bundled third-party
 notices are in `THIRD-PARTY-NOTICES.txt`.

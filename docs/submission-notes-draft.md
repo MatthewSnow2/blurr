@@ -45,7 +45,8 @@ decision, judge access check on the published build, public YouTube video
 strictly shorter than 3 minutes, final English description, feedback and update
 explanation, and owner submission/legal acceptance. Each paid call needs its own
 approval constant; every allowance so far is consumed (the synthetic fixture,
-Silverstone run A, and on 26 October the circle and the three ladder runs).
+Silverstone run A, and on 26 October the circle, the three ladder runs, and the
+Silverstone baseline and retest lap attempts).
 
 ## Claim-to-evidence list
 
@@ -64,6 +65,7 @@ owner-held 23 October receipt and not re-run; **open** means not yet true.
 | Viewing the demo makes no provider call and no external request | `src/demo/recordedDemo.ts`, browser journey | Checked in Chromium only | verified |
 | A missing or mismatched demo file fails closed with a specific message | `tests/recordedDemo.test.ts`, browser 404 check | | verified |
 | AutoDRIVE input is supported | `fixtures/autodrive-synthetic-session.json` | Synthetic two-frame fixture; no live stream | verified (import only) |
+| A ladder-swept controller setting got further on held-out Silverstone than the default (68 m vs 30 m before a collision) | `data/f1tenth-sweep/`, `data/f1tenth-silverstone/{baseline,retest}-lap-*`, `tests/test_select_sweep_setting.py` | Offline tuning, not learning; one deterministic run per condition; gain and lookahead distance change together; neither completed a lap; retest crash not diagnosed | verified |
 | The app shows proven driving improvement | none | Not claimed | not claimed |
 | Demo video under 3 minutes | `docs/demo-sequence-draft.md` | Not recorded | open |
 
