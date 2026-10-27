@@ -114,8 +114,10 @@ class CaptureCoreTests(unittest.TestCase):
                 self.assertEqual(state.closed, 1)
 
     def test_configuration_rejects_before_load_or_step(self):
-        for kwargs in ({"steps": True}, {"steps": 0}, {"steps": 601}, {"seed": -1}, {"timeout_s": float("nan")},
-                       {"timeout_s": 121}, {"speed_mps": 3}, {"timestep_s": .02}):
+        for kwargs in ({"steps": True}, {"steps": 0}, {"steps": 20_001}, {"seed": -1}, {"timeout_s": float("nan")},
+                       {"timeout_s": 1201}, {"speed_mps": 3}, {"timestep_s": .02}, {"steering_limit_rad": .5},
+                       {"steering_gain": .09}, {"steering_gain": 2.01}, {"steering_gain": float("inf")}, {"steering_gain": "0.65"},
+                       {"lookahead_points": 0}, {"lookahead_points": 61}, {"lookahead_points": 14.0}):
             state = FakeState()
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 capture(state, core.CaptureConfig(**kwargs))
@@ -167,7 +169,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
         value = capture(config=core.CaptureConfig(steps=600))
         template = candidate()
         template.update(value)
-        document = runner.finalize(template, SimpleNamespace(track="Silverstone", steps=600, seed=20261009, timeout=120), {})
+        document = runner.finalize(template, SimpleNamespace(track="Silverstone", steps=600, seed=20261009, timeout=120, gain=.65, lookahead=14), {})
         document["provenance"]["offline_mock_fixture"] = True
         document["circuit"]["name"] = "Offline mocked comparison fixture"
         with tempfile.TemporaryDirectory() as folder:
@@ -211,7 +213,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
                 runner.supervise([sys.executable, "-c", script, folder], folder, 2, dict(os.environ))
 
     def test_finalization_recomputes_summary_and_keeps_qualification_pending(self):
-        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120)
+        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14)
         doc = runner.finalize(candidate(), args, {"kind": "mock_resource_fixture"})
         self.assertEqual(doc["provenance"]["real_simulator_qualification"], "pending")
         self.assertFalse(doc["circuit"]["distributable_fixture"])
@@ -223,9 +225,24 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             with self.subTest(mutate=mutate), self.assertRaises(ValueError):
                 runner.finalize(value, args, {})
 
+    def test_swept_gain_and_lookahead_steer_the_car_and_are_sealed_only_when_requested(self):
+        swept = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=1.2, lookahead=6)
+        default_state, swept_state = FakeState(), FakeState()
+        capture(default_state)
+        value = capture(swept_state, runner.config_for(swept))
+        self.assertNotEqual(default_state.actions, swept_state.actions)
+        value.update({key: item for key, item in candidate().items() if key not in value})
+        doc = runner.finalize(value, swept, {})
+        self.assertEqual((doc["controller"]["steering_gain"], doc["controller"]["lookahead_points"]), (1.2, 6))
+        # A default-controller candidate must not be sealed under swept arguments, or the reverse.
+        with self.assertRaisesRegex(ValueError, "configuration differs"):
+            runner.finalize(candidate(), swept, {})
+        with self.assertRaisesRegex(ValueError, "configuration differs"):
+            runner.finalize(value, SimpleNamespace(**{**vars(swept), "gain": .65, "lookahead": 14}), {})
+
     def test_environment_recorded_after_gymnasium_import_passes_and_real_drift_rejects(self):
         # gymnasium/__init__.py sets PYGAME_HIDE_SUPPORT_PROMPT="hide" on import; the worker records env after capture.
-        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120)
+        args = SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14)
         value = candidate(); value["child_environment"]["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
         runner.finalize(value, args, {})
         value = candidate(); value["child_environment"]["SDL_VIDEODRIVER"] = "windows"
@@ -233,7 +250,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             runner.finalize(value, args, {})
 
     def test_exclusive_bundle_receipt_and_existing_output_preserved(self):
-        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {})
+        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14), {})
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / "new-bundle"
             receipt = runner.publish(doc, output)
@@ -244,7 +261,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             self.assertEqual(raw, (output / "session.json").read_bytes())
 
     def test_explicit_mock_export_roundtrips_existing_blurr_f1tenth_importer(self):
-        document = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {"kind": "mock"})
+        document = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14), {"kind": "mock"})
         document["provenance"]["offline_mock_fixture"] = True
         document["circuit"]["name"] = "Offline mock fixture · reconstructed runner (qualification pending)"
         with tempfile.TemporaryDirectory() as folder:
@@ -264,7 +281,7 @@ class SupervisorAndPublicationTests(unittest.TestCase):
             self.assertIn("qualification pending", parsed["name"])
 
     def test_partial_publication_cleanup_and_failure_evidence(self):
-        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120), {})
+        doc = runner.finalize(candidate(), SimpleNamespace(track="Silverstone", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14), {})
         original = Path.open
 
         def failing_open(path, *args, **kwargs):
@@ -386,7 +403,7 @@ class SourceAndCliTests(unittest.TestCase):
         state = FakeState()
         capture(state, track="Circle")
         self.assertEqual(state.track_name, "Circle")
-        args = SimpleNamespace(track="Circle", steps=4, seed=20261009, timeout=120)
+        args = SimpleNamespace(track="Circle", steps=4, seed=20261009, timeout=120, gain=.65, lookahead=14)
         doc = runner.finalize(candidate("Circle"), args, {})
         self.assertEqual(doc["circuit"]["track_name"], "Circle")
         self.assertTrue(doc["circuit"]["distributable_fixture"])
