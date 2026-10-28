@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Database, Video } from 'lucide-react';
 import SavedProviderReport from './SavedProviderReport';
+import LiveCoaching from './LiveCoaching';
 import type { ReplaySample, StoredSession } from '../lib/sessionStore';
 import type { DatasetLabel } from '../demo/datasets';
 
@@ -158,6 +159,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
       )}
 
       <SavedProviderReport key={session.canonicalSha256} session={session} />
+      <LiveCoaching key={`live-${session.canonicalSha256}`} session={session} />
     </div>
   );
 };
