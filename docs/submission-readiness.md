@@ -8,8 +8,8 @@ each genuine blocker. Deadline: 30 October 2026, 17:00 UTC (12:00 CDT,
 
 ## Verdict
 
-The package is not ready. Three of the remaining items can block it: G1,
-whether the offline replay meets the runtime-call rule; G3, giving judges a
+The package is not ready. G1 is decided (28 October: submit as is, option
+A, eligibility risk accepted by Matt). Two remaining items can block it: G3, giving judges a
 link that lasts until 15 December (the pinned permalink works now but is not
 protected from deletion, see `judge-access-draft.md` sec. 5); and G5,
 ownership of the GPL-3.0 Silverstone data. G2 (the
@@ -61,7 +61,7 @@ has sha256 `6115d92d...0397`. Each clause below matched the 04:38Z capture
 
 | Area | Status | Evidence | Next action |
 |---|---|---|---|
-| Runtime call (G1) | **Owner decision** | Section 1 above; rules quote | Matt picks one option (below) |
+| Runtime call (G1) | **Decided 28 Oct: option A** | Section 1 above; rules quote | None. Matt accepts the eligibility risk; the copy states the replay plainly (`submission-package.md` sec. 2) |
 | Judge link through 15 Dec (G3) | **Owner decision** | The pinned permalink `6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app` serves `7491717`. It is public and noindex (new). It is not protected from Netlify's automatic deletion: about 2027-01-25 at 90 days on a paid plan, or 2026-11-26 at 30 days on a free plan. Production serves `be1ab6e` (saved); the custom domain does not resolve (saved). See `judge-access-draft.md` sec. 5. | Smallest option: give judges the permalink and keep the team plan paid through 15 Dec. Merging PR 4 is a publication choice that removes the retention gap; it is not shown to be required. |
 | Public repo, OSI license | Pass | GitHub API (new): public, `license: Apache-2.0`, default branch `main` | None |
 | Repo default branch content | **Gap** | `origin/main` is `be1ab6e`, 6 commits behind PR 4 (new). Judges reading `main` see the old README without baseline/retest or the Nemotron section. `refs/pull/4/head` pins `7491717` (new). | Put the pinned tree URL in the testing instructions; a merge would also fix this (publication choice) |

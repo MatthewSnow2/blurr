@@ -42,7 +42,9 @@ suggestion templates and a JSON schema to Nemotron 3 Super on Nebius Token
 Factory. Nemotron returns typed claims (which measurement, which comparison)
 and picks templates; it writes no free text that reaches the screen. The
 browser re-validates every claim and renders it with local code. Eight calls
-produced every report in the repository, under one US cent in total.
+produced every report in the repository, under one US cent in total. The
+hosted demo makes no live call: it replays those saved responses, and the
+runner is in the repository for anyone with their own Token Factory key.
 
 **What we showed.** On Silverstone, a full-lap attempt with the default
 controller ended after 12.14 s, when the simulator terminated the episode
@@ -236,12 +238,12 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 
 ## 9. Owner gates
 
-- **G1 runtime call (unresolved):** no primary source read here says
-  whether offline replay of saved Token Factory responses, plus a separate
-  server-side runner in the repo, meets the "runtime call" definition. The
-  eight call receipts show calls were made; they do not show the rule is
-  met. Options are in section 12. Matt decided on 28 October not to send
-  the clarification request.
+- **G1 runtime call (decided 28 October: submit as is, option 1):** Matt
+  accepts the eligibility risk. The copy states plainly that the hosted demo
+  replays saved responses and that the runner makes the call. No
+  clarification request will be sent and no live judge path will be built.
+  The rules text still does not settle the question; this is a decision,
+  not a ruling.
 - **G2 video:** watch the captioned draft, optionally add a voiceover, then
   upload it publicly to YouTube.
 - **G3 judge access:** merge PR 4 and let Netlify deploy main, or name another
@@ -294,7 +296,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   the credit is reachable only with Matt's key, so it does not fund judges'
   own runs.
 
-## 12. G1: runtime-call requirement (unresolved)
+## 12. G1: runtime-call requirement (decided: option 1, 28 October)
 
 What the rules say (https://nebiusglobalaihackathon.devpost.com/rules, read
 27 October 2026):
