@@ -13,7 +13,7 @@ https://nebiusglobalaihackathon.devpost.com/details/faqs
 | Requirement (rules) | Blurr status |
 |---|---|
 | Submission Period ends 30 October 2026, 10:00 PT (17:00 UTC) | Open |
-| Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | Eight real Token Factory calls to `nvidia/nemotron-3-super-120b-a12b` produced the bundled reports. The judged app replays them offline; judges cannot trigger a new call. Whether that meets the rule is unresolved (gate G1, section 12). |
+| Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | The hosted app makes a runtime call: "Run live coaching" sends one bundled session to `nvidia/nemotron-3-super-120b-a12b` on Token Factory through a Netlify Function and shows the validated reply (G1 changed to the live path on 28 October, section 12). Eight earlier calls produced the saved reports. |
 | Track | Physical AI, simulation only. The FAQ allows simulation. |
 | Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves PR 4 head `8bc5d86` (28 October; same app bundle as `7491717` and `116d943`). The site's primary custom domain does not resolve. See section 10. Gate G3. |
 | Public repo with a detectable OSI license in About | https://github.com/MatthewSnow2/blurr, public, Apache-2.0 detected |
@@ -42,9 +42,10 @@ suggestion templates and a JSON schema to Nemotron 3 Super on Nebius Token
 Factory. Nemotron returns typed claims (which measurement, which comparison)
 and picks templates; it writes no free text that reaches the screen. The
 browser re-validates every claim and renders it with local code. Eight calls
-produced every report in the repository, under one US cent in total. The
-hosted demo makes no live call: it replays those saved responses, and the
-runner is in the repository for anyone with their own Token Factory key.
+produced every report in the repository, under one US cent in total. On the
+hosted demo, "Run live coaching" makes a fresh call for any bundled session,
+capped at 60 calls a day, and the reply passes the same checks before it is
+shown.
 
 **What we showed.** On Silverstone, a full-lap attempt with the default
 controller ended after 12.14 s, when the simulator terminated the episode
@@ -238,12 +239,11 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 
 ## 9. Owner gates
 
-- **G1 runtime call (decided 28 October: submit as is, option 1):** Matt
-  accepts the eligibility risk. The copy states plainly that the hosted demo
-  replays saved responses and that the runner makes the call. No
-  clarification request will be sent and no live judge path will be built.
-  The rules text still does not settle the question; this is a decision,
-  not a ruling.
+- **G1 runtime call (changed 28 October to the live path):** the hosted
+  app now calls Token Factory at runtime (README "Live coaching on the hosted
+  site"). This supersedes the earlier option 1 decision. Spend is bounded at
+  60 calls and USD 0.343 a day. Open for Matt: push the branch, then use the
+  new deploy-preview permalink as the judge link.
 - **G2 video:** watch the captioned draft, optionally add a voiceover, then
   upload it publicly to YouTube.
 - **G3 judge access (owner-reported resolved 28 October):** previously: merge PR 4 and let Netlify deploy main, or name another
@@ -276,8 +276,9 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 
 ## 11. Runtime call and Nebius credit
 
-- No Nebius call was made after the eight in section 4. None is needed for
-  this package: the judged app replays saved reports offline.
+- On 28 October, testing the live path made 3 calls (one local, two on a
+  Netlify draft deploy), each bounded at USD 0.0057216. Judges' calls are
+  funded by Matt's key through the hosted function, at most 60 a day.
 - Matt approved spending from existing credit on 27 October, conditional on
   verifying the balance first. Token Factory documents no balance API; the
   balance appears only in the logged-in console
@@ -296,7 +297,12 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   the credit is reachable only with Matt's key, so it does not fund judges'
   own runs.
 
-## 12. G1: runtime-call requirement (decided: option 1, 28 October)
+## 12. G1: runtime-call requirement (changed to the live path, 28 October)
+
+Update 28 October: Matt chose to build the live path. The hosted app's
+"Run live coaching" button makes a runtime call to the Token Factory
+inference API, which is the Sec. 4 wording. The history below is kept for
+the record.
 
 What the rules say (https://nebiusglobalaihackathon.devpost.com/rules, read
 27 October 2026):

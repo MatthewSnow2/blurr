@@ -8,12 +8,37 @@ each genuine blocker. Deadline: 30 October 2026, 17:00 UTC (12:00 CDT,
 
 ## Verdict
 
-The package is not ready to submit; only owner gates remain. G1 is decided
-(28 October: submit as is, option A, eligibility risk accepted by Matt).
+The package is not ready to submit; only owner gates remain. G1 changed on
+28 October from option A to a live path: the hosted app now makes a runtime
+Token Factory call (see Update below); it goes live for judges once Matt
+pushes and the new preview permalink replaces the judge link.
 Judge access (G3) is owner-reported resolved (28 October). G5, ownership of
 the GPL-3.0 Silverstone data, can still block. G2 (video upload), G4
 (Devpost form) and G6 (submitting) are open and mechanical. Nothing below
 has been accepted on Matt's behalf.
+
+## Update 28 October 2026, live path (about 20:00 to 20:20 UTC)
+
+- Branch `feat/live-nemotron-coaching` (local, not pushed) adds
+  `POST /api/live-coach` (Netlify Function) and a "Run live coaching" button
+  for the 7 bundled captures. Plan reviewed by Codex in checkmate run
+  `2026-10-28-1501-blurr-live-path` (consensus after 3 rounds).
+- Checks (new): `npm test` 91 pass, `npm run typecheck`, `npm run lint`,
+  `npm run build` all exit 0; `python3 -m unittest discover -s tests -p
+  'test_*.py'` 53 OK.
+- Real calls (new, 3 of the 5 Matt approved): one local through the handler
+  (HTTP 200, 6 claims, 7.2 s), one `curl` on draft deploy
+  `6ae257b5392f5e09d1d12342` (HTTP 200, 8.7 s) and one by clicking the
+  button in Chromium on that draft. Each reply validated against run A and
+  carried the pinned request sha256. Unknown digest: HTTP 404; GET serves
+  the SPA, not the function.
+- Netlify env vars set 28 October: `NEBIUS_API_KEY` (secret, Functions scope,
+  production, deploy-preview and branch-deploy contexts),
+  `LIVE_COACHING_ENABLED=true`, `LIVE_COACHING_DAILY_CAP=60`. Production
+  still serves `be1ab6e`; it gets the function only when the branch reaches
+  `main`.
+- Not run: other browsers, the 429 rate-limit and daily-cap paths against
+  the real Netlify edge (covered by unit tests only).
 
 ## Update 28 October 2026 (fresh checks about 06:05 to 06:20 UTC)
 

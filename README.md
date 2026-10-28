@@ -6,8 +6,11 @@ session's evidence. The bundled demo is a recorded F1TENTH gym capture on the
 Silverstone track with the one real NVIDIA Nemotron report generated for it
 through Nebius Token Factory.
 
-It is a replay and review tool. Viewing makes no provider call, no network
-request outside its own origin, and sends no robot or simulator control. It is
+It is a replay and review tool with one live path. Viewing makes no provider
+call, no network request outside its own origin, and sends no robot or
+simulator control. On the hosted site, the "Run live coaching" button on a
+bundled session makes one live Nemotron call on Nebius Token Factory through a
+Netlify Function (see "Live coaching on the hosted site"). It is
 not a physical vehicle coach, a video telemetry extractor or a real-time voice
 system, and it does not show proven driving improvement.
 
@@ -165,9 +168,46 @@ tokens) that let each call be costed and audited. Eight calls were made in
 total, one per bundled report, between 15 and 27 October 2026 (UTC). Their saved
 reports are the only model output in the repository.
 
-**Offline vs live:** everything a viewer does is offline replay of saved
-files. Generating a new report is a separate, credentialed, approved server
-step and is not exposed in the app.
+**Offline vs live:** opening a session and its saved report is offline
+replay. The one live path is the "Run live coaching" button below.
+
+## Live coaching on the hosted site
+
+`netlify/functions/live-coach.mts` serves `POST /api/live-coach` with body
+`{"sessionSha256": "<digest>"}`. It accepts only the 7 bundled simulator
+captures that have a saved report (`src/coaching/liveEligibleSessions.ts`), so
+an imported file cannot spend the hosted key. For each request it:
+
+1. Rebuilds the request body from the bundled session and refuses to send it
+   unless its sha256, byte size and rendered prompt size match the pinned
+   values in `server/liveCoachingData.ts`. Those pins are the same bodies the
+   approved 23 and 26 October calls sent, so the input token count is known
+   (1,358 to 1,364 reported) and bounded at 16,000.
+2. Claims one of at most 60 daily slots in a Netlify Blobs store
+   (`server/liveCoachCap.ts`). A slot counts only when a strongly consistent
+   read-back returns this request's nonce; if the store fails, no call is made.
+3. Sends one request to `nvidia/nemotron-3-super-120b-a12b` with
+   `max_completion_tokens` 1,024, no retry and a 30 s timeout, then checks the
+   endpoint, model, usage and report contract before returning it.
+
+The browser re-validates the returned report against the session it has open
+and shows it as a live response next to the saved one, without replacing it.
+
+Spend bound: USD 0.0057216 per call at the 28 October list price (input 0.3,
+output 0.9 USD per million tokens), so at most USD 0.343 per UTC day. Netlify
+also limits each IP to 3 requests a minute.
+
+Configuration (Netlify environment variables, Functions scope):
+
+| Variable | Meaning |
+|---|---|
+| `NEBIUS_API_KEY` | Token Factory key, marked secret |
+| `LIVE_COACHING_ENABLED` | Must be `true`; anything else is the kill switch (HTTP 503) |
+| `LIVE_COACHING_DAILY_CAP` | 1 to 60, default 60 |
+
+If the pinned data changes, regenerate it with
+`node --experimental-strip-types scripts/build-live-coaching-data.ts`; the
+tests fail if the generated files and a fresh render differ.
 
 ## Simulators: what is and is not here
 

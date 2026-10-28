@@ -25,7 +25,12 @@ Three things are kept apart below: free paths a judge can use, live inference
   `npm run preview`). Saved: checks green at `1ac7127`; the app code is
   unchanged since `116d943`.
 - What it shows: the eight saved Token Factory reports, re-validated in the
-  browser. It makes no provider call.
+  browser. Viewing makes no provider call.
+- Live call: on a bundled session, "Run live coaching" asks Nemotron on
+  Token Factory for a fresh report through the site's function, at no cost to
+  the judge (Matt's key, at most 60 calls a day). This needs a build from
+  `feat/live-nemotron-coaching`; the permalink above predates it and has no
+  function. Replace it with the new deploy-preview permalink after the push.
 
 ## 2. Free path B: offline request preparation (no key, no network)
 
