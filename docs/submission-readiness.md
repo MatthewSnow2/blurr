@@ -8,13 +8,49 @@ each genuine blocker. Deadline: 30 October 2026, 17:00 UTC (12:00 CDT,
 
 ## Verdict
 
-The package is not ready. G1 is decided (28 October: submit as is, option
-A, eligibility risk accepted by Matt). Two remaining items can block it: G3, giving judges a
-link that lasts until 15 December (the pinned permalink works now but is not
-protected from deletion, see `judge-access-draft.md` sec. 5); and G5,
-ownership of the GPL-3.0 Silverstone data. G2 (the
-video upload) and G6 (submitting) are also open, but the work for each is
-mechanical. Nothing below has been accepted on Matt's behalf.
+The package is not ready to submit; only owner gates remain. G1 is decided
+(28 October: submit as is, option A, eligibility risk accepted by Matt).
+Judge access (G3) is owner-reported resolved (28 October). G5, ownership of
+the GPL-3.0 Silverstone data, can still block. G2 (video upload), G4
+(Devpost form) and G6 (submitting) are open and mechanical. Nothing below
+has been accepted on Matt's behalf.
+
+## Update 28 October 2026 (fresh checks about 06:05 to 06:20 UTC)
+
+- **Judge access:** owner-reported resolved, relayed in Chad/Codex's
+  overnight review ("judge-access requirement is resolved"). The mechanism
+  was not stated and is not verified here. Supporting facts, fresh: the
+  Netlify project `strong-strudel-8072a3` reports plan `nf_team_pro` and no
+  password or SSO gate; the pinned permalink `6ae0f4e0...`, the newest PR 4
+  preview deploy `6ae18445...` (built from `8bc5d86`) and
+  `deploy-preview-4--strong-strudel-8072a3.netlify.app` all return HTTP 200
+  with bundle `main-Dttd0-9S.js`, the same as a fresh local build.
+  Production still serves `be1ab6e` (`main-DFd3u24-.js`). No organizer
+  contact was requested or sent.
+- **Repo:** host `im4tlai-dev`; worktree
+  `/home/apexaipc/Documents/Codex/2026-10-13/task-2/worktrees/blurr-sweep-recovery`;
+  branch `feat/f1tenth-parameter-sweep-on-main` at `8bc5d86`, equal to origin
+  and `refs/pull/4/head`; base `main` at `be1ab6e` (merge base), 11 commits
+  and 29 files ahead; tree clean.
+- **PR 4:** open, draft, mergeable, `CLEAN`. Netlify checks: deploy preview
+  pass, redirect rules pass, header rules and pages changed skipping. These
+  are the only checks; the repo has no GitHub Actions workflows, so "CI
+  green" means the Netlify checks only.
+- **Local checks (fresh, Node 24.22.0, Python 3.14.4):** `npm test` 73/73
+  pass; `npm run typecheck` exit 0; `npm run lint` exit 0; `npm run build`
+  exit 0 (`main-Dttd0-9S.js`); `python3 -m unittest discover -s tests -p
+  'test_*.py'` 53 OK. Not run: other browsers, Windows, a live provider call.
+- **Deployment effect of publication:** `netlify.toml` builds with `npm run
+  build` and publishes `dist`. The 28 October push automatically produced a
+  new deploy preview (`6ae18445...`) with no manual step, so any further push
+  to the PR 4 branch will too. Merging to `main` would, by the same
+  integration, replace the production deploy at
+  `strong-strudel-8072a3.netlify.app` (inferred from the project's
+  production deploy tracking `main`; not exercised).
+- **Overclaims scan:** README, these docs and `captions.srt` contain no claim
+  of learned driving or a completed Silverstone lap. The copy says the
+  improvement came from offline parameter tuning, not learning, and the
+  captions say "Neither run finished a lap".
 
 ## 1. Runtime path to Nemotron via Nebius (traced in code, new)
 
@@ -62,11 +98,11 @@ has sha256 `6115d92d...0397`. Each clause below matched the 04:38Z capture
 | Area | Status | Evidence | Next action |
 |---|---|---|---|
 | Runtime call (G1) | **Decided 28 Oct: option A** | Section 1 above; rules quote | None. Matt accepts the eligibility risk; the copy states the replay plainly (`submission-package.md` sec. 2) |
-| Judge link through 15 Dec (G3) | **Owner decision** | The pinned permalink `6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app` serves `7491717`. It is public and noindex (new). It is not protected from Netlify's automatic deletion: about 2027-01-25 at 90 days on a paid plan, or 2026-11-26 at 30 days on a free plan. Production serves `be1ab6e` (saved); the custom domain does not resolve (saved). See `judge-access-draft.md` sec. 5. | Smallest option: give judges the permalink and keep the team plan paid through 15 Dec. Merging PR 4 is a publication choice that removes the retention gap; it is not shown to be required. |
+| Judge link through 15 Dec (G3) | **Owner-reported resolved 28 Oct** (see Update) | The pinned permalink `6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app` serves `7491717`. It is public and noindex (new). It is not protected from Netlify's automatic deletion: about 2027-01-25 at 90 days on a paid plan, or 2026-11-26 at 30 days on a free plan. Production serves `be1ab6e` (saved); the custom domain does not resolve (saved). See `judge-access-draft.md` sec. 5. | None for this review. Matt pastes the judge link he chose into the Devpost form (G4). |
 | Public repo, OSI license | Pass | GitHub API (new): public, `license: Apache-2.0`, default branch `main` | None |
-| Repo default branch content | **Gap** | `origin/main` is `be1ab6e`, 6 commits behind PR 4 (new). Judges reading `main` see the old README without baseline/retest or the Nemotron section. `refs/pull/4/head` pins `7491717` (new). | Put the pinned tree URL in the testing instructions; a merge would also fix this (publication choice) |
+| Repo default branch content | **Gap** | `origin/main` is `be1ab6e`, 11 commits behind PR 4 at `8bc5d86` (28 Oct). Judges reading `main` see the old README without baseline/retest or the Nemotron section. `refs/pull/4/head` is now `8bc5d86` (28 Oct); the app code is unchanged from `7491717`. | Put the pinned tree URL in the testing instructions; a merge would also fix this (publication choice) |
 | Setup instructions | Pass with gap | README Quick start: Node 24, `npm ci`, build, preview, no credentials. Checks were green at `1ac7127`; the code is unchanged since (saved). But `.env.example` still asks for Supabase credentials, and legacy `src/App.tsx`, `Auth.tsx` and `supabase/functions/analyze-telemetry` (ElevenLabs TTS) sit in the repo unused by `src/main.tsx` (new). | Owner decision: delete or label the legacy files and `.env.example`. A small docs/cleanup commit, no architecture change. |
-| Live-call instructions | Drafted, not published | `judge-access-draft.md` sec. 2 to 4. Prepare is byte-identical to the 26 Oct request, and the import `jq` maps the saved receipt to the bundled report exactly (both new). The live call itself was not run. A judge's own key is not free reproduction, and judge credit coverage is unresolved. Receipts hard-code `ownerReportedBalanceUsd: 25`. | Matt approves publishing the guide (option B) |
+| Live-call instructions | Pushed to PR 4 (`8bc5d86`), not on `main` | `judge-access-draft.md` sec. 2 to 4. Prepare is byte-identical to the 26 Oct request, and the import `jq` maps the saved receipt to the bundled report exactly (both new). The live call itself was not run. A judge's own key is not free reproduction, and judge credit coverage is unresolved. Receipts hard-code `ownerReportedBalanceUsd: 25`. | None; G1 decided as option A |
 | Code license | Pass | `LICENSE` Apache-2.0; `THIRD-PARTY-NOTICES.txt` lists react, react-dom and scheduler (MIT) | None |
 | Silverstone data (G5) | **Owner decision** | `data/f1tenth-silverstone/LICENSE` is GPL-3.0 (new). Rules Sec. 4 require "solely owned" but allow open source if licenses are complied with and the entrant "creates software that enhances and builds upon" it. | Matt answers G5 Q1 (options a/b/c in `submission-package.md` sec. 7) |
 | Model output terms | **Owner decision** | `~/.claude/agents/.artifacts/blurr-licensing-rules-research.md` Q2 and Q3 (saved): NVIDIA claims no output ownership; Nebius gives the customer Output ownership but Agreement 18.7 needs consent for public references | Matt answers G5 Q3 and Q4 |

@@ -1,6 +1,9 @@
-# Judge access and reproduction (draft for Matt, not published)
+# Judge access and reproduction (draft for Matt)
 
-Draft written 27 October 2026. Nothing here has been pushed, deployed or sent.
+Draft written 27 October 2026. Pushed to the PR 4 branch on 28 October
+(`8bc5d86`, with Matt's approval); not on `main`, and nothing was sent.
+Judge access was owner-reported resolved on 28 October (readiness review,
+"Update 28 October").
 It uses only existing entry points; the runner is not changed. Labels:
 **demonstrated** (run or fetched for this draft, 27 October 2026 about 20:40
 to 21:00 UTC), **saved** (earlier evidence), **documented only** (instructions
@@ -235,8 +238,9 @@ in the testing instructions.
 - **Gap:** the repo root shows `main` (`be1ab6e`), whose README lacks the
   baseline/retest and Nemotron sections. A judge who ignores the pinned link
   reads the old README.
-- **Not included:** the readiness review and this draft are local commits
-  after `7491717`, so they are not in the pinned tree.
+- **Not included in that tree:** the readiness review and this draft. They
+  are in `8bc5d86` (pushed 28 October), whose tree is
+  https://github.com/MatthewSnow2/blurr/tree/8bc5d86899b7aeccbb990114d43920aa300a7683.
 
 ### Options that change public state (each needs Matt's approval; neither is shown to be required)
 

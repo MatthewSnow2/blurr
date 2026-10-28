@@ -15,7 +15,7 @@ https://nebiusglobalaihackathon.devpost.com/details/faqs
 | Submission Period ends 30 October 2026, 10:00 PT (17:00 UTC) | Open |
 | Working software that "runs on" Nebius Token Factory or AI Cloud and uses at least one NVIDIA open model | Eight real Token Factory calls to `nvidia/nemotron-3-super-120b-a12b` produced the bundled reports. The judged app replays them offline; judges cannot trigger a new call. Whether that meets the rule is unresolved (gate G1, section 12). |
 | Track | Physical AI, simulation only. The FAQ allows simulation. |
-| Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves `7491717` (same app build as `116d943`). The site's primary custom domain does not resolve. See section 10. Gate G3. |
+| Demo URL (not required for Physical AI) and Testing access until the Judging Period ends (15 December 2026) | Production `strong-strudel-8072a3.netlify.app` serves main `be1ab6e`, which lacks the baseline/retest files. Deploy preview 4 serves PR 4 head `8bc5d86` (28 October; same app bundle as `7491717` and `116d943`). The site's primary custom domain does not resolve. See section 10. Gate G3. |
 | Public repo with a detectable OSI license in About | https://github.com/MatthewSnow2/blurr, public, Apache-2.0 detected |
 | README with setup, Nemotron usage, where Token Factory helped | README sections "Quick start", "Viewing the Silverstone baseline and retest lap attempts", "How Nemotron and Token Factory are used" |
 | Video under 3 minutes, public on YouTube, at least 1 minute of key modules if no hardware | Silent screen-recorded draft with captions, checked start to finish (2:50; key modules 20.4 to 145.0 s), see `demo-sequence-draft.md`. The rules do not ask for narration, so a voiceover is optional. Not uploaded. Gate G2. |
@@ -233,7 +233,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 | Nebius credit check before any new call | Owner-verified 28 Oct; no call made | Section 11 |
 | Checks at final head | See commit message and handoff | |
 | Video recorded and public on YouTube | Open | Gate G2 |
-| Judge-accessible build with these files | Open | Gate G3 |
+| Judge-accessible build with these files | Owner-reported resolved 28 Oct | Gate G3; readiness review, Update 28 October |
 | Submitted with confirmation receipt | Open | Gate G6 |
 
 ## 9. Owner gates
@@ -246,7 +246,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   not a ruling.
 - **G2 video:** watch the captioned draft, optionally add a voiceover, then
   upload it publicly to YouTube.
-- **G3 judge access:** merge PR 4 and let Netlify deploy main, or name another
+- **G3 judge access (owner-reported resolved 28 October):** previously: merge PR 4 and let Netlify deploy main, or name another
   link that stays up until 15 December 2026. Separately, decide what to do
   about the unresolved custom domain (section 10).
 - **G4 Devpost:** fill the form; the Devpost connector here needs `/mcp`
@@ -259,7 +259,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 | URL | Serves | Notes |
 |---|---|---|
 | https://strong-strudel-8072a3.netlify.app/ | main `be1ab6e` (bundle `main-DFd3u24-.js`) | HTTP 200; no baseline/retest files |
-| https://deploy-preview-4--strong-strudel-8072a3.netlify.app/ | PR 4 head `7491717` since 19:01Z (bundle `main-Dttd0-9S.js`, unchanged from `116d943`) | HTTP 200; has baseline/retest; `x-robots-tag: noindex` |
+| https://deploy-preview-4--strong-strudel-8072a3.netlify.app/ | PR 4 head, `8bc5d86` on 28 October (bundle `main-Dttd0-9S.js`, unchanged from `116d943`) | HTTP 200; has baseline/retest; `x-robots-tag: noindex` |
 | https://drivingcoachapexai.com/ | nothing | Listed as the Netlify project's primary URL, but DNS does not resolve |
 
 - The local docs commit builds the same bundle as `116d943`, so pushing it
