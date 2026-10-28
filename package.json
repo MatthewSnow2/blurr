@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts tests/sha256.test.ts tests/nebiusAdapter.test.ts tests/nebiusHttpExchange.test.ts tests/sharedCredential.test.ts tests/savedProviderReport.test.ts tests/recordedSession.test.ts tests/recordedDemo.test.ts",
+    "test": "node --experimental-strip-types --test tests/reportContract.test.ts tests/providerBoundary.test.ts tests/telemetryParser.test.ts tests/sessionStore.test.ts tests/sessionEvidence.test.ts tests/sha256.test.ts tests/nebiusAdapter.test.ts tests/nebiusHttpExchange.test.ts tests/sharedCredential.test.ts tests/savedProviderReport.test.ts tests/recordedSession.test.ts tests/recordedDemo.test.ts tests/liveCoachCap.test.ts tests/liveCoaching.test.ts tests/liveCoachingClient.test.ts",
     "preview": "vite preview",
     "test:nebius": "node --experimental-strip-types --test tests/nebiusAdapter.test.ts tests/nebiusHttpExchange.test.ts",
     "demo:nebius-offline": "node --experimental-strip-types server/runSyntheticDebrief.ts",
@@ -17,6 +17,7 @@
     "build:recorded": "vite build --config vite.recorded.config.ts"
   },
   "dependencies": {
+    "@netlify/blobs": "11.1.4",
     "@supabase/supabase-js": "^2.50.2",
     "@types/react-dropzone": "^4.2.2",
     "lucide-react": "^0.344.0",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@netlify/functions": "6.0.2",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.6.0",
@@ -41,6 +43,10 @@
     "vite": "^6.4.3"
   },
   "overrides": {
-    "ws": "8.22.0"
+    "ws": "8.22.0",
+    "es-module-lexer": "3.0.3",
+    "@fastify/busboy": "3.2.3",
+    "import-in-the-middle": "3.5.2",
+    "@netlify/otel": "7.0.4"
   }
 }
