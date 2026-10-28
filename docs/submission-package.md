@@ -228,7 +228,7 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
 | Silent captioned video draft recorded and checked start to finish | Done; voiceover optional | `demo-sequence-draft.md`, "Recorded draft" |
 | License audit with owner flags | Done; questions open | Section 7 |
 | Judge-access facts | Done; decision open | Section 10 |
-| Nebius credit check before any new call | Not verifiable; no call made | Section 11 |
+| Nebius credit check before any new call | Owner-verified 28 Oct; no call made | Section 11 |
 | Checks at final head | See commit message and handoff | |
 | Video recorded and public on YouTube | Open | Gate G2 |
 | Judge-accessible build with these files | Open | Gate G3 |
@@ -240,7 +240,8 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   whether offline replay of saved Token Factory responses, plus a separate
   server-side runner in the repo, meets the "runtime call" definition. The
   eight call receipts show calls were made; they do not show the rule is
-  met. Options and a draft clarification request are in section 12.
+  met. Options are in section 12. Matt decided on 28 October not to send
+  the clarification request.
 - **G2 video:** watch the captioned draft, optionally add a voiceover, then
   upload it publicly to YouTube.
 - **G3 judge access:** merge PR 4 and let Netlify deploy main, or name another
@@ -282,9 +283,16 @@ Full notes: `/home/apexaipc/.claude/agents/.artifacts/blurr-licensing-rules-rese
   and a public feature request asks for one
   (https://ideas.nebius.com/p/account-balance-api-endpoint-for-nebius-token-factory).
   The same page says card payers are charged automatically when the balance
-  goes negative. The balance could not be verified, so calls stay deferred.
-- If Matt wants a fresh call on camera, he should read the console balance
-  first; one call costs about USD 0.0011 at published rates (section 4).
+  goes negative.
+- Owner-verified on 28 October 2026: a console screenshot of organization
+  M2AI-3rw shows an account balance of USD 25.00 (hackathon credit, per Matt)
+  and USD 0.99 of trial credit with 15 days left. Matt confirmed that "Paid
+  usage after trial" is set to continue after the trial ends. At the USD
+  0.0057216 per-call ceiling the balance covers about 4,369 calls.
+- This closes the credit condition only. A new call still needs a new
+  per-call approval (all 7 hard-coded approvals are consumed on ProBook), and
+  the credit is reachable only with Matt's key, so it does not fund judges'
+  own runs.
 
 ## 12. G1: runtime-call requirement (unresolved)
 
@@ -315,7 +323,8 @@ judges test.
 Options for Matt:
 
 1. Submit as is, describing the runner and the offline replay plainly.
-2. Ask for clarification first (draft below). Sec. 11 requires "a written
+2. Ask for clarification first (draft below). **Not pursued: Matt decided
+   on 28 October not to send it. The draft is kept for the record only.** Sec. 11 requires "a written
    request for clarification" for an ambiguous term but names no recipient.
    Contact routes found (re-checked 2026-10-27, 21:10Z):
    - **Verified:** support@devpost.com. The live rules page, Sec. 15, says

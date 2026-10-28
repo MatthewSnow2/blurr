@@ -88,8 +88,8 @@ has sha256 `6115d92d...0397`. Each clause below matched the 04:38Z capture
 |---|---|---|---|
 | A. Submit as is | Nothing. The description states that saved Token Factory outputs are replayed and that the call runs from `server/runApprovedVerification.ts`. | Yes | Matt accepts the eligibility risk |
 | B. Document the live call for judges | Drafted in `judge-access-draft.md`: the exact `--prepare`, `cost-proof.json`, `--execute` and import steps for one bundled session with the judge's own key. Docs only, no code change. | Yes | Matt's approval to push it. It does not make the live call free for judges. |
-| C. Ask the organizers | Send the draft in `submission-package.md` sec. 12 (Sec. 11 written clarification) | n/a | Matt sends it (outward contact) |
-| D. Show a fresh call | One more approved call recorded on camera | Yes | Credit verified in the console first, plus a new per-call approval constant; still not judge-triggerable |
+| C. Ask the organizers | Dropped: Matt decided on 28 Oct not to send the draft in `submission-package.md` sec. 12 | n/a | None |
+| D. Show a fresh call | One more approved call recorded on camera | Yes | Credit owner-verified 28 Oct (`submission-package.md` sec. 11); still needs a new per-call approval constant; still not judge-triggerable |
 
 Not proposed: wiring a live call into the hosted app. That needs a server, a
 key on Netlify and spending controls: new architecture outside this goal.
@@ -100,6 +100,8 @@ README". It does not by itself settle the interpretation in section 2.
 
 ## 5. Gates that stay closed
 
-No provider call without console-verified credit. No new credentials or
+Console credit was owner-verified on 28 October (USD 25.00 balance, paid
+usage continues after the trial). No provider call without a new per-call
+approval. No new credentials or
 security changes. No merge, deploy, publication, YouTube upload, organizer
 contact or submission without Matt's approval for that action.
