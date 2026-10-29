@@ -10,7 +10,7 @@ Replaces #3, which GitHub closed unmerged when #2 was squash-merged and its base
 
 The cherry-picks applied without conflicts. The resulting tree equals #3's head `7fb66e1` except for the README lines from `3545b02` (recorded-call inventory), which main already has and this branch keeps.
 
-After `116d943` come docs commits (`4fe0c6b` to `e237699`), then the **live coaching path** (28 October, `780fba1`, `3e1f292`, `34619ae`) and a readiness commit (29 October, local until pushed) that fixes copy, adds one client message and adds the recording packages. So this PR now changes code and the build, not only docs.
+After `116d943` come docs commits (`4fe0c6b` to `e237699`), then the **live coaching path** (28 October, `780fba1`, `3e1f292`, `34619ae`) and readiness commits (29 October, local until pushed: `9065ce1` fixes copy, adds one client message and adds the recording packages; later commits are wording-only docs fixes). So this PR now changes code and the build, not only docs.
 
 ## 1. Ladder sweep and Silverstone laps (unchanged from #3)
 
@@ -26,7 +26,7 @@ Results (offline tuning, not learning). All 400 ladder runs completed; the selec
 | Baseline | 0.65 / 14 (2.8 m) | step 1,214 (12.14 s) | 30.258 m of 446.2 m | 0.039 / 0.182 m |
 | Retest | 1.05 / 3 (0.6 m) | step 2,744 (27.44 s) | 68.457 m of 446.2 m | 0.002 / 0.007 m |
 
-Limits: neither attempt completed a lap; both captures record only `stop_reason: "terminated"` (the manifest's "collided" is a label, not a collision record). The final zero speed is the environment reset. One deterministic run per condition. Gain and lookahead change together. Why the retest terminated is not diagnosed. Nothing feeds back into the controller, so this shows neither learned driving nor a coaching-caused improvement.
+Limits: neither attempt completed a lap; both captures record only `stop_reason: "terminated"` (the manifest's "collided" is a label, not a collision record). The final recorded sample shows zero speed; its cause, like the cause of termination, is unresolved. One deterministic run per condition. Gain and lookahead change together. Why the retest terminated is not diagnosed. Nothing feeds back into the controller, so this shows neither learned driving nor a coaching-caused improvement.
 
 ## 2. Live Nemotron coaching on the hosted site (new)
 

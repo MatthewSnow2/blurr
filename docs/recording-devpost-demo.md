@@ -7,14 +7,14 @@ branch), **saved** (earlier evidence, cited), **gate** (needs Matt).
 ## What to record on
 
 The script below quotes the corrected banner "RECORDED REPLAY · NOT A LIVE
-SIMULATION", which exists only in local commit `9065ce1`. It is **not
-deployed**. No public build shows it yet.
+SIMULATION", which was introduced in local commit `9065ce1` and is on the
+local branch head. It is **not deployed**. No public build shows it yet.
 
 | Surface | Build | Use |
 |---|---|---|
-| Local `npm run build && npx vite preview --host 0.0.0.0 --port 8843`, then http://10.0.0.46:8843/ | `9065ce1` (local) | Rehearsal of every scene except the live call (no function locally, so the button shows "This build has no live coaching service"). **Fresh:** all values in the table below were re-read on this build. |
+| Local `npm run build && npx vite preview --host 0.0.0.0 --port 8843`, then http://10.0.0.46:8843/ | local branch head (values re-read at `9065ce1`; later commits are docs-only) | Rehearsal of every scene except the live call (no function locally, so the button shows "This build has no live coaching service"). **Fresh:** all values in the table below were re-read on this build. |
 | https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/ | `34619ae` (current PR 4 preview) | Rehearsal on the hosted site only. It shows the **old** banner "Recorded replay · not live simulation or inference", so the final take should not be recorded here. **Fresh, HTTP-load only:** 200, noindex, bundle `main-DRslsfw3.js` = local build of `34619ae`, function `live-coach` deployed. No inference was run on it. |
-| New PR 4 preview permalink (does not exist yet) | `9065ce1` after Matt's push | **The final recording.** Prerequisites, in order: (1) Matt approves and pushes `9065ce1` to PR 4; (2) Netlify builds a new deploy preview; (3) verify its permalink read-only: `commit_ref` `9065ce1`, HTTP 200, the bundle equals a local build of `9065ce1`, function `live-coach` listed; (4) record there. |
+| New PR 4 preview permalink (does not exist yet) | an owner-approved head that contains `9065ce1` | **The final recording.** Prerequisites, in order: (1) Matt approves and pushes a head containing `9065ce1` (normally the current local branch head, with the later docs fixes) to PR 4; (2) Netlify builds a new deploy preview; (3) verify its permalink read-only: `commit_ref` equals the pushed head, `git merge-base --is-ancestor 9065ce1 <head>` succeeds, HTTP 200, the bundle equals a local build of that head, function `live-coach` listed; (4) record there. |
 
 Files to import (in the repo): `data/f1tenth-silverstone/baseline-lap-session.json`,
 `baseline-lap-nebius-report.json`, `retest-lap-session.json`,
