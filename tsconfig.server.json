@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": { "jsx": "react-jsx" },
-  "include": ["server"]
+  "include": ["server", "netlify/functions", "scripts/liveCoachingData.ts", "scripts/build-live-coaching-data.ts"]
 }

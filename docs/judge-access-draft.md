@@ -1,0 +1,289 @@
+# Judge access and reproduction (draft for Matt)
+
+Draft written 27 October 2026. Pushed to the PR 4 branch on 28 October
+(`8bc5d86`, with Matt's approval); not on `main`, and nothing was sent.
+Judge access was owner-reported resolved on 28 October (readiness review,
+"Update 28 October").
+It uses only existing entry points; the runner is not changed. Labels:
+**demonstrated** (run or fetched for this draft, 27 October 2026 about 20:40
+to 21:00 UTC), **saved** (earlier evidence), **documented only** (instructions
+not executed here), **unverified**.
+
+Three things are kept apart below: free paths a judge can use, live inference
+(not free, coverage unresolved), and the rule interpretation (section 6).
+
+## 1. Free path A: replay in the browser (no account, key or cost)
+
+- Hosted test build, pinned (candidate judge link, 29 October):
+  https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/
+  (Netlify deploy `6ae26ba8c26b4d3556338de4`, context `deploy-preview`,
+  `commit_ref` `34619ae`, PR 4 head, created 2026-10-28T21:39:52Z,
+  function `live-coach` deployed, Netlify secret scan 0 matches).
+  **HTTP-load check only, 2026-10-29 about 04:35Z:** `/` and `/recorded.html`
+  return 200 with no login prompt and `x-robots-tag: noindex`; `/` serves
+  `main-DRslsfw3.js`, the same bundle a fresh local build of `34619ae`
+  produces. A POST with an all-zero digest returned 404
+  `SESSION_NOT_LIVE_ELIGIBLE`, which the function returns before it reads the
+  key, claims a cap slot or contacts Nebius: it proves routing, not inference.
+  No live inference was run on this deploy. The last live calls were on draft
+  deploy `6ae257b5…` (28 October, same function code).
+- Previous pinned build (replay only, no function):
+  https://6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app/
+  (`commit_ref` `7491717`).
+- Moving alias: https://deploy-preview-4--strong-strudel-8072a3.netlify.app/
+  points at the latest PR 4 deploy, so a later push changes what it serves.
+- Local build: README "Quick start" (`npm ci`, `npm run build`,
+  `npm run preview`). Saved: checks green at `1ac7127`; the app code is
+  unchanged since `116d943`.
+- What it shows: the eight saved Token Factory reports, re-validated in the
+  browser. Viewing makes no provider call.
+- Live call: on a bundled session, "Run live coaching" asks Nemotron on
+  Token Factory for a fresh report through the site's function, at no cost to
+  the judge (Matt's key, at most 60 calls a day across all deploys). Only the
+  `6ae26ba8…` permalink above has the function; `6ae0f4e0…` does not.
+
+## 2. Free path B: offline request preparation (no key, no network)
+
+From a checkout of `7491717`, with Node 24:
+
+```bash
+node --experimental-strip-types server/runApprovedVerification.ts --prepare ./judge-run data/f1tenth-silverstone/baseline-lap-session.json Approval_f1tenth_silverstone_baseline_lap_20261026
+```
+
+- Expected stdout: `OFFLINE_PREPARATION_COMPLETE_NO_CREDENTIAL_OR_DISPATCH`.
+- Expected file: `./judge-run/request.json`, 5,769 bytes.
+- Request contents: model `nvidia/nemotron-3-super-120b-a12b`, temperature 0,
+  `max_completion_tokens` 1024, `n` 1, `store` false, JSON response format.
+- **Demonstrated:** the output was byte-identical (`cmp`) to the request
+  actually sent on 26 October
+  (`evidence/f1tenth-sweep-76b3813/nebius-silverstone-baseline/request.json`).
+  No credential was read, and the ledger was not written.
+- What it proves: a judge can see and hash exactly what Blurr sends to Token
+  Factory for a bundled session. It does not prove that a call happens.
+- Approval names: each of the 7 bundled sessions has one approval name
+  (`server/runApprovedVerification.ts:17-25`). Prepare refuses any other
+  session (`SESSION_NOT_APPROVED`).
+
+## 3. Live inference (not free; coverage unresolved; documented only)
+
+Not executed for this draft. No call was made.
+
+### Authorization limits
+
+- The approval constants are historical. They record Matt's per-call approvals
+  for his own key on specific dates.
+- On a fresh machine the ledger `~/.local/state/blurr/nebius-approvals/` is
+  empty, so the code would accept them. That is a property of the code. It is
+  not new spending authorization for anyone.
+- On ProBook all 7 are consumed. The ledger must not be reset, and no consumed
+  approval may be reused.
+
+### Prerequisites for whoever runs it
+
+1. Their own Nebius Token Factory account, with credit or billing that covers
+   the call.
+   - **Unresolved:** nothing read so far says the organizers give judges
+     credit, so a judge pays or uses their own credit.
+   - Token Factory has no balance API (saved, `submission-package.md` sec. 11).
+2. Exactly one literal line `NEBIUS_API_KEY=<key>` in `~/.env.shared` in the
+   runner's home directory. The file is parsed, never executed
+   (`server/sharedCredential.ts`).
+3. Node 24 and a checkout of `7491717`.
+4. An output directory that has never held an attempt, containing the
+   `request.json` from path B.
+5. A separate authorization for this attempt from whoever pays for it. The
+   approval names in the code are not that authorization.
+
+### `cost-proof.json`
+
+Write `<outdir>/cost-proof.json` by hand. The runner checks these fields
+exactly (`server/runApprovedVerification.ts:74-78`):
+
+| Field | Required value |
+|---|---|
+| `requestSha256` | sha256 of `request.json` without its trailing newline: `head -c -1 judge-run/request.json \| sha256sum`. Demonstrated for the baseline: `6d1392b9...79f6`, equal to the 26 October proof. |
+| `maxCompletionTokens` | `1024` |
+| `n` | `1` |
+| `inputTokenUpperBound` | `16000` |
+| `inputUsdPerMillion` | `0.3` |
+| `outputUsdPerMillion` | `0.9` |
+| `maximumUsd` | `0.0057216` |
+| `officialPricingVerified` | `true` |
+| `publishedTemplateByteBoundVerified` | `true` |
+
+- **Set the two booleans to `true` only with evidence, never just to pass the
+  guard.** The runner checks only that they equal `true`; nothing in the repo
+  fetches prices or renders the chat template.
+  - `officialPricingVerified`: requires an official Nebius price source, read
+    at the time of the attempt, showing input 0.30 and output 0.90 USD per
+    million tokens for `nvidia/nemotron-3-super-120b-a12b`. On 26 October the
+    source was `https://tokenfactory.nebius.com/api/public/models_info`
+    (saved). If current prices differ, the proof is false and the attempt must
+    not run; the hard-coded 0.3 and 0.9 would still pass the guard.
+  - `publishedTemplateByteBoundVerified`: requires the prompt rendered with the
+    model's published chat template, with its byte count at or below 16,000.
+    On 26 October this was `rendered-prompt.txt` at 4,945 bytes (saved). The
+    renderer used then is not in the repo, so this step is not reproducible
+    from the repo.
+  - Without both pieces of evidence, stop: the cost bound is unproven.
+- Matt's 26 October proof also carried informational fields the runner
+  ignores: `checkedAtUtc`, `renderedBytes`, `pricingSource`, `boundBasis`,
+  `approval`, `sessionSha256`, `ownerCapUsd`, `actualBilledCostUsd`,
+  `artifactsSha256`.
+
+### Run
+
+```bash
+node --experimental-strip-types server/runApprovedVerification.ts --execute ./judge-run data/f1tenth-silverstone/baseline-lap-session.json Approval_f1tenth_silverstone_baseline_lap_20261026
+```
+
+**Expected output (from the code, not observed here)**
+
+- One JSON line: `{"dispatchCount":1,"errorCode":null,"httpStatus":200,"receipt":".../result.json"}`.
+  - `dispatchCount: 1` means the runner started one dispatch (its counter
+    rises just before `fetch`).
+  - It does not prove delivery or billing. Only provider evidence supports
+    those: an HTTP status and provider response ID in `httpObservation` and
+    `provider`, or the provider's own usage or billing records.
+- `result.json` is written with mode 600.
+- An attempt marker goes in both `./judge-run/` and the ledger.
+- `attempt-journal/` is created.
+
+**Refusals and failures** (read from the code, not exercised here)
+
+| Outcome | When |
+|---|---|
+| Thrown, nothing written: `EXPLICIT_MODE_OUTPUT_SESSION_AND_APPROVAL_REQUIRED`, `APPROVAL_UNKNOWN`, `SESSION_NOT_APPROVED`, `APPROVAL_ALREADY_CONSUMED_DO_NOT_RETRY` | Before any network call. Never retry a consumed approval. |
+| `result.json` with `dispatchCount: 0` and `errorCode: PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN` | A bad `cost-proof.json` or key file. The adapter rewrites `COST_PROOF_INVALID` and `CREDENTIAL_*` into this generic code (`server/nebiusAdapter.ts`, the catch around `exchange`). With `dispatchCount: 0`, the code never reached `fetch`. |
+| `result.json` with `dispatchCount: 1` and an `errorCode` | A dispatch was attempted; delivery and billing are unknown unless provider evidence shows them. `PROVIDER_EXCHANGE_FAILED_DELIVERY_UNKNOWN` here means the request may or may not have reached Nebius. A code such as `PROVIDER_TOKEN_BOUND_EXCEEDED` means a response arrived and failed a check (for example, output over 1,024 tokens: reasoning counts, and the baseline used 890). Treat it as probably billed, not proven billed. |
+| `REPORT_CLAIMS_UNSUPPORTED` | At import, if the model cites evidence the session does not hold |
+
+**Stop and inspect after any refusal or failure. Do not rerun.**
+
+- Read `result.json`, the attempt marker and `attempt-journal/` first.
+- Never retry a consumed approval: one with a ledger or directory marker.
+- Never retry when delivery is uncertain: `dispatchCount: 1`, or any
+  `..._DELIVERY_UNKNOWN` code.
+- A fresh output directory is only for a separately authorized new attempt.
+  Use it only after the earlier attempt has been shown not to dispatch
+  (`dispatchCount: 0` and no ledger marker) and its cause has been fixed.
+  - Why: `result.json` is written with an exclusive-create flag. In the old
+    directory, a new attempt would dispatch first and then fail to write its
+    receipt.
+  - A fresh directory prevents that collision. It is not a retry permission.
+
+### Cost
+
+- Reservation ceiling per call: USD 0.0057216.
+- The 26 October baseline call used 1,362 input and 890 output tokens, which is
+  USD 0.0012096 at the published rates. That figure is calculated; no invoice
+  was observed (saved).
+
+### Evidence-integrity limits for anyone other than Matt
+
+1. **Hard-coded balance:** `result.json` always records
+   `ownerReportedBalanceUsd: 25` (`server/runApprovedVerification.ts:100`),
+   whoever runs it. The field name marks it as the owner's reported balance
+   for Matt's runs. For
+   anyone else's run it is unsupported, carries no information about their
+   account, and should be disregarded. The runner was not changed.
+2. **Proof on trust:** the guard accepts the cost-proof booleans as written.
+   Their truth rests on the evidence described above, not on the runner.
+3. **Provider not authenticated:** a receipt is the runner's own record. The
+   app validates claims and digests but does not authenticate the provider
+   (README "Evidence").
+4. **Output not repeatable:** temperature 0 does not promise identical output.
+   A new call gets a new response ID and may cite different claims, or fail
+   validation. It reproduces the path, not the bundled report.
+5. **Fixed session set:** only the 7 bundled sessions have approval names. A
+   judge cannot coach a new session without editing the runner, which is not
+   proposed.
+
+## 4. Import a runner receipt into the app (free; demonstrated offline)
+
+The repo has no converter from `result.json` (`blurr.approved-verification.v1`)
+to the app's `blurr.saved-provider-report.v1`. This `jq` command does it:
+
+```bash
+jq --arg kind recorded_simulation '{schemaVersion:"blurr.saved-provider-report.v1", sessionSha256:.result.receipt.sessionSha256, telemetryKind:$kind, model:.provider.model, responseId:.provider.id, completedAtUtc:.completedAtUtc, usage:{inputTokens:.provider.usage.prompt_tokens, outputTokens:.provider.usage.completion_tokens, reasoningTokens:.provider.usage.completion_tokens_details.reasoning_tokens, totalTokens:.provider.usage.total_tokens}, reportJson:.provider.choices[0].message.content}' judge-run/result.json > mapped.json
+jq --arg r "$(jq -j .reportJson mapped.json | sha256sum | cut -c1-64)" '. + {reportSha256:$r}' mapped.json > judge-report.json
+```
+
+Then, in the app:
+
+1. Choose **Import capture** and pick `data/f1tenth-silverstone/baseline-lap-session.json`.
+2. Choose **Import saved coaching report** and pick `judge-report.json`.
+
+**Demonstrated:** applied to Matt's saved 26 October receipt
+(`evidence/f1tenth-sweep-76b3813/nebius-silverstone-baseline/result.json`),
+the output equals `data/f1tenth-silverstone/baseline-lap-nebius-report.json`
+in every field (`diff` of `jq -S`). No call was made.
+
+**Limit:** `reasoningTokens` assumes Token Factory returns
+`completion_tokens_details.reasoning_tokens`, as it did on 26 October. If it
+is null, the import fails with `REPORT_USAGE_INVALID`.
+
+## 5. Judge-access plan without a merge or new deploy
+
+### Test build
+
+Use the pinned deploy permalink from section 1 (`6ae26ba8…`).
+
+- **Demonstrated (HTTP load only):** public, identical bundle to a local
+  build of `34619ae`; Netlify reports `expires_at: null` for it today.
+- **Retention gap:** Netlify's docs (re-read 27 October, 20:58Z) say "By
+  default, Netlify will delete deploys after 30 days (or 90 days on paid
+  plans)". It never auto-deletes only "The deploy currently published", "The
+  most recent successful production deploy" and "The most recent successful
+  branch deploy for a given branch". A deploy preview is not on that list.
+- At 90 days, `6ae26ba8` (created 2026-10-28T21:39:52Z) would expire about
+  2027-01-26, after the Judging Period ends on 15 December.
+- At 30 days it would expire about 2026-11-27, before 15 December.
+- The 90-day figure depends on the team staying on a paid plan. The Pro plan is
+  saved evidence from 27 October, not rechecked here.
+- A manual deletion or a site or plan change would also remove it.
+
+### Source
+
+Repo URL https://github.com/MatthewSnow2/blurr, plus the pinned tree
+https://github.com/MatthewSnow2/blurr/tree/749171739119e9de55d4be44fdb27654f35e611b
+in the testing instructions.
+
+- **Demonstrated:** the GitHub API resolves the commit, and
+  `refs/pull/4/head` points to it.
+- **Gap:** the repo root shows `main` (`be1ab6e`), whose README lacks the
+  baseline/retest and Nemotron sections. A judge who ignores the pinned link
+  reads the old README.
+- **Not included in that tree:** the readiness review and this draft. They
+  are in `8bc5d86` (pushed 28 October), whose tree is
+  https://github.com/MatthewSnow2/blurr/tree/8bc5d86899b7aeccbb990114d43920aa300a7683.
+
+### Options that change public state (each needs Matt's approval; neither is shown to be required)
+
+| Option | Effect | Demonstrated requirement? |
+|---|---|---|
+| Merge PR 4 | `main` and the protected production deploy serve this build; the root README is current | No. It is a publication choice that removes the retention and README gaps. |
+| Push the local docs commits | The pinned tree could move to a commit that includes this guide; it also creates a new preview deploy with the same app bundle | No |
+
+## 6. Rule interpretation (kept apart from the facts above)
+
+Rule text (live page re-read 2026-10-27T20:24:30Z; quotes in
+`submission-readiness.md` sec. 2):
+
+- "Runs on" means "the project makes a runtime call to the Token Factory
+  inference API".
+- The demo URL is "not required for Physical AI submissions, which are
+  evaluated per the hardware-access provision below".
+- Testing: "Access must be provided [...] by providing a link to a website,
+  functioning demo, or a test build", free of charge until the Judging Period
+  ends; "Judges are not required to test the Project".
+
+Reading (not a ruling):
+
+- Paths A and B are free test access.
+- Section 3 gives a judge with their own paid Token Factory access a documented
+  way to make the call. It is not free, so it may not count as "free of
+  charge" testing of the live call.
+- Whether replay plus a documented runner satisfies "makes a runtime call" is
+  still G1. This draft narrows the reproducibility gap but does not settle it.
+- Organizer contact stays separate and unapproved.
