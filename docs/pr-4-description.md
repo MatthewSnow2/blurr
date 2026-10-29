@@ -1,3 +1,7 @@
+<!-- Local replacement draft for PR 4's description, 29 October 2026. Not
+published. The GitHub description is stale (it predates the live path).
+Matt pastes this after pushing the local readiness commits, if he pushes them. -->
+
 Replaces #3, which GitHub closed unmerged when #2 was squash-merged and its base branch `feat/f1tenth-ladder-rungs-3-4` was deleted. This branch starts from current `main` (`be1ab6e`) and carries #3's three commits, cherry-picked with `-x`:
 
 - `76b3813` -> `15ed34a` feat: allow bounded gain/lookahead sweeps and full-lap captures
@@ -6,54 +10,56 @@ Replaces #3, which GitHub closed unmerged when #2 was squash-merged and its base
 
 The cherry-picks applied without conflicts. The resulting tree equals #3's head `7fb66e1` except for the README lines from `3545b02` (recorded-call inventory), which main already has and this branch keeps.
 
-After `116d943` the branch adds docs-only commits (`4fe0c6b` onward): README and submission-package wording matched to the verified replay, the video check, a submission readiness review, a judge-access and live-call reproduction guide, and the owner decisions recorded so far. They change no code, data or build output: `git diff --stat 116d943..HEAD` touches only `README.md` and `docs/`, and the build still produces `main-Dttd0-9S.js`. Delta against main: 30 files (29 at `2c1f21e`, plus this description, `docs/pr-4-description.md`). No new captures, provider calls or code changes beyond #3.
+After `116d943` come docs commits (`4fe0c6b` to `e237699`), then the **live coaching path** (28 October, `780fba1`, `3e1f292`, `34619ae`) and a readiness commit (29 October, local until pushed) that fixes copy, adds one client message and adds the recording packages. So this PR now changes code and the build, not only docs.
 
-## What changes (code and data unchanged from #3)
+## 1. Ladder sweep and Silverstone laps (unchanged from #3)
 
 - The capture runner accepts bounded `--gain` (0.1 to 2.0) and `--lookahead` (1 to 60 points), sealed in `controller`. The step cap rises from 600 to 20,000 and the timeout to 1200 s, so a full Silverstone lap fits. Timestep, speed and steering limit stay fixed.
-- `scripts/select_sweep_setting.py` implements the selection rule. A setting stays in only if it completed every rung; the winner has the lowest mean of its per-rung mean |raceline deviation|. Ties go to the lower gain.
-- `data/f1tenth-sweep/` holds 4 x 100 run summaries, `selection.json` and a README. The Windows harnesses are in `scripts/f1tenth-sweep/`.
-- `data/f1tenth-silverstone/{baseline,retest}-lap-*` holds two lap attempts with one saved Nebius report each, GPL-3.0. Both are in the manifest; run A remains the default demo.
+- `scripts/select_sweep_setting.py` implements the selection rule: a setting stays in only if it completed every rung; the winner has the lowest mean of its per-rung mean |raceline deviation|; ties go to the lower gain.
+- `data/f1tenth-sweep/` holds 4 x 100 run summaries, `selection.json` and a README; the Windows harnesses are in `scripts/f1tenth-sweep/`.
+- `data/f1tenth-silverstone/{baseline,retest}-lap-*` holds two lap attempts with one saved Nebius report each, GPL-3.0.
 
-## Results (offline tuning, not learning)
-
-All 400 ladder runs completed. The selection chose gain 1.05 with a 6-point lookahead (0.6 m), which is 3 points on Silverstone. The default 0.65 / 14 ranked 38th.
+Results (offline tuning, not learning). All 400 ladder runs completed; the selection chose gain 1.05 with a 6-point lookahead (0.6 m), 3 points on Silverstone. The default 0.65 / 14 ranked 38th.
 
 | Silverstone (held out) | Setting | Episode ended | Distance along raceline | Mean / max \|dev\| |
 |---|---|---|---|---|
 | Baseline | 0.65 / 14 (2.8 m) | step 1,214 (12.14 s) | 30.258 m of 446.2 m | 0.039 / 0.182 m |
 | Retest | 1.05 / 3 (0.6 m) | step 2,744 (27.44 s) | 68.457 m of 446.2 m | 0.002 / 0.007 m |
 
-Limits:
-- Both attempts ended when the simulator terminated the episode; neither completed a lap. Each capture records only `stop_reason: "terminated"`. The manifest labels both "collided", but the captures carry no separate collision record, so this PR does not call either a crash.
-- The zero speed and pose in each final sample come from the upstream environment reset on termination. They are not evidence of a spin.
-- One deterministic run per condition; run B matched run A on both.
-- Gain and lookahead distance change together.
-- Why the retest terminated, about 4 mm from the line at a radius-3 m corner entry, is not diagnosed.
-- Nothing persists except the chosen setting, and the reports do not feed back into the controller. This does not show learned driving or a coaching-caused improvement.
+Limits: neither attempt completed a lap; both captures record only `stop_reason: "terminated"` (the manifest's "collided" is a label, not a collision record). The final zero speed is the environment reset. One deterministic run per condition. Gain and lookahead change together. Why the retest terminated is not diagnosed. Nothing feeds back into the controller, so this shows neither learned driving nor a coaching-caused improvement.
 
-## Nemotron and Token Factory (replay disclosed)
+## 2. Live Nemotron coaching on the hosted site (new)
 
-The two Nebius calls for these laps were made on 26 October for #3 by `server/runApprovedVerification.ts`, about USD 0.0023 at published rates, each with its own approval constant. This PR makes no new calls. The hosted app makes no live call: it replays and validates the saved reports.
+- `netlify/functions/live-coach.mts` serves `POST /api/live-coach` (`{"sessionSha256": …}`), POST only, Netlify rate limit 3 per minute per IP.
+- Only the 7 bundled captures with a saved report are eligible (`src/coaching/liveEligibleSessions.ts`); anything else gets 404 before the key, cap or provider is touched.
+- Each request body is rebuilt and must match its pinned sha256, byte size and rendered-prompt size (`server/liveCoachingData.ts`, generated by `scripts/build-live-coaching-data.ts`). The pins equal the bodies of the approved 23 and 26 October calls, so input tokens are known and bounded.
+- A daily slot is claimed in Netlify Blobs (`server/liveCoachCap.ts`): at most 60 per UTC day site-wide, a slot counts only after a strong read-back of this request's nonce, and a store failure sends nothing.
+- One request to `nvidia/nemotron-3-super-120b-a12b`, `max_completion_tokens` 1024, no retry, 30 s timeout; the reply passes the same report contract and the browser re-validates it against the open session. It is shown beside the saved report, not over it.
+- Bound: USD 0.0057216 per call at the 28 October list price, so at most USD 0.343 a day. Kill switch: set `LIVE_COACHING_ENABLED` to anything but `true`.
+- Readiness commit: the replay banner now reads "Recorded replay · not a live simulation" (it said "not live simulation or inference" on the same page as the live button), a truncated reply (`PROVIDER_OUTPUT_INCOMPLETE`) gets a plain message, and stale offline-only wording in the docs is corrected.
 
-## Validation
+Netlify environment (set 28 October, outside this diff): `NEBIUS_API_KEY` (secret, Functions scope, production, deploy-preview and branch-deploy), `LIVE_COACHING_ENABLED=true`, `LIVE_COACHING_DAILY_CAP=60`. Merging to `main` makes production live too.
 
-Fresh, 28 October 2026, about 06:05 to 06:20 UTC (01:05 to 01:20 CDT), on Linux (ProBook), Node v24.22.0, Python 3.14.4, at `8bc5d86` with the existing `node_modules` (no fresh `npm ci`):
+## Evidence: saved live calls vs tonight's offline checks
 
-- `npm test`: 73/73 passed, 0 skipped.
-- `npm run typecheck`, `npm run lint`, `npm run build`: exit 0; bundle `main-Dttd0-9S.js`.
+**Saved live-call evidence, 28 October 2026 (not repeated since):** 3 real Token Factory calls, each validated against run A with the request hash equal to its pin.
+
+| Where | Result |
+|---|---|
+| Local handler, Matt's key | HTTP 200, 6 claims, 1,362 in / 922 out tokens (702 reasoning), 7.2 s |
+| Draft deploy `6ae257b5…`, `curl` | HTTP 200, 3 claims, 1,362 in / 711 out tokens, 8.7 s total |
+| Same draft, Chromium button click | Live report rendered (6 claims) |
+
+**Fresh offline and HTTP-only checks, 29 October 2026 about 04:30 to 04:50 UTC, ProBook, Node v24.22.0, Python 3.14.4:**
+
+- `npm test`: 91/91 pass, 0 skipped (adds `liveCoachCap`, `liveCoaching` and `liveCoachingClient` tests: cap concurrency, refusals before reservation, kill switch, pin mismatch, provider failure codes, no key echo, client error mapping).
+- `npm run typecheck`, `npm run lint`, `npm run build`: exit 0; bundle `main-C2Ztob_N.js` (was `main-DRslsfw3.js` at `34619ae`).
 - `python3 -m unittest discover -s tests -p 'test_*.py'`: 53 OK.
+- Chromium against a local `vite preview`: run A, baseline and retest values, the wrong-report refusal and the live button's presence re-read. The button was not clicked.
+- Deploy preview `6ae26ba8c26b4d3556338de4` (`34619ae`): HTTP 200, noindex, same bundle as a local build of `34619ae`, function `live-coach` listed, Netlify secret scan 0 matches. A POST with an all-zero digest returned 404 `SESSION_NOT_LIVE_ELIGIBLE`, which proves routing only. **No inference was run on this deploy.**
 
-Not rerun after `8bc5d86`: later commits change only `docs/`.
+Not run: Firefox, Safari, Windows, any simulation rerun, the real-edge 429 and daily-cap paths (unit tests only), and any provider call on 29 October.
 
-Saved, at `116d943` (26 to 27 October):
-
-- The same suites passed after `npm ci --ignore-scripts`, including the Silverstone lap import test and the test that the bundled summaries reproduce `selection.json` and the retest setting.
-- The four Silverstone lap files matched their pinned sha256 values in `fixtures/provenance.json`; no data file has changed since.
-- Chromium (Playwright) rehearsal and recorded video draft against a `vite preview` of the `116d943` build, which is the same bundle (`docs/demo-sequence-draft.md`).
-
-Checks on GitHub: the Netlify deploy-preview check passed at `8bc5d86`. The repo has no test workflow, so there is no CI test run.
-
-Not run: Firefox, Safari, Windows, any simulation rerun, any provider call.
+Checks on GitHub: Netlify deploy-preview passed at `34619ae`. The repo has no test workflow, so there is no CI test run.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)

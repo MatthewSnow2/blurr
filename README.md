@@ -34,7 +34,7 @@ and a **Recorded Nebius demo** card. Choose **Open recorded demo**.
 
 **What you should see:**
 
-- A banner reading "Recorded replay · not live simulation or inference", then
+- A banner reading "Recorded replay · not a live simulation", then
   "Recorded F1TENTH simulator capture: Silverstone run A · 5.99 s simulated over
   600 steps at 0.01 s".
 - A scrubber over all 600 samples (position, speed, raceline deviation).

@@ -53,6 +53,7 @@ test('server refusals and transport failures map to fixed codes and plain messag
     [async () => new Response('Rate limit exceeded', { status: 429 }), 'HTTP_429'],
     [async () => new Response('<!doctype html>', { status: 404 }), 'HTTP_404'],
     [async () => json({ error: 'provider said <script>' }, 502), 'HTTP_502'],
+    [async () => json({ error: 'PROVIDER_OUTPUT_INCOMPLETE' }, 502), 'PROVIDER_OUTPUT_INCOMPLETE'],
     [async () => { throw new TypeError('network'); }, 'LIVE_UNREACHABLE'],
     [async () => json({ report: null, live: null }), 'LIVE_RESPONSE_INVALID'],
     [async () => new Response('x'.repeat(300 * 1024)), 'LIVE_RESPONSE_INVALID'],
@@ -64,6 +65,7 @@ test('server refusals and transport failures map to fixed codes and plain messag
     assert.ok(!liveCoachingMessage(error).includes('<script>'));
   }
   assert.match(liveCoachingMessage(new LiveCoachingError('DAILY_CAP_REACHED')), /00:00 UTC/u);
+  assert.match(liveCoachingMessage(new LiveCoachingError('PROVIDER_OUTPUT_INCOMPLETE')), /output limit/u);
 });
 
 test('an imported capture outside the bundled set never calls the server', async () => {

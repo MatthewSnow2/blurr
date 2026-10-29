@@ -1,5 +1,10 @@
 # Draft demo: 2:50, silent draft recorded, not published
 
+> Historical record of the 27 October draft (built from `116d943`, before the
+> live path). Its banner text and its "new reports are a separate, approved
+> server step" line are out of date. For the next recording use
+> `docs/recording-devpost-demo.md`.
+
 Screen recording of the built app (`npm run build && npm run preview`) in a
 browser with empty site data. Every number below is what the app shows for the
 bundled files at commit `116d943`; do not retype, round differently or overlay
@@ -96,7 +101,7 @@ playwright-core and Chromium paths; edit them on another machine. Burn captions 
 
 ## Recording rules
 
-- Keep the in-app labels ("Recorded replay · not live simulation or inference",
+- Keep the in-app labels ("Recorded replay · not a live simulation",
   "Saved report, not a fresh response") visible; they need no overlay.
 - Don't show credentials, account pages, terminal history, browser profiles or
   unrelated tabs. Use a clean browser profile.

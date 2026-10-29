@@ -17,6 +17,25 @@ the GPL-3.0 Silverstone data, can still block. G2 (video upload), G4
 (Devpost form) and G6 (submitting) are open and mechanical. Nothing below
 has been accepted on Matt's behalf.
 
+## Update 29 October 2026, readiness pass (about 04:30 to 04:50 UTC)
+
+Local only: nothing pushed, deployed or submitted, and no live call made.
+
+| Item | Status | Evidence |
+|---|---|---|
+| PR 4 head | `34619ae`, open, unmerged | GitHub read-only; Matt pushed the live path on 28 October |
+| Judge link | Candidate `https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/` | HTTP-load check only (`judge-access-draft.md` sec. 1); no inference run on it |
+| Production | Still `be1ab6e`, no function | Netlify read-only |
+| Local checks | Pass | `npm test` 91/91, typecheck, lint, build (`main-C2Ztob_N.js`), Python 53 OK, all rerun fresh |
+| Live call | Pass (saved) | 3 calls on 28 October; none repeated |
+| Banner contradiction | Fixed locally | Replay banner no longer says "not … inference" beside the live button |
+| Truncated reply message | Fixed locally | `PROVIDER_OUTPUT_INCOMPLETE` now has a plain message; test fails without it |
+| Recording packages | Written | `recording-devpost-demo.md`, `recording-youtube-outline.md` |
+| PR description | Replacement drafted, not published | `pr-4-description.md` |
+| Devpost registration | **Not registered** | Devpost connector, read-only: `already_registered: false`; no Nebius project in Matt's list. Deadline 2026-10-30T17:00Z |
+| Video | Not recorded with the live path; not uploaded | 27 October draft sha256 re-checked; app scenes are stale |
+| G5 Silverstone GPL-3.0 | Owner decision | `submission-package.md` sec. 7 |
+
 ## Update 28 October 2026, live path (about 20:00 to 20:20 UTC)
 
 - Branch `feat/live-nemotron-coaching` (local, not pushed) adds

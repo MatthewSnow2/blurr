@@ -323,8 +323,9 @@ What the rules say (https://nebiusglobalaihackathon.devpost.com/rules, read
 
 What Blurr does: `server/runApprovedVerification.ts` makes the call
 (one approved call per sealed session, no retry); eight such calls produced
-the bundled reports. The hosted app makes no call; it validates and shows
-the saved responses. The rules do not say whether "the project" means the
+the bundled reports. Until 28 October the hosted app made no call; it
+validated and showed the saved responses (now superseded, see the update at
+the top of this section). The rules do not say whether "the project" means the
 repository or the judge-facing demo, or whether a call must happen while
 judges test.
 

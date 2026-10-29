@@ -12,8 +12,10 @@ with the real archived Nemotron report generated for that exact session. One
 authorized Token Factory API request used NVIDIA's
 `nvidia/nemotron-3-super-120b-a12b`; 1362input/594output tokens (USD0.0009432 at
 official rates) and valid coaching-report.v1. The app revalidates the saved
-report locally when opened. It does not issue a new inference request during
-replay. The earlier two-frame synthetic AutoDRIVE replay and its 15 October
+report locally when opened, and opening it issues no inference request. Since
+28 October the hosted site also has a "Run live coaching" button that makes
+one capped Token Factory call for a bundled session (README "Live coaching
+on the hosted site"). The earlier two-frame synthetic AutoDRIVE replay and its 15 October
 response still import manually, and a retained 600-sample fixture shows an
 earlier f1tenth_gym execution on an original analytic synthetic circuit. None
 of these is physical robot telemetry.

@@ -59,6 +59,7 @@ const messages: Record<string, string> = {
   CAP_STORE_UNAVAILABLE: 'The live-call budget could not be checked, so no call was made. Try again shortly.',
   REPORT_CLAIMS_UNSUPPORTED: "Nemotron's reply included claims this session's evidence cannot support, so it is not shown.",
   PROVIDER_REPORT_REJECTED: "Nemotron's reply did not pass the report contract, so it is not shown.",
+  PROVIDER_OUTPUT_INCOMPLETE: "Nemotron's reply hit the 1,024-token output limit before it finished, so it is not shown. The saved report above still works.",
 };
 export const liveCoachingMessage = (error: unknown): string => {
   const code = error instanceof LiveCoachingError ? error.code : 'LIVE_COACHING_FAILED';

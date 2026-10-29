@@ -14,11 +14,22 @@ Three things are kept apart below: free paths a judge can use, live inference
 
 ## 1. Free path A: replay in the browser (no account, key or cost)
 
-- Hosted test build, pinned: https://6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app/
-  (Netlify deploy `6ae0f4e0854374c78f8c6656`, `commit_ref` `7491717`).
-  **Demonstrated:** HTTP 200 with no login prompt, `x-robots-tag: noindex`.
-  It serves `main-Dttd0-9S.js`, and the checked assets are byte-identical to
-  the local build that the browser QA covered (Chromium only, saved).
+- Hosted test build, pinned (candidate judge link, 29 October):
+  https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/
+  (Netlify deploy `6ae26ba8c26b4d3556338de4`, context `deploy-preview`,
+  `commit_ref` `34619ae`, PR 4 head, created 2026-10-28T21:39:52Z,
+  function `live-coach` deployed, Netlify secret scan 0 matches).
+  **HTTP-load check only, 2026-10-29 about 04:35Z:** `/` and `/recorded.html`
+  return 200 with no login prompt and `x-robots-tag: noindex`; `/` serves
+  `main-DRslsfw3.js`, the same bundle a fresh local build of `34619ae`
+  produces. A POST with an all-zero digest returned 404
+  `SESSION_NOT_LIVE_ELIGIBLE`, which the function returns before it reads the
+  key, claims a cap slot or contacts Nebius: it proves routing, not inference.
+  No live inference was run on this deploy. The last live calls were on draft
+  deploy `6ae257b5…` (28 October, same function code).
+- Previous pinned build (replay only, no function):
+  https://6ae0f4e0854374c78f8c6656--strong-strudel-8072a3.netlify.app/
+  (`commit_ref` `7491717`).
 - Moving alias: https://deploy-preview-4--strong-strudel-8072a3.netlify.app/
   points at the latest PR 4 deploy, so a later push changes what it serves.
 - Local build: README "Quick start" (`npm ci`, `npm run build`,
@@ -28,9 +39,8 @@ Three things are kept apart below: free paths a judge can use, live inference
   browser. Viewing makes no provider call.
 - Live call: on a bundled session, "Run live coaching" asks Nemotron on
   Token Factory for a fresh report through the site's function, at no cost to
-  the judge (Matt's key, at most 60 calls a day). This needs a build from
-  `feat/live-nemotron-coaching`; the permalink above predates it and has no
-  function. Replace it with the new deploy-preview permalink after the push.
+  the judge (Matt's key, at most 60 calls a day across all deploys). Only the
+  `6ae26ba8…` permalink above has the function; `6ae0f4e0…` does not.
 
 ## 2. Free path B: offline request preparation (no key, no network)
 
@@ -217,17 +227,18 @@ is null, the import fails with `REPORT_USAGE_INVALID`.
 
 ### Test build
 
-Use the pinned deploy permalink from section 1.
+Use the pinned deploy permalink from section 1 (`6ae26ba8…`).
 
-- **Demonstrated:** public, identical build.
+- **Demonstrated (HTTP load only):** public, identical bundle to a local
+  build of `34619ae`; Netlify reports `expires_at: null` for it today.
 - **Retention gap:** Netlify's docs (re-read 27 October, 20:58Z) say "By
   default, Netlify will delete deploys after 30 days (or 90 days on paid
   plans)". It never auto-deletes only "The deploy currently published", "The
   most recent successful production deploy" and "The most recent successful
   branch deploy for a given branch". A deploy preview is not on that list.
-- At 90 days, `6ae0f4e0` (created 2026-10-27T19:00:48Z) would expire about
-  2027-01-25, after the Judging Period ends on 15 December.
-- At 30 days it would expire about 2026-11-26, before 15 December.
+- At 90 days, `6ae26ba8` (created 2026-10-28T21:39:52Z) would expire about
+  2027-01-26, after the Judging Period ends on 15 December.
+- At 30 days it would expire about 2026-11-27, before 15 December.
 - The 90-day figure depends on the team staying on a paid plan. The Pro plan is
   saved evidence from 27 October, not rechecked here.
 - A manual deletion or a site or plan change would also remove it.

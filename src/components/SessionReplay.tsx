@@ -51,7 +51,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
       </button>
 
       <div role="note" aria-label="Recorded replay notice" className="glass-card p-4 border border-amber-400/40 text-sm">
-        <p className="font-semibold text-amber-300 uppercase tracking-wider">Recorded replay · not live simulation or inference</p>
+        <p className="font-semibold text-amber-300 uppercase tracking-wider">Recorded replay · not a live simulation</p>
         <p className="mt-1 text-chrome-200">
           {datasetLabel.label} · {isF1
             ? `${session.durationS.toFixed(2)} s simulated over ${session.sampleCount} steps${session.timestepS === null ? '' : ` at ${session.timestepS} s`}`
