@@ -6,10 +6,15 @@ branch), **saved** (earlier evidence, cited), **gate** (needs Matt).
 
 ## What to record on
 
-| Surface | Use | Status |
+The script below quotes the corrected banner "RECORDED REPLAY · NOT A LIVE
+SIMULATION", which exists only in local commit `9065ce1`. It is **not
+deployed**. No public build shows it yet.
+
+| Surface | Build | Use |
 |---|---|---|
-| https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/ | Every scene, including the live call. It is the only public build with the `live-coach` function. | **Fresh, HTTP-load only:** 200, noindex, bundle `main-DRslsfw3.js` = local build of `34619ae`. No inference was run on it. |
-| Local `npm run build && npx vite preview --host 0.0.0.0 --port 8843`, then http://10.0.0.46:8843/ | Rehearsal of every scene except the live call (the local preview has no function, so the button shows "This build has no live coaching service"). | **Fresh:** all values in the table below were re-read on this build. |
+| Local `npm run build && npx vite preview --host 0.0.0.0 --port 8843`, then http://10.0.0.46:8843/ | `9065ce1` (local) | Rehearsal of every scene except the live call (no function locally, so the button shows "This build has no live coaching service"). **Fresh:** all values in the table below were re-read on this build. |
+| https://6ae26ba8c26b4d3556338de4--strong-strudel-8072a3.netlify.app/ | `34619ae` (current PR 4 preview) | Rehearsal on the hosted site only. It shows the **old** banner "Recorded replay · not live simulation or inference", so the final take should not be recorded here. **Fresh, HTTP-load only:** 200, noindex, bundle `main-DRslsfw3.js` = local build of `34619ae`, function `live-coach` deployed. No inference was run on it. |
+| New PR 4 preview permalink (does not exist yet) | `9065ce1` after Matt's push | **The final recording.** Prerequisites, in order: (1) Matt approves and pushes `9065ce1` to PR 4; (2) Netlify builds a new deploy preview; (3) verify its permalink read-only: `commit_ref` `9065ce1`, HTTP 200, the bundle equals a local build of `9065ce1`, function `live-coach` listed; (4) record there. |
 
 Files to import (in the repo): `data/f1tenth-silverstone/baseline-lap-session.json`,
 `baseline-lap-nebius-report.json`, `retest-lap-session.json`,
@@ -22,7 +27,7 @@ empty.
 
 ## Live call budget (gate)
 
-The 1:00 scene clicks **Run live coaching**, which makes one real Token Factory
+The 0:45 scene clicks **Run live coaching**, which makes one real Token Factory
 call on Matt's key: at most USD 0.0057216 per click, at most 60 clicks a day
 across all deploys (resets 00:00 UTC). This package does not authorize those
 calls; each take is Matt's decision. Observed on 28 October: replies took 6.3
@@ -41,7 +46,7 @@ different take as the same call.
 | 0:45 to 1:20 | Scroll to "Live Nemotron coaching". Click **Run live coaching** ("Asking Nemotron…"). When "Live response, validated against this session" appears, expand **Live call provenance**: model, response ID, tokens, provider round trip, request SHA-256, "Cost ceiling per call USD 0.0057216 (at most 60 live calls a day on this demo)". | "This button calls Nemotron on Token Factory right now, through a serverless function. The request is pinned: same bytes every time, so the cost is bounded, and there's a daily cap. The reply goes through the same checks before it is shown, next to the saved one, not over it." |
 | 1:20 to 1:50 | **Back to local history.** **Import capture** `baseline-lap-session.json`: "Silverstone baseline lap attempt (gain 0.65, lookahead 14), collided at 12.14 s · 12.13 s simulated over 1214 steps". **Import saved report** `baseline-lap-nebius-report.json`: response `chatcmpl-29bd4e65…`, 0.039 m mean, 0.182 m max, and "0.039 m was lower than 0.182 m". | "Here's a full-lap attempt with the default controller. It ended after about twelve seconds. Its saved report cites three claims, all checked against this run." |
 | 1:50 to 2:00 | **Import saved report** `retest-lap-nebius-report.json` while the baseline is open: "This report belongs to a different session. Open its matching capture and try again." The baseline report stays. | "Load the wrong report and Blurr refuses it and keeps the one that matches." |
-| 2:00 to 2:30 | **Back**, **Import capture** `retest-lap-session.json`: "gain 1.05, lookahead 3, collided at 27.44 s · 2744 steps". **Import saved report** `retest-lap-nebius-report.json`: response `chatcmpl-d153e03a…`, 0.002 m mean, 0.007 m max, 2.48 m/s. Focus the slider, press End: sequence 2744, 27.440 s, raceline distance 68.457 m, speed 0.000 m/s. | "The controller was then tuned offline over a hundred settings on four simple practice tracks; Silverstone was held out. With that setting the car stayed within seven millimeters of the line and got about 68 meters before the run ended at a tight corner. The zero speed is the simulator resetting." |
+| 2:00 to 2:30 | **Back**, **Import capture** `retest-lap-session.json`: "gain 1.05, lookahead 3, collided at 27.44 s · 2744 steps". **Import saved report** `retest-lap-nebius-report.json`: response `chatcmpl-d153e03a…`, 0.002 m mean, 0.007 m max, 2.48 m/s. Focus the slider, press End: sequence 2744, 27.440 s, raceline distance 68.457 m, speed 0.000 m/s. | "The controller was then tuned offline over a hundred settings on four simple practice tracks; Silverstone was held out. With that setting the car stayed within seven millimeters of the line and got about 68 meters before the run ended. The last recorded sample shows zero speed; why the run ended is not diagnosed." |
 | 2:30 to 2:45 | Limits card. Reuse 2:39.96 to 2:50 of the 27 October clean footage: "Simulation only · Neither lap attempt completed a lap · The retest gain came from offline tuning, not learning, not the coach · Coaching has not been shown to improve driving · github.com/MatthewSnow2/blurr". | "Neither run finished a lap, and the gain came from tuning, not the coach. Blurr shows what the evidence supports, no more." |
 
 About 290 words at about 110 words a minute. If the live wait runs long, trim
@@ -68,6 +73,8 @@ re-checked fresh and equal to `docs/demo-sequence-draft.md`: both MP4s
 - No completed lap, no learned driving, no coaching-caused improvement.
 - "collided" is the dataset label; the capture's stop reason is
   `terminated`. Say "ended".
+- Do not explain the zero speed in the final sample or the cause of
+  termination; neither is diagnosed.
 - The live reply's provider metadata comes from the server's call; the
   browser authenticates the claims and session binding, not the provider.
 - Third-party names in the video (NVIDIA, Nebius, Nemotron, F1TENTH,
