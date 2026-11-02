@@ -1,5 +1,7 @@
 # Blurr simulator evidence lab
 
+Blurr's goal is a closed-course performance-driving coach that helps the driver improve while keeping the driver in control. The current implementation is the simulator evidence foundation described below.
+
 Blurr opens a sealed simulator session, replays its recorded samples, and shows a
 saved coaching report only after checking that every claim in it resolves to that
 session's evidence. The bundled demo is a recorded F1TENTH gym capture on the
@@ -10,6 +12,16 @@ It is a replay and review tool. Viewing makes no provider call, no network
 request outside its own origin, and sends no robot or simulator control. It is
 not a physical vehicle coach, a video telemetry extractor or a real-time voice
 system, and it does not show proven driving improvement.
+
+## Project status — 2 November 2026
+
+**The Devpost submission was not completed by the 30 October deadline; no completed submission receipt or final public video is verified.** The [project status and retrospective](docs/project-status-2026-11-02.md) records the work, evidence limits, failure to finish the submission, and next steps.
+
+- This README's runnable instructions describe the default-branch replay app, based on `be1ab6e`.
+- [Draft PR #4](https://github.com/MatthewSnow2/blurr/pull/4), head `a729bfe`, preserves the later controller sweep, Silverstone baseline/retest attempts, hosted live-coaching function and recording/submission packages. It remains unmerged.
+- The 400 practice trials were short episodes used for offline parameter tuning. Neither Silverstone attempt completed a lap; the termination cause remains unresolved. This is not learned driving or demonstrated coaching-caused improvement.
+- Additional 30 October recorder/diagnostic work is documented as unpublished historical work. Its original worktree still needs reconciliation; approved real diagnostic runs were not executed.
+- The live path in PR #4 still names `nvidia/nemotron-3-super-120b-a12b`, which [Nebius will remove from Serverless on 9 November](https://docs.tokenfactory.nebius.com/november-2026-deprecation-notice). No automatic migration is provided; no model change was made in this update.
 
 ## Quick start
 
@@ -101,7 +113,7 @@ returns to history; reopen the session from there.
 ## Checks
 
 ```sh
-npm test            # Node test runner, 70 tests
+npm test            # Node test runner; counts depend on the checked-out commit
 npm run typecheck
 npm run lint
 npm run build
@@ -133,8 +145,10 @@ None of these is needed to run or judge the app.
 
 ## Evidence
 
-- `docs/submission-notes-draft.md`: claim-to-evidence list (claim, source,
-  limitation, status).
+- [Project status and Devpost retrospective](docs/project-status-2026-11-02.md):
+  current branch state, completed work, failed submission attempt and next steps.
+- `docs/submission-notes-draft.md`: historical claim-to-evidence draft; its
+  forward-looking submission status is superseded by the retrospective.
 - `docs/qualification-review-2026-10-25.md`: links the 23 October capture and
   provider receipts to this implementation and to the checks run on 25 October.
 - `docs/saved-report-format.md` and `docs/report-contract.md`: the report format
@@ -148,8 +162,11 @@ cryptographically authenticate the provider.
 
 - The demo segment is short: 14.5 m of one straight with about 6 mm mean raceline
   deviation, so the coaching signal is weak.
-- Two provider calls in total were observed; no latency, quality or reliability
-  benchmark is claimed.
+- This default-branch manifest includes six saved provider reports: the synthetic
+  AutoDRIVE fixture, Silverstone run A, Circle, Turn, TwoTurns and Chicane.
+  PR #4 adds two Silverstone attempt reports and records three later live-path
+  calls. These are separate historical observations, not a latency, quality or
+  reliability benchmark.
 - Calculated cost for the run A call is USD 0.0009432 at published rates; the
   invoice charge was not observed.
 - Archived vision and hardware notes are in `docs/historical-vision.md` and are
