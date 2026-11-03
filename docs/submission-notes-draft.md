@@ -1,4 +1,6 @@
-# Submission notes — private draft, not an entry
+# Submission notes — historical draft, not an entry
+
+> **Status correction, 2 November 2026:** The 30 October deadline passed without a verified completed submission. This document preserves an earlier preparation snapshot; its open gates, totals and planned video are not current completion claims. See the [project status and retrospective](project-status-2026-11-02.md) for the reconciled outcome, later work, validation limits and remaining tasks.
 
 Blurr is a simulator evidence lab for reviewing a sealed session before acting
 on a coaching suggestion. It imports F1TENTH and AutoDRIVE JSON, replays recorded
