@@ -54,7 +54,7 @@ const SealedSessionUpload: React.FC<SealedSessionUploadProps> = ({ error, isImpo
       )}
 
       <div className="glass-card p-5 text-sm text-chrome-300">
-        Imports are bounded to 15 MiB and 50,000 samples. F1TENTH metric references and summaries are checked; AutoDRIVE preserves reported source units and reception timing. Synthetic versus live origin is not independently verified by importing a file.
+        Imports are bounded to 15 MiB and 50,000 samples. F1TENTH metric references and summaries are checked; AutoDRIVE preserves reported source units and reception timing; ACC imports speed, pedals, steering and lap position without a reference line. Synthetic versus live origin is not independently verified by importing a file.
       </div>
     </div>
   );

@@ -42,6 +42,8 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
   }, [sample, session]);
 
   const isF1 = session.source === 'f1tenth';
+  const isAcc = session.source === 'acc';
+  const pausedS = (session.pauseGaps ?? []).reduce((sum, gap) => sum + gap.durationS, 0);
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
       <button onClick={onBack} className="flex items-center text-electric-400 hover:text-electric-300">
@@ -54,7 +56,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
         <p className="mt-1 text-chrome-200">
           {datasetLabel.label} · {isF1
             ? `${session.durationS.toFixed(2)} s simulated over ${session.sampleCount} steps${session.timestepS === null ? '' : ` at ${session.timestepS} s`}`
-            : `${session.durationS.toFixed(3)} s reception span over ${session.sampleCount} frames`}
+            : `${session.durationS.toFixed(3)} s reception span over ${session.sampleCount} frames${pausedS > 0 ? `, including ${pausedS.toFixed(1)} s paused` : ''}`}
         </p>
         <p className="mt-1 text-chrome-400">This demonstrates ingestion and reporting, not proven driving improvement or a completed lap.</p>
       </div>
@@ -90,7 +92,11 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
         <div className="carbon-card p-6">
           <h2 className="text-xl font-display font-bold text-white mb-2">Position trace</h2>
           <p className="text-xs text-chrome-400 mb-4">
-            {isF1 ? 'Metric simulator pose.' : 'Raw simulator coordinates; the baseline connector does not declare their physical unit.'}
+            {isF1
+              ? 'Metric simulator pose.'
+              : isAcc
+                ? 'Not shown for ACC yet: the world-coordinate axes have not been verified against a moving recording.'
+                : 'Raw simulator coordinates; the baseline connector does not declare their physical unit.'}
           </p>
           {trace.points ? (
             <svg viewBox="0 0 300 200" className="w-full h-72 bg-carbon-900 rounded-lg" role="img" aria-label="Recorded vehicle position trace">
@@ -124,6 +130,16 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
                 <Metric label="Heading deviation" value={formatNumber(sample.headingDeviationRad, 'rad', 6)} />
                 <Metric label="Raceline distance" value={formatNumber(sample.referenceSM, 'm')} />
                 <Metric label="Curvature" value={formatNumber(sample.curvaturePerM, '1/m', 6)} />
+              </>
+            ) : isAcc ? (
+              <>
+                <Metric label="Speed" value={formatNumber(sample.speedMps, 'm/s')} />
+                <Metric label="Throttle" value={formatNumber(sample.throttle ?? null, '(0 to 1)')} />
+                <Metric label="Brake" value={formatNumber(sample.brake ?? null, '(0 to 1)')} />
+                <Metric label="Steering" value={formatSourceValue(sample.steeringRad)} />
+                <Metric label="Lap counter" value={sample.lap === null || sample.lap === undefined ? 'unavailable' : String(sample.lap)} />
+                <Metric label="Track position" value={formatNumber(sample.trackPosition ?? null, '(0 to 1 of lap)', 4)} />
+                <Metric label="Reference deviation" value="unavailable" />
               </>
             ) : (
               <>

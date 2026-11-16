@@ -6,7 +6,7 @@
   "required": ["schema_version", "source_kind", "status", "captured_at_utc", "runtime", "outcome", "samples"],
   "properties": {
     "schema_version": { "const": "blurr.telemetry-session.v1" },
-    "source_kind": { "enum": ["f1tenth", "autodrive"] },
+    "source_kind": { "enum": ["f1tenth", "autodrive", "acc"] },
     "status": { "const": "sealed" },
     "captured_at_utc": { "type": "string", "format": "date-time" },
     "runtime": { "type": "object" },
@@ -108,6 +108,67 @@
                 "sequence": { "type": "integer", "minimum": 1 },
                 "received_monotonic_s": { "type": "number", "minimum": 0 },
                 "telemetry": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "source_kind": { "const": "acc" } } },
+      "then": {
+        "required": ["circuit"],
+        "properties": {
+          "circuit": {
+            "type": "object",
+            "required": ["name"],
+            "properties": { "name": { "type": "string", "minLength": 1 } }
+          },
+          "runtime": {
+            "required": ["simulator", "receive_clock", "ingest"],
+            "properties": {
+              "simulator": { "const": "Assetto Corsa Competizione" },
+              "receive_clock": { "const": "python.time.perf_counter" },
+              "ingest": { "const": "shared_memory" }
+            }
+          },
+          "outcome": {
+            "required": ["sample_count", "dropped_frames", "pause_gaps"],
+            "properties": {
+              "sample_count": { "type": "integer", "minimum": 1, "maximum": 50000 },
+              "dropped_frames": { "type": "integer", "minimum": 0 },
+              "pause_gaps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["start_s", "duration_s"],
+                  "properties": {
+                    "start_s": { "type": "number", "minimum": 0 },
+                    "duration_s": { "type": "number", "exclusiveMinimum": 0 }
+                  }
+                }
+              }
+            }
+          },
+          "samples": {
+            "items": {
+              "type": "object",
+              "required": ["sequence", "received_monotonic_s", "telemetry"],
+              "properties": {
+                "sequence": { "type": "integer", "minimum": 0 },
+                "received_monotonic_s": { "type": "number", "minimum": 0 },
+                "telemetry": {
+                  "type": "object",
+                  "required": ["speed_mps", "throttle", "brake", "steering", "spline", "lap"],
+                  "properties": {
+                    "speed_mps": { "type": "number", "minimum": 0 },
+                    "throttle": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "brake": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "steering": { "type": "number" },
+                    "spline": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "lap": { "type": "integer", "minimum": 0 }
+                  }
+                }
               }
             }
           }
