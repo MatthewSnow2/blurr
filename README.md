@@ -1,5 +1,7 @@
 # Blurr simulator evidence lab
 
+![Blurr portfolio cover: replay a recorded simulator session and trace coaching claims to evidence](docs/portfolio-hero.png)
+
 Blurr's goal is a closed-course performance-driving coach that helps the driver improve while keeping the driver in control. The current implementation is the simulator evidence foundation described below.
 
 Blurr opens a sealed simulator session, replays its recorded samples, and shows a
@@ -13,7 +15,7 @@ request outside its own origin, and sends no robot or simulator control. It is
 not a physical vehicle coach, a video telemetry extractor or a real-time voice
 system, and it does not show proven driving improvement.
 
-## Project status — 2 November 2026
+## Recorded project status: 2 November 2026
 
 **The Devpost submission was not completed by the 30 October deadline; no completed submission receipt or final public video is verified.** The [project status and retrospective](docs/project-status-2026-11-02.md) records the work, evidence limits, failure to finish the submission, and next steps.
 
@@ -21,7 +23,7 @@ system, and it does not show proven driving improvement.
 - [Draft PR #4](https://github.com/MatthewSnow2/blurr/pull/4), head `a729bfe`, preserves the later controller sweep, Silverstone baseline/retest attempts, hosted live-coaching function and recording/submission packages. It remains unmerged.
 - The 400 practice trials were short episodes used for offline parameter tuning. Neither Silverstone attempt completed a lap; the termination cause remains unresolved. This is not learned driving or demonstrated coaching-caused improvement.
 - Additional 30 October recorder/diagnostic work is documented as unpublished historical work. Its original worktree still needs reconciliation; approved real diagnostic runs were not executed.
-- The live path in PR #4 still names `nvidia/nemotron-3-super-120b-a12b`, which [Nebius will remove from Serverless on 9 November](https://docs.tokenfactory.nebius.com/november-2026-deprecation-notice). No automatic migration is provided; no model change was made in this update.
+- The live path in PR #4 still names `nvidia/nemotron-3-super-120b-a12b`, which the dated status report flags for [Serverless retirement on 9 November](https://docs.tokenfactory.nebius.com/november-2026-deprecation-notice). This README does not establish its current availability. The default replay reads saved reports and needs no active provider model; check current provider documentation before resuming the separate live path.
 
 ## Quick start
 
@@ -29,14 +31,14 @@ Prerequisites: Node 24 (verified with 24.22.0) and npm. No credentials, Python,
 simulator or GPU are needed to run the app.
 
 ```sh
+git clone https://github.com/MatthewSnow2/blurr
+cd blurr
 npm ci
 npm run build
-npm run preview -- --host <lan-ip> --port 8843
+npm run preview -- --host 0.0.0.0 --port 8843
 ```
 
-Open `http://<lan-ip>:8843/` from any device on the network. Use `--host` with
-the machine's LAN address so another device can reach it; omit it to serve on
-this machine only.
+On ProBook, open [the replay app](http://10.0.0.46:8843/) from a device on the same LAN. On another host, substitute its LAN address. Stop the preview process to stop serving the app.
 
 **First screen:** "Sealed simulator sessions", with an **Import capture** button
 and a **Recorded Nebius demo** card. Choose **Open recorded demo**.
