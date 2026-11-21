@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Database, Video } from 'lucide-react';
 import SavedProviderReport from './SavedProviderReport';
+import LiveCoaching from './LiveCoaching';
 import type { ReplaySample, StoredSession } from '../lib/sessionStore';
 import type { DatasetLabel } from '../demo/datasets';
 
@@ -50,7 +51,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
       </button>
 
       <div role="note" aria-label="Recorded replay notice" className="glass-card p-4 border border-amber-400/40 text-sm">
-        <p className="font-semibold text-amber-300 uppercase tracking-wider">Recorded replay · not live simulation or inference</p>
+        <p className="font-semibold text-amber-300 uppercase tracking-wider">Recorded replay · not a live simulation</p>
         <p className="mt-1 text-chrome-200">
           {datasetLabel.label} · {isF1
             ? `${session.durationS.toFixed(2)} s simulated over ${session.sampleCount} steps${session.timestepS === null ? '' : ` at ${session.timestepS} s`}`
@@ -158,6 +159,7 @@ const SessionReplay: React.FC<SessionReplayProps> = ({ session, datasetLabel, vi
       )}
 
       <SavedProviderReport key={session.canonicalSha256} session={session} />
+      <LiveCoaching key={`live-${session.canonicalSha256}`} session={session} />
     </div>
   );
 };

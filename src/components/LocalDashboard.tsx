@@ -31,7 +31,7 @@ const LocalDashboard: React.FC<LocalDashboardProps> = ({ sessions, onImport, onO
 
     <div className="glass-card p-6 border border-electric-500/20">
       <h2 className="text-xl font-display font-bold">Recorded Nebius demo</h2>
-      <p className="mt-2 text-chrome-300">Open the 600-sample F1TENTH Silverstone run A replay with its saved Nemotron coaching report. The report came from one real Token Factory call on 23 October; opening it makes no new call.</p>
+      <p className="mt-2 text-chrome-300">Open the 600-sample F1TENTH Silverstone run A replay with its saved Nemotron coaching report. The saved report came from one real Token Factory call on 23 October and opening it makes no call. Inside, Run live coaching asks Nemotron for a fresh report.</p>
       <button disabled={isLoadingDemo} onClick={onLoadDemo} className="chrome-button mt-4 px-5 py-3 rounded-xl font-semibold disabled:opacity-50">{isLoadingDemo ? 'Opening recorded demo…' : 'Open recorded demo'}</button>
     </div>
 

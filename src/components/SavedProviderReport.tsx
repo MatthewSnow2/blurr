@@ -58,6 +58,6 @@ export default function SavedProviderReport({ session }: { session: StoredSessio
         <p className="mt-3 text-chrome-400">This browser revalidates the claims, digest and session binding. Provider metadata comes from the imported file and is not independently authenticated here.</p>
       </details>
     </div> : <p className="mt-5 text-chrome-400">No validated saved report for this session yet.</p>}
-    <p className="mt-5 text-sm text-chrome-400">Report import and viewing run locally. No new inference request is made. Braking and collision remain unavailable.</p>
+    <p className="mt-5 text-sm text-chrome-400">Importing and viewing a saved report runs locally and makes no inference request. Braking and collision remain unavailable.</p>
   </section>;
 }
