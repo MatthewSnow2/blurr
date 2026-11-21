@@ -22,6 +22,6 @@ The current F1TENTH evidence contract has no measured braking channel. No brakin
 
 ## Provider boundary
 
-`requestPostSessionCoaching` requires a sealed session identifier, SHA-256 digest, UTC seal time, bounded evidence, and an injected transport. There is no production Nebius transport or credential handling in this slice. Tests use an in-memory fake transport only.
+`requestPostSessionCoaching` requires a sealed session identifier, SHA-256 digest, UTC seal time, bounded evidence, and an injected transport. This contract module has no transport or credential handling of its own, and its tests use an in-memory fake transport. The separate server-only runner `server/runApprovedVerification.ts` (added later) supplies a bounded Nebius Token Factory transport for one-shot, approved calls; see "How Nemotron and Token Factory are used" in the README. The browser never calls a provider.
 
 Nebius account, model, endpoint, credentials, spending, outbound data, judge access, hosting, deployment, and publication remain explicit owner decisions.
