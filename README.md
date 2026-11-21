@@ -1,5 +1,9 @@
 # Blurr simulator evidence lab
 
+![Blurr portfolio cover: replay a recorded simulator session and trace coaching claims to evidence](docs/portfolio-hero.png)
+
+Blurr's goal is a closed-course performance-driving coach that helps the driver improve while keeping the driver in control. The current implementation is the simulator evidence foundation described below.
+
 Blurr opens a sealed simulator session, replays its recorded samples, and shows a
 saved coaching report only after checking that every claim in it resolves to that
 session's evidence. The bundled demo is a recorded F1TENTH gym capture on the
@@ -14,20 +18,30 @@ Netlify Function (see "Live coaching on the hosted site"). It is
 not a physical vehicle coach, a video telemetry extractor or a real-time voice
 system, and it does not show proven driving improvement.
 
+## Recorded project status: 2 November 2026
+
+**The Devpost submission was not completed by the 30 October deadline; no completed submission receipt or final public video is verified.** The [project status and retrospective](docs/project-status-2026-11-02.md) records the work, evidence limits, failure to finish the submission, and next steps.
+
+- This README's runnable instructions describe the default-branch replay app, based on `be1ab6e`.
+- [Draft PR #4](https://github.com/MatthewSnow2/blurr/pull/4), head `a729bfe`, preserves the later controller sweep, Silverstone baseline/retest attempts, hosted live-coaching function and recording/submission packages. It remains unmerged.
+- The 400 practice trials were short episodes used for offline parameter tuning. Neither Silverstone attempt completed a lap; the termination cause remains unresolved. This is not learned driving or demonstrated coaching-caused improvement.
+- Additional 30 October recorder/diagnostic work is documented as unpublished historical work. Its original worktree still needs reconciliation; approved real diagnostic runs were not executed.
+- The live path in PR #4 still names `nvidia/nemotron-3-super-120b-a12b`, which the dated status report flags for [Serverless retirement on 9 November](https://docs.tokenfactory.nebius.com/november-2026-deprecation-notice). This README does not establish its current availability. The default replay reads saved reports and needs no active provider model; check current provider documentation before resuming the separate live path.
+
 ## Quick start
 
 Prerequisites: Node 24 (verified with 24.22.0) and npm. No credentials, Python,
 simulator or GPU are needed to run the app.
 
 ```sh
+git clone https://github.com/MatthewSnow2/blurr
+cd blurr
 npm ci
 npm run build
-npm run preview -- --host <lan-ip> --port 8843
+npm run preview -- --host 0.0.0.0 --port 8843
 ```
 
-Open `http://<lan-ip>:8843/` from any device on the network. Use `--host` with
-the machine's LAN address so another device can reach it; omit it to serve on
-this machine only.
+On ProBook, open [the replay app](http://10.0.0.46:8843/) from a device on the same LAN. On another host, substitute its LAN address. Stop the preview process to stop serving the app.
 
 **First screen:** "Sealed simulator sessions", with an **Import capture** button
 and a **Recorded Nebius demo** card. Choose **Open recorded demo**.
@@ -241,7 +255,7 @@ returns to history; reopen the session from there.
 ## Checks
 
 ```sh
-npm test            # Node test runner, 73 tests
+npm test            # Node test runner; counts depend on the checked-out commit
 npm run typecheck
 npm run lint
 npm run build
@@ -273,8 +287,10 @@ None of these is needed to run or judge the app.
 
 ## Evidence
 
-- `docs/submission-notes-draft.md`: claim-to-evidence list (claim, source,
-  limitation, status).
+- [Project status and Devpost retrospective](docs/project-status-2026-11-02.md):
+  current branch state, completed work, failed submission attempt and next steps.
+- `docs/submission-notes-draft.md`: historical claim-to-evidence draft; its
+  forward-looking submission status is superseded by the retrospective.
 - `docs/qualification-review-2026-10-25.md`: links the 23 October capture and
   provider receipts to this implementation and to the checks run on 25 October.
 - `docs/saved-report-format.md` and `docs/report-contract.md`: the report format
@@ -288,8 +304,9 @@ cryptographically authenticate the provider.
 
 - The demo segment is short: 14.5 m of one straight with about 6 mm mean raceline
   deviation, so the coaching signal is weak.
-- Eight provider calls in total, one per saved report; no latency, quality or
-  reliability benchmark is claimed.
+- Eight saved provider reports, one call each, plus three live-path calls on
+  28 October (`docs/submission-readiness.md`). These are separate historical
+  observations, not a latency, quality or reliability benchmark.
 - Calculated cost for all eight is about USD 0.0088 at the published 0.30 and
   0.90 USD per million input and output tokens (run A alone: USD 0.0009432); the
   invoice charges were not observed.
