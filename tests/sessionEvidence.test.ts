@@ -80,3 +80,26 @@ test('AutoDRIVE evidence exposes only unit-safe counts and reception duration', 
   assert.equal(evidence.metrics.duration_s.unit, 's');
   assert.equal(evidence.capabilities.pose, 'unavailable');
 });
+
+test('ACC evidence reports speed and paused time, and claims no pose, reference or braking metric', () => {
+  const session = base();
+  session.source = 'acc';
+  session.simulator = 'Assetto Corsa Competizione';
+  session.analysisVersion = 'raw-v1';
+  session.referenceKind = 'unavailable';
+  session.seed = null;
+  session.timestepS = null;
+  session.meanAbsLateralDeviationM = null;
+  session.maxAbsLateralDeviationM = null;
+  session.pauseGaps = [{ startS: 1, durationS: 60 }, { startS: 90, durationS: 1.5 }];
+  const evidence = buildSessionEvidence(session);
+  assert.equal(evidence.metrics.mean_abs_lateral_deviation_m, undefined);
+  assert.equal(evidence.metrics.mean_speed_mps.value, 2.5);
+  assert.equal(evidence.metrics.mean_speed_mps.label, 'Mean reported speed');
+  assert.equal(evidence.metrics.paused_s.value, 61.5);
+  assert.equal(evidence.metrics.duration_s.label, 'Monotonic reception duration');
+  assert.deepEqual(evidence.capabilities, {
+    pose: 'unavailable', speed: 'measured', steering: 'unavailable',
+    reference: 'unavailable', braking: 'unavailable', collision: 'unavailable',
+  });
+});

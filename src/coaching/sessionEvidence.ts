@@ -45,13 +45,31 @@ export const buildSessionEvidence = (session: StoredSession): EvidenceStore => {
     );
   }
 
+  if (session.source === 'acc') {
+    const speeds = session.samples.flatMap((sample) => sample.speedMps === null ? [] : [sample.speedMps]);
+    metrics.mean_speed_mps = metric(
+      'mean_speed_mps',
+      'Mean reported speed',
+      'm/s',
+      speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length,
+    );
+    metrics.paused_s = metric(
+      'paused_s',
+      'Paused time inside the reception duration',
+      's',
+      (session.pauseGaps ?? []).reduce((sum, gap) => sum + gap.durationS, 0),
+    );
+  }
+
   return {
     metrics,
     events: {},
     occurrences: {},
     capabilities: session.source === 'f1tenth'
       ? { pose: 'measured', speed: 'measured', steering: 'measured', reference: 'derived', braking: 'unavailable', collision: 'unavailable' }
-      : { pose: 'unavailable', speed: 'unavailable', steering: 'unavailable', reference: 'unavailable', braking: 'unavailable', collision: 'unavailable' },
+      : session.source === 'acc'
+        ? { pose: 'unavailable', speed: 'measured', steering: 'unavailable', reference: 'unavailable', braking: 'unavailable', collision: 'unavailable' }
+        : { pose: 'unavailable', speed: 'unavailable', steering: 'unavailable', reference: 'unavailable', braking: 'unavailable', collision: 'unavailable' },
   };
 };
 

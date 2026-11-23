@@ -23,6 +23,17 @@ export interface ReplaySample {
   referenceSM: number | null;
   optimalSpeedMps: number | null;
   curvaturePerM: number | null;
+  // Present only on sources that report them (ACC). They are optional, not
+  // null-filled, so the canonical digest of F1TENTH and AutoDRIVE sessions
+  // imported before these fields existed does not change.
+  brake?: number | null;
+  trackPosition?: number | null;
+  lap?: number | null;
+}
+
+export interface PauseGap {
+  startS: number;
+  durationS: number;
 }
 
 export interface SessionCapabilities {
@@ -31,15 +42,18 @@ export interface SessionCapabilities {
   steering: 'measured_rad' | 'reported_source_unit' | 'unavailable';
   throttle: 'reported_source_unit' | 'unavailable';
   reference: 'raceline' | 'unavailable';
-  braking: 'unavailable';
+  braking: 'reported_source_unit' | 'unavailable';
   collision: 'unavailable';
 }
+
+export type SessionSource = 'f1tenth' | 'autodrive' | 'acc';
+export type SessionSimulator = 'f1tenth_gym' | 'AutoDRIVE Simulator' | 'Assetto Corsa Competizione';
 
 export interface StoredSession {
   schemaVersion: 'blurr.local-session.v1';
   id: string;
-  source: 'f1tenth' | 'autodrive';
-  simulator: 'f1tenth_gym' | 'AutoDRIVE Simulator';
+  source: SessionSource;
+  simulator: SessionSimulator;
   circuitName: string;
   capturedAtUtc: string;
   importedAtUtc: string;
@@ -58,6 +72,8 @@ export interface StoredSession {
   droppedFrames: number;
   capabilities: SessionCapabilities;
   samples: ReplaySample[];
+  // ACC only: stretches where the game was paused. durationS includes them.
+  pauseGaps?: PauseGap[];
 }
 
 export interface StorageLike {
@@ -127,8 +143,8 @@ const nearlyEqual = (left: number, right: number, tolerance = 1e-12): boolean =>
 
 interface NormalizedCore {
   schemaVersion: 'blurr.local-session.v1';
-  source: 'f1tenth' | 'autodrive';
-  simulator: 'f1tenth_gym' | 'AutoDRIVE Simulator';
+  source: SessionSource;
+  simulator: SessionSimulator;
   circuitName: string;
   capturedAtUtc: string;
   analysisVersion: 'raceline-v2' | 'raw-v1';
@@ -142,6 +158,8 @@ interface NormalizedCore {
   droppedFrames: number;
   capabilities: SessionCapabilities;
   samples: ReplaySample[];
+  // ACC only: stretches where the game was paused. durationS includes them.
+  pauseGaps?: PauseGap[];
 }
 
 const normalizeF1Capture = (input: unknown): NormalizedCore => {
@@ -323,6 +341,117 @@ const normalizeAutoDriveCapture = (input: unknown): NormalizedCore => {
   };
 };
 
+const unitIntervalAt = (value: unknown, path: string): number => {
+  const parsed = numberAt(value, path);
+  if (parsed < 0 || parsed > 1) throw new Error(`${path} must be between 0 and 1`);
+  return parsed;
+};
+
+const normalizeAccCapture = (input: unknown): NormalizedCore => {
+  const root = recordAt(input, 'capture');
+  const runtime = recordAt(root.runtime, 'runtime');
+  const circuit = recordAt(root.circuit, 'circuit');
+  const outcome = recordAt(root.outcome, 'outcome');
+  const rawSamples = arrayAt(root.samples, 'samples');
+  assertExact(root.schema_version, 'blurr.telemetry-session.v1', 'schema_version');
+  assertExact(root.source_kind, 'acc', 'source_kind');
+  assertExact(root.status, 'sealed', 'status');
+  assertExact(runtime.simulator, 'Assetto Corsa Competizione', 'runtime.simulator');
+  assertExact(runtime.receive_clock, 'python.time.perf_counter', 'runtime.receive_clock');
+  assertExact(runtime.ingest, 'shared_memory', 'runtime.ingest');
+
+  if (rawSamples.length === 0) throw new Error('samples must not be empty');
+  if (rawSamples.length > MAX_SESSION_SAMPLES) throw new Error(`samples exceeds the ${MAX_SESSION_SAMPLES} sample limit`);
+  let previousSequence = -1;
+  let previousTime = -1;
+  let previousLap = 0;
+  const samples = rawSamples.map((value, index): ReplaySample => {
+    const sample = recordAt(value, `samples[${index}]`);
+    const path = `samples[${index}].telemetry`;
+    const telemetry = recordAt(sample.telemetry, path);
+    const sequence = integerAt(sample.sequence, `samples[${index}].sequence`);
+    const timeS = numberAt(sample.received_monotonic_s, `samples[${index}].received_monotonic_s`);
+    if (sequence <= previousSequence) throw new Error('sample sequence must be strictly increasing');
+    if (timeS < 0 || timeS <= previousTime) throw new Error('sample receive time must be nonnegative and strictly increasing');
+    previousSequence = sequence;
+    previousTime = timeS;
+    const speedMps = numberAt(telemetry.speed_mps, `${path}.speed_mps`);
+    if (speedMps < 0) throw new Error(`${path}.speed_mps must be nonnegative`);
+    const lap = integerAt(telemetry.lap, `${path}.lap`);
+    if (lap < previousLap) throw new Error(`${path}.lap must not decrease`);
+    previousLap = lap;
+    // World position and heading are checked for shape only. Which axes are
+    // horizontal has not been verified against a moving recording, so no pose
+    // is claimed until it has.
+    optionalVectorAt(telemetry.position, `${path}.position`, 3);
+    optionalNumberAt(telemetry.heading_rad, `${path}.heading_rad`);
+    return {
+      sequence,
+      timeS,
+      positionUnit: 'source_unit_unavailable',
+      poseXM: null,
+      poseYM: null,
+      headingRad: null,
+      speedMps,
+      steeringRad: numberAt(telemetry.steering, `${path}.steering`),
+      throttle: unitIntervalAt(telemetry.throttle, `${path}.throttle`),
+      lateralDeviationM: null,
+      headingDeviationRad: null,
+      referenceSM: null,
+      optimalSpeedMps: null,
+      curvaturePerM: null,
+      brake: unitIntervalAt(telemetry.brake, `${path}.brake`),
+      trackPosition: unitIntervalAt(telemetry.spline, `${path}.spline`),
+      lap,
+    };
+  });
+
+  const sampleCount = integerAt(outcome.sample_count, 'outcome.sample_count');
+  if (sampleCount !== samples.length) throw new Error('outcome.sample_count does not match samples');
+  const droppedFrames = integerAt(outcome.dropped_frames, 'outcome.dropped_frames');
+  if (droppedFrames < 0) throw new Error('outcome.dropped_frames must be nonnegative');
+  const durationS = samples[samples.length - 1].timeS - samples[0].timeS;
+  const pauseGaps = arrayAt(outcome.pause_gaps, 'outcome.pause_gaps').map((value, index): PauseGap => {
+    const gap = recordAt(value, `outcome.pause_gaps[${index}]`);
+    const startS = numberAt(gap.start_s, `outcome.pause_gaps[${index}].start_s`);
+    const gapDurationS = numberAt(gap.duration_s, `outcome.pause_gaps[${index}].duration_s`);
+    if (startS < 0 || gapDurationS <= 0) throw new Error(`outcome.pause_gaps[${index}] must have a nonnegative start and a positive duration`);
+    return { startS, durationS: gapDurationS };
+  });
+  const pausedS = pauseGaps.reduce((sum, gap) => sum + gap.durationS, 0);
+  if (pausedS > durationS && !nearlyEqual(pausedS, durationS)) throw new Error('outcome.pause_gaps exceed the session duration');
+  const capturedAtUtc = stringAt(root.captured_at_utc, 'captured_at_utc');
+  if (!Number.isFinite(Date.parse(capturedAtUtc))) throw new Error('captured_at_utc must be an ISO timestamp');
+
+  return {
+    schemaVersion: 'blurr.local-session.v1',
+    source: 'acc',
+    simulator: 'Assetto Corsa Competizione',
+    circuitName: stringAt(circuit.name, 'circuit.name'),
+    capturedAtUtc,
+    analysisVersion: 'raw-v1',
+    referenceKind: 'unavailable',
+    seed: null,
+    timestepS: null,
+    durationS,
+    sampleCount,
+    meanAbsLateralDeviationM: null,
+    maxAbsLateralDeviationM: null,
+    droppedFrames,
+    capabilities: {
+      pose: 'unavailable',
+      speed: 'measured_mps',
+      steering: 'reported_source_unit',
+      throttle: 'reported_source_unit',
+      reference: 'unavailable',
+      braking: 'reported_source_unit',
+      collision: 'unavailable',
+    },
+    samples,
+    pauseGaps,
+  };
+};
+
 export const importSealedSessionFile = async (
   file: Pick<File, 'name' | 'size' | 'arrayBuffer'>,
   importedAtUtc = new Date().toISOString(),
@@ -343,7 +472,9 @@ export const importSealedSessionFile = async (
     ? normalizeF1Capture(parsed)
     : root.source_kind === 'autodrive'
       ? normalizeAutoDriveCapture(parsed)
-      : (() => { throw new Error('source_kind must be f1tenth or autodrive'); })();
+      : root.source_kind === 'acc'
+        ? normalizeAccCapture(parsed)
+        : (() => { throw new Error('source_kind must be f1tenth, autodrive or acc'); })();
   const canonicalBytes = new TextEncoder().encode(stableStringify(asJsonValue(core)));
   const [sourceFileSha256, canonicalSha256] = await Promise.all([sha256(bytes), sha256(canonicalBytes)]);
   return {
@@ -359,7 +490,7 @@ export const importSealedSessionFile = async (
 
 const isStoredSession = (value: unknown): value is StoredSession => {
   if (!isRecord(value) || value.schemaVersion !== 'blurr.local-session.v1'
-    || (value.source !== 'f1tenth' && value.source !== 'autodrive')
+    || (value.source !== 'f1tenth' && value.source !== 'autodrive' && value.source !== 'acc')
     || typeof value.canonicalSha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(value.canonicalSha256)
     || value.id !== `${value.source}:${value.canonicalSha256.slice(0, 24)}`
     || !Array.isArray(value.samples) || value.samples.length < 1 || value.samples.length > MAX_SESSION_SAMPLES
@@ -379,6 +510,8 @@ const isStoredSession = (value: unknown): value is StoredSession => {
     sampleCount: session.sampleCount, meanAbsLateralDeviationM: session.meanAbsLateralDeviationM,
     maxAbsLateralDeviationM: session.maxAbsLateralDeviationM, droppedFrames: session.droppedFrames,
     capabilities: session.capabilities, samples: session.samples,
+    // Left out when absent so sessions stored before pauseGaps existed keep their digest.
+    ...(session.pauseGaps === undefined ? {} : { pauseGaps: session.pauseGaps }),
   };
   try { return sha256Portable(new TextEncoder().encode(stableStringify(asJsonValue(core)))) === session.canonicalSha256; }
   catch { return false; }
