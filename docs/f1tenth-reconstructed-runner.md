@@ -26,6 +26,9 @@ the default. It does not recreate the
 old original analytic circuit or claim identical historical controller behavior.
 The new controller selects the nearest waypoint, targets 14 points ahead, wraps
 heading error, applies gain0.65 and clamps steering to0.35 rad at a2.5 m/s target.
+Since 26 October `--gain` (0.1 to 2.0) and `--lookahead` (1 to 60 points) may be
+set per run; both are sealed in `controller`. Timestep, speed and steering limit
+stay fixed. The sweep and lap harnesses are in `scripts/f1tenth-sweep/`.
 Controls go only to the pinned in-process Python simulator adapter in a future
 authorized worker. No MCP server, network listener or physical output path exists.
 
@@ -36,7 +39,8 @@ reads completed bundles; it never imports the simulator.
 
 ## Bounds, validation and provenance
 
-- Seed defaults20261009; steps1..600; timestep0.01 checked from the actual raw gym
+- Seed defaults20261009; steps1..20,000 (raised from 600 on 26 October so a full
+  Silverstone lap fits; worker timeout up to 1200 s); timestep0.01 checked from the actual raw gym
   instance before stepping. Simulator-relative time counts adapter steps after
   reset returns; it does not fabricate wall-clock or network reception timing.
 - Root/HEAD/clean-tracked-source checks pin adapter b3525a0 and gym5a301bd;
