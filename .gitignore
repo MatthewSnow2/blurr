@@ -29,3 +29,6 @@ dist-recorded
 
 # Persist offline attempt data locally; never add a paid-call journal to source.
 /local-fixture-journal/
+
+# Local Netlify CLI state
+.netlify/
