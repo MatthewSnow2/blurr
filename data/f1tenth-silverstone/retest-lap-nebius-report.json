@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "blurr.saved-provider-report.v1",
+  "sessionSha256": "ddb1aa60fbb17c15ea5d13866af1e6795ccc3674a954232b43531fe4688147ea",
+  "telemetryKind": "recorded_simulation",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "responseId": "chatcmpl-d153e03a0258dd5907332011d4bd9fa1",
+  "completedAtUtc": "2026-10-27T01:29:19.288Z",
+  "usage": {
+    "inputTokens": 1360,
+    "outputTokens": 765,
+    "reasoningTokens": 544,
+    "totalTokens": 2125
+  },
+  "reportJson": "{\"contract_version\": \"coaching-report.v1\", \"claims\": [{\"id\": \"c1\", \"type\": \"metric_value\", \"evidence_id\": \"mean_abs_lateral_deviation_m\"}, {\"id\": \"c2\", \"type\": \"metric_value\", \"evidence_id\": \"max_abs_lateral_deviation_m\"}, {\"id\": \"c3\", \"type\": \"metric_value\", \"evidence_id\": \"mean_speed_mps\"}], \"interpretations\": [{\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c1\", \"drill\": \"steady_line\"}}, {\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c2\", \"drill\": \"repeatable_corners\"}}, {\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"c3\", \"drill\": \"controlled_inputs\"}}], \"drill_id\": \"steady_line\"}",
+  "reportSha256": "3035939212d03619fbf63bc9c17e44c33599f7cb95eaf759794ecfda56bbbdd6"
+}

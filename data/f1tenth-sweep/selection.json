@@ -1,0 +1,73 @@
+{
+  "standings": [
+    {
+      "rung": "Circle",
+      "settings_run": 100,
+      "completed_this_rung": 100,
+      "still_in_running": 100,
+      "leader": {
+        "gain": 0.35,
+        "lookahead_points": 14,
+        "cumulative_mean_abs_deviation_m": 0.0011018844177441685
+      },
+      "baseline": {
+        "in_running": true,
+        "rank": 44,
+        "cumulative_mean_abs_deviation_m": 0.051360292308427945
+      }
+    },
+    {
+      "rung": "Turn",
+      "settings_run": 100,
+      "completed_this_rung": 100,
+      "still_in_running": 100,
+      "leader": {
+        "gain": 0.95,
+        "lookahead_points": 6,
+        "cumulative_mean_abs_deviation_m": 0.003412012125688053
+      },
+      "baseline": {
+        "in_running": true,
+        "rank": 39,
+        "cumulative_mean_abs_deviation_m": 0.040346933796234385
+      }
+    },
+    {
+      "rung": "TwoTurns",
+      "settings_run": 100,
+      "completed_this_rung": 100,
+      "still_in_running": 100,
+      "leader": {
+        "gain": 1.05,
+        "lookahead_points": 6,
+        "cumulative_mean_abs_deviation_m": 0.003408989787963123
+      },
+      "baseline": {
+        "in_running": true,
+        "rank": 39,
+        "cumulative_mean_abs_deviation_m": 0.04689201724053624
+      }
+    },
+    {
+      "rung": "Chicane",
+      "settings_run": 100,
+      "completed_this_rung": 100,
+      "still_in_running": 100,
+      "leader": {
+        "gain": 1.05,
+        "lookahead_points": 6,
+        "cumulative_mean_abs_deviation_m": 0.0029880052153754
+      },
+      "baseline": {
+        "in_running": true,
+        "rank": 38,
+        "cumulative_mean_abs_deviation_m": 0.04259984839781549
+      }
+    }
+  ],
+  "chosen": {
+    "gain": 1.05,
+    "ladder_lookahead_points": 6,
+    "silverstone_lookahead_points": 3
+  }
+}

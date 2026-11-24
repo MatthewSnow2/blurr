@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "blurr.saved-provider-report.v1",
+  "sessionSha256": "271c0399be29a95f1d9a1cc0ffdf481d8176855caf5d7c1e2ae39f45c5ec3ab8",
+  "telemetryKind": "recorded_simulation",
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "responseId": "chatcmpl-29bd4e657c1abfde41231d6c810805a8",
+  "completedAtUtc": "2026-10-27T00:47:31.728Z",
+  "usage": {
+    "inputTokens": 1362,
+    "outputTokens": 890,
+    "reasoningTokens": 703,
+    "totalTokens": 2252
+  },
+  "reportJson": "{\"contract_version\": \"coaching-report.v1\", \"claims\": [{\"id\": \"claim_mean_lat_dev\", \"type\": \"metric_value\", \"evidence_id\": \"mean_abs_lateral_deviation_m\"}, {\"id\": \"claim_max_lat_dev\", \"type\": \"metric_value\", \"evidence_id\": \"max_abs_lateral_deviation_m\"}, {\"id\": \"claim_lat_dev_comp\", \"type\": \"comparison\", \"left_evidence_id\": \"mean_abs_lateral_deviation_m\", \"right_evidence_id\": \"max_abs_lateral_deviation_m\", \"direction\": \"lower\"}], \"interpretations\": [{\"template_id\": \"review_claim_in_drill\", \"slot_bindings\": {\"claim\": \"claim_mean_lat_dev\", \"drill\": \"steady_line\"}}], \"drill_id\": \"steady_line\"}",
+  "reportSha256": "ddd86743f54350bb95e5be5adb11b0e2e962a0ad08e8eed7eefb23feb53e80f7"
+}
